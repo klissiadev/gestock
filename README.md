@@ -30,7 +30,16 @@ Antes de começar, verifique se você atendeu aos seguintes requisitos:
 ## 🚀 Instalando <nome_do_projeto>
 
 ### 1. Configurando o Backend (API)
-Acesse a documentação detalhada na pasta `backend`
+Acesse a documentação detalhada na pasta [Backend]([https://python-poetry.org](https://github.com/klissiadev/gestock/blob/main/backend/README.md)/) 
+
+### 2. Configurando o Frontend
+```bash
+  cd frontend
+  # Instale as dependências
+  npm install
+  # Execute o projeto
+  npm run dev
+```
 
 ## ☕ Usando o Gestock
 
