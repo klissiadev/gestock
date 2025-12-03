@@ -5,7 +5,6 @@
 
 [![Linguagens](https://skillicons.dev/icons?i=react,postgres,tailwind,js,python,fastapi,docker)]()
 
-
 <p align="center">
   <img src="https://media.istockphoto.com/id/1138429558/pt/foto/rows-of-shelves.jpg?s=612x612&w=0&k=20&c=Q_IQ0T-vjlcsCPUrQj79xkifkD6nhmjWNAQQ4WQwHgo=" alt="Imagem do gestock">
   <br>creditos: istockphoto
@@ -13,33 +12,41 @@
 
 > Gestock é um sistema inteligente para auxiliar no gerenciamento de estoque, trazendo: uma IA para apoiar a tomada de decisão e sugestões automáticas de melhorias no gerenciamento
 
-### ⚠️ Atenção!
+### ⚠️ Status do Projeto
+> 🚧 **Em Desenvolvimento:** Este projeto encontra-se em fase alfa. Não é recomendado utilizá-lo em produção neste momento.
 
-Este projeto encontra-se em fase de desenvolvimento.
-Não é recomendado utilizá-lo em produção neste momento.
+---
+
+## 💻 Sobre o Projeto
+
+O Gestock utiliza uma arquitetura moderna para garantir performance e escalabilidade:
+
+* **Frontend:** React com TailwindCSS
+* **Backend:** Python com FastAPI
+* **Banco de Dados:** PostgreSQL
+* **DevOps:** Docker (em breve)
 
 ## 💻 Pré-requisitos
 
 Antes de começar, verifique se você atendeu aos seguintes requisitos:
 
-- Você instalou a versão mais recente de `<linguagem / dependência / requeridos>`
-- Você tem uma máquina `<Windows / Linux / Mac>`. Indique qual sistema operacional é compatível / não compatível.
-- Você leu `<guia / link / documentação_relacionada_ao_projeto>`.
+* [Git](https://git-scm.com)
+* [Python 3.10+](https://www.python.org/) (para o backend)
+* [Node.js](https://nodejs.org/) (para o frontend)
+* [Pipx](https://github.com/pypa/pipx) e [Poetry](https://python-poetry.org/) (Gerenciamento de dependências Python)
 
-## 🚀 Instalando <nome_do_projeto>
+## 🚀 Instalando o Gestock
 
-Para instalar o Gestock, siga estas etapas:
+### 1. Configurando o Backend (API)
+Acesse a documentação detalhada na pasta [Backend]([https://python-poetry.org](https://github.com/klissiadev/gestock/blob/main/backend/README.md)/) 
 
-Linux e macOS:
-
-```
-<comando_de_instalação>
-```
-
-Windows:
-
-```
-<comando_de_instalação>
+### 2. Configurando o Frontend
+```bash
+  cd frontend
+  # Instale as dependências
+  npm install
+  # Execute o projeto
+  npm run dev
 ```
 
 ## ☕ Usando o Gestock
@@ -51,7 +58,7 @@ Para usar o Gestock, siga estas etapas:
 ```
 
 
-## 📫 Contribuindo para <nome_do_projeto>
+## 📫 Contribuindo para o Gestock
 
 Para contribuir com o Gestock, siga estas etapas:
 
@@ -97,7 +104,7 @@ Agradecemos às seguintes pessoas que contribuíram para este projeto:
       <a href="#" title="defina o título do link">
         <img src="https://imgur.com/zhZzhiQ.png" width="100px;" height="100px;" alt="Foto de Julio Cleiton"/><br>
         <sub>
-          <b>Julio Cleiton</b>
+          <b>Júlio Cleiton</b>
         </sub>
       </a>
     </td>
