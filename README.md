@@ -5,7 +5,6 @@
 
 [![Linguagens](https://skillicons.dev/icons?i=react,postgres,tailwind,js,python,fastapi,docker)]()
 
-
 <p align="center">
   <img src="https://media.istockphoto.com/id/1138429558/pt/foto/rows-of-shelves.jpg?s=612x612&w=0&k=20&c=Q_IQ0T-vjlcsCPUrQj79xkifkD6nhmjWNAQQ4WQwHgo=" alt="Imagem do gestock">
   <br>creditos: istockphoto
@@ -13,10 +12,19 @@
 
 > Gestock é um sistema inteligente para auxiliar no gerenciamento de estoque, trazendo: uma IA para apoiar a tomada de decisão e sugestões automáticas de melhorias no gerenciamento
 
-### ⚠️ Atenção!
+### ⚠️ Status do Projeto
+> 🚧 **Em Desenvolvimento:** Este projeto encontra-se em fase alfa. Não é recomendado utilizá-lo em produção neste momento.
 
-Este projeto encontra-se em fase de desenvolvimento.
-Não é recomendado utilizá-lo em produção neste momento.
+---
+
+## 💻 Sobre o Projeto
+
+O Gestock utiliza uma arquitetura moderna para garantir performance e escalabilidade:
+
+* **Frontend:** React com TailwindCSS
+* **Backend:** Python com FastAPI
+* **Banco de Dados:** PostgreSQL
+* **DevOps:** Docker (em breve)
 
 ## 💻 Pré-requisitos
 
@@ -27,7 +35,7 @@ Antes de começar, verifique se você atendeu aos seguintes requisitos:
 * [Node.js](https://nodejs.org/) (para o frontend)
 * [Pipx](https://github.com/pypa/pipx) e [Poetry](https://python-poetry.org/) (Gerenciamento de dependências Python)
 
-## 🚀 Instalando <nome_do_projeto>
+## 🚀 Instalando o Gestock
 
 ### 1. Configurando o Backend (API)
 Acesse a documentação detalhada na pasta [Backend]([https://python-poetry.org](https://github.com/klissiadev/gestock/blob/main/backend/README.md)/) 
@@ -50,7 +58,7 @@ Para usar o Gestock, siga estas etapas:
 ```
 
 
-## 📫 Contribuindo para <nome_do_projeto>
+## 📫 Contribuindo para o Gestock
 
 Para contribuir com o Gestock, siga estas etapas:
 
