@@ -22,25 +22,15 @@ Não é recomendado utilizá-lo em produção neste momento.
 
 Antes de começar, verifique se você atendeu aos seguintes requisitos:
 
-- Você instalou a versão mais recente de `<linguagem / dependência / requeridos>`
-- Você tem uma máquina `<Windows / Linux / Mac>`. Indique qual sistema operacional é compatível / não compatível.
-- Você leu `<guia / link / documentação_relacionada_ao_projeto>`.
+* [Git](https://git-scm.com)
+* [Python 3.10+](https://www.python.org/) (para o backend)
+* [Node.js](https://nodejs.org/) (para o frontend)
+* [Pipx](https://github.com/pypa/pipx) e [Poetry](https://python-poetry.org/) (Gerenciamento de dependências Python)
 
 ## 🚀 Instalando <nome_do_projeto>
 
-Para instalar o Gestock, siga estas etapas:
-
-Linux e macOS:
-
-```
-<comando_de_instalação>
-```
-
-Windows:
-
-```
-<comando_de_instalação>
-```
+### 1. Configurando o Backend (API)
+Acesse a documentação detalhada na pasta `backend`
 
 ## ☕ Usando o Gestock
 
