@@ -10,7 +10,7 @@ A instalação é feita via **pipx**, garantindo isolamento e praticidade.
 
 2. Instale o poetry:
     ```bash
-    pip install --user pipx
+    pipx install poetry
 
 3. Durante a instalação, pode aparecer um WARNING semelhante a:
     ```bash
