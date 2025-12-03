@@ -1,234 +1,117 @@
-\# Gestock: Seu Sistema inteligente de previsão de estoque
+# Gestock: Seu Sistema inteligente de previsão de estoque
 
+![GitHub repo size](https://img.shields.io/github/repo-size/iuricode/README-template?style=for-the-badge)
+![GitHub language count](https://img.shields.io/github/languages/count/iuricode/README-template?style=for-the-badge)
 
-
-!\[GitHub repo size](https://img.shields.io/github/repo-size/iuricode/README-template?style=for-the-badge)
-
-!\[GitHub language count](https://img.shields.io/github/languages/count/iuricode/README-template?style=for-the-badge)
-
-
-
-\[!\[Linguagens](https://skillicons.dev/icons?i=react,postgres,tailwind,js,python,fastapi,docker)]()
-
-
-
+[![Linguagens](https://skillicons.dev/icons?i=react,postgres,tailwind,js,python,fastapi,docker)]()
 
 
 <p align="center">
-
-&nbsp; <img src="https://media.istockphoto.com/id/1138429558/pt/foto/rows-of-shelves.jpg?s=612x612\&w=0\&k=20\&c=Q\_IQ0T-vjlcsCPUrQj79xkifkD6nhmjWNAQQ4WQwHgo=" alt="Imagem do gestock">
-
-&nbsp; <br>creditos: istockphoto
-
+  <img src="https://media.istockphoto.com/id/1138429558/pt/foto/rows-of-shelves.jpg?s=612x612&w=0&k=20&c=Q_IQ0T-vjlcsCPUrQj79xkifkD6nhmjWNAQQ4WQwHgo=" alt="Imagem do gestock">
+  <br>creditos: istockphoto
 </p>
-
-
 
 > Gestock é um sistema inteligente para auxiliar no gerenciamento de estoque, trazendo: uma IA para apoiar a tomada de decisão e sugestões automáticas de melhorias no gerenciamento
 
-
-
-\### ⚠️ Atenção!
-
-
+### ⚠️ Atenção!
 
 Este projeto encontra-se em fase de desenvolvimento.
-
 Não é recomendado utilizá-lo em produção neste momento.
 
-
-
-\## 💻 Pré-requisitos
-
-
+## 💻 Pré-requisitos
 
 Antes de começar, verifique se você atendeu aos seguintes requisitos:
 
+- Você instalou a versão mais recente de `<linguagem / dependência / requeridos>`
+- Você tem uma máquina `<Windows / Linux / Mac>`. Indique qual sistema operacional é compatível / não compatível.
+- Você leu `<guia / link / documentação_relacionada_ao_projeto>`.
 
-
-\- Você instalou a versão mais recente de `<linguagem / dependência / requeridos>`
-
-\- Você tem uma máquina `<Windows / Linux / Mac>`. Indique qual sistema operacional é compatível / não compatível.
-
-\- Você leu `<guia / link / documentação\_relacionada\_ao\_projeto>`.
-
-
-
-\## 🚀 Instalando <nome\_do\_projeto>
-
-
+## 🚀 Instalando <nome_do_projeto>
 
 Para instalar o Gestock, siga estas etapas:
 
-
-
 Linux e macOS:
 
-
-
 ```
-
-<comando\_de\_instalação>
-
+<comando_de_instalação>
 ```
-
-
 
 Windows:
 
-
-
+```
+<comando_de_instalação>
 ```
 
-<comando\_de\_instalação>
-
-```
-
-
-
-\## ☕ Usando o Gestock
-
-
+## ☕ Usando o Gestock
 
 Para usar o Gestock, siga estas etapas:
 
-
-
 ```
-
-<exemplo\_de\_uso>
-
+<exemplo_de_uso>
 ```
 
 
-
-
-
-\## 📫 Contribuindo para <nome\_do\_projeto>
-
-
+## 📫 Contribuindo para <nome_do_projeto>
 
 Para contribuir com o Gestock, siga estas etapas:
 
+1. Bifurque este repositório.
+2. Crie um branch: `git checkout -b <nome_branch>`.
+3. Faça suas alterações e confirme-as: `git commit -m '<mensagem_commit>'`
+4. Envie para o branch original: `git push origin gestock`
+5. Crie a solicitação de pull.
 
+Como alternativa, consulte a documentação do GitHub em [como criar uma solicitação pull](https://help.github.com/en/github/collaborating-with-issues-and-pull-requests/creating-a-pull-request).
 
-1\. Bifurque este repositório.
-
-2\. Crie um branch: `git checkout -b <nome\_branch>`.
-
-3\. Faça suas alterações e confirme-as: `git commit -m '<mensagem\_commit>'`
-
-4\. Envie para o branch original: `git push origin gestock`
-
-5\. Crie a solicitação de pull.
-
-
-
-Como alternativa, consulte a documentação do GitHub em \[como criar uma solicitação pull](https://help.github.com/en/github/collaborating-with-issues-and-pull-requests/creating-a-pull-request).
-
-
-
-\## 🤝 Colaboradores
-
-
+## 🤝 Colaboradores
 
 Agradecemos às seguintes pessoas que contribuíram para este projeto:
 
-
-
 <table>
-
-&nbsp; <tr>
-
-&nbsp; <td align="center">
-
-&nbsp;     <a href="#" title="defina o título do link">
-
-&nbsp;       <img src="https://imgur.com/Gc0pH7H.png" width="100px;"  height="100px;" alt="Foto de Antonio Gabriel"/><br>
-
-&nbsp;       <sub>
-
-&nbsp;         <b>Antonio Gabriel</b>
-
-&nbsp;       </sub>
-
-&nbsp;     </a>
-
-&nbsp;   </td>
-
-&nbsp;   <td align="center">
-
-&nbsp;     <a href="#" title="defina o título do link">
-
-&nbsp;       <img src="https://i.imgur.com/0EMpIgW.png" width="100px;"  height="100px;" alt="Foto de Ana Klissia"/><br>
-
-&nbsp;       <sub>
-
-&nbsp;         <b>Ana Klissia</b>
-
-&nbsp;       </sub>
-
-&nbsp;     </a>
-
-&nbsp;   </td>
-
-&nbsp;   <td align="center">
-
-&nbsp;     <a href="#" title="defina o título do link">
-
-&nbsp;       <img src="https://i.imgur.com/7BpjjOZ.jpeg" width="100px;"  height="100px;" alt="Foto de Thais Carolina"/><br>
-
-&nbsp;       <sub>
-
-&nbsp;         <b>Thais Carolina</b>
-
-&nbsp;       </sub>
-
-&nbsp;     </a>
-
-&nbsp;   </td>
-
-&nbsp;   <td align="center">
-
-&nbsp;     <a href="#" title="defina o título do link">
-
-&nbsp;       <img src="https://imgur.com/zhZzhiQ.png" width="100px;" height="100px;" alt="Foto de Julio Cleiton"/><br>
-
-&nbsp;       <sub>
-
-&nbsp;         <b>Julio Cleiton</b>
-
-&nbsp;       </sub>
-
-&nbsp;     </a>
-
-&nbsp;   </td>
-
-&nbsp;   <td align="center">
-
-&nbsp;     <a href="#" title="defina o título do link">
-
-&nbsp;       <img src="https://imgur.com/QIKonAp.png" width="100px;"  height="100px;" alt="Foto de Erick Roberto"/><br>
-
-&nbsp;       <sub>
-
-&nbsp;         <b>Erick Roberto</b>
-
-&nbsp;       </sub>
-
-&nbsp;     </a>
-
-&nbsp;   </td>
-
-&nbsp; </tr>
-
+  <tr>
+  <td align="center">
+      <a href="#" title="defina o título do link">
+        <img src="https://imgur.com/Gc0pH7H.png" width="100px;"  height="100px;" alt="Foto de Antonio Gabriel"/><br>
+        <sub>
+          <b>Antonio Gabriel</b>
+        </sub>
+      </a>
+    </td>
+    <td align="center">
+      <a href="#" title="defina o título do link">
+        <img src="https://i.imgur.com/0EMpIgW.png" width="100px;"  height="100px;" alt="Foto de Ana Klissia"/><br>
+        <sub>
+          <b>Ana Klissia</b>
+        </sub>
+      </a>
+    </td>
+    <td align="center">
+      <a href="#" title="defina o título do link">
+        <img src="https://i.imgur.com/7BpjjOZ.jpeg" width="100px;"  height="100px;" alt="Foto de Thais Carolina"/><br>
+        <sub>
+          <b>Thais Carolina</b>
+        </sub>
+      </a>
+    </td>
+    <td align="center">
+      <a href="#" title="defina o título do link">
+        <img src="https://imgur.com/zhZzhiQ.png" width="100px;" height="100px;" alt="Foto de Julio Cleiton"/><br>
+        <sub>
+          <b>Julio Cleiton</b>
+        </sub>
+      </a>
+    </td>
+    <td align="center">
+      <a href="#" title="defina o título do link">
+        <img src="https://imgur.com/QIKonAp.png" width="100px;"  height="100px;" alt="Foto de Erick Roberto"/><br>
+        <sub>
+          <b>Erick Roberto</b>
+        </sub>
+      </a>
+    </td>
+  </tr>
 </table>
 
+## 📝 Licença
 
-
-\## 📝 Licença
-
-
-
-Esse projeto está sob licença. Veja o arquivo \[LICENÇA](LICENSE.md) para mais detalhes.
-
+Esse projeto está sob licença. Veja o arquivo [LICENÇA](LICENSE.md) para mais detalhes.
