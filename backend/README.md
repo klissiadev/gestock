@@ -1,32 +1,39 @@
-
+# ⚙️ Setup do Backend
 ## 💻 Pré-requisitos
+Este projeto utiliza **Poetry** para gerenciamento de dependências e ambientes virtuais.  
+A instalação é feita via **pipx**, garantindo isolamento e praticidade.
 
-Este projeto utiliza Poetry para gerenciamento de dependências e ambientes virtuais.
-A instalação é feita via pipx, garantindo isolamento e praticidade
+### Instalação do PIPX + Poetry
+1. Instale o `pipx`:
+   ```bash
+   pip install --user pipx
 
+2. Instale o poetry:
+    ```bash
+    pip install --user pipx
 
-* Instalação do PIPX + Poetry
+3. Durante a instalação, pode aparecer um WARNING semelhante a:
+    ```bash
+    WARNING: The script pipx.exe is installed in <USER folder>\AppData\Roaming\Python\Python3x\Scripts which is not on PATH
 
-- `pip install --user pipx`
-- `pipx install poetry`.
-- Ele vai dar uma mensagem de WARNING laranja com um caminho no padrão:
-```
-WARNING: The script pipx.exe is installed in `<USER folder>\AppData\Roaming\Python\Python3x\Scripts` which is not on PATH
-```
+4. Para adicionar ao caminho PATH:
+    ```bash
+    cd <USER folder>\AppData\Roaming\Python\Python3x\Scripts
+    .\pipx.exe ensurepath
 
-- Para adicionar ao caminho PATH:
-```
-cd <USER folder>\AppData\Roaming\Python\Python3x\Scripts
-.\pipx.exe ensurepath
-```
+5. Após isso, instale o Poetry:
+    ```bash
+    pipx install poetry
 
-* Depois disso: `pipx install poetry`
+6. Habilite o shell do Poetry (para adicionar o comando `poetry shell`):
+    ```bash
+    pipx inject poetry poetry-plugin-shell
 
 ## 📂 Configuração do Projeto
 - Clone o repositório:
 ```
-git clone https://github.com/seu-usuario/seu-repo.git
-cd seu-repo
+git clone https://github.com/klissiadev/gestock.git
+cd backend
 ```
 - Instale as dependências:
 `poetry install`
