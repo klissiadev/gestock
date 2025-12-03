@@ -97,7 +97,7 @@ Agradecemos às seguintes pessoas que contribuíram para este projeto:
       <a href="#" title="defina o título do link">
         <img src="https://imgur.com/zhZzhiQ.png" width="100px;" height="100px;" alt="Foto de Julio Cleiton"/><br>
         <sub>
-          <b>Julio Cleiton</b>
+          <b>Júlio Cleiton</b>
         </sub>
       </a>
     </td>
