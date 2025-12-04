@@ -2,9 +2,9 @@
 from fastapi import APIRouter, UploadFile, Depends
 from sqlalchemy.orm import Session
 from fastapi import HTTPException
-from backend.database.base import SessionLocal
-from backend.utils.file_validation import validate_upload_file
-from backend.services.parser_service import process_and_insert
+from database.base import SessionLocal
+from utils.file_validation import validate_upload_file
+from services.parser_service import process_and_insert
 
 router = APIRouter(prefix="/upload", tags=["upload"])
 
