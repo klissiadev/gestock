@@ -1,6 +1,8 @@
 import smtplib
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
+from dotenv import load_dotenv
+import os
 
 # Templates Padrão de Título de mensagem e Corpo
 TITLE = "[Aviso Automático] Produto abaixo do estoque mínimo"
@@ -19,12 +21,15 @@ Atenciosamente,
 GESTOCK
 """
 
-# Constantes
-SMTP_SERVER = "smtp.gmail.com"
-TLS_PORT = 587
-EMAIL = "gestock.assistente@gmail.com"
-PASSWORD = "cruc jncx vzsw ghns"
-TO_EMAIL = "juliooujc@gmail.com"
+# Carrega o .env
+load_dotenv()
+
+#constantes agora vêm do .env
+SMTP_SERVER = os.getenv("SMTP_SERVER")
+TLS_PORT = int(os.getenv("TLS_PORT"))
+EMAIL = os.getenv("EMAIL")
+PASSWORD = os.getenv("PASSWORD")
+TO_EMAIL = os.getenv("TO_EMAIL")    
 
 # Formatação de template para cada produto (exemplo abaixo)
 message_body = BODY.format(
