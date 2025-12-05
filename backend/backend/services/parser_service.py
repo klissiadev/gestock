@@ -1,4 +1,3 @@
-
 """
 Processa o arquivo enviado (CSV/XLSX), valida colunas e valores,
 e insere produtos válidos no banco. Retorna quantos foram inseridos,
@@ -7,17 +6,17 @@ quantos foram rejeitados e os erros encontrados.
 
 from io import BytesIO
 import pandas as pd
-from sqlalchemy.orm import Session
 from fastapi import HTTPException
-from backend.models.product_model import Produto
+
 
 REQUIRED_COLUMNS = {"nome", "preco", "quantidade"}
 
+
 def _read_file_bytes(upload_file):
-    # Lê tudo em memória (limitado pelo check de tamanho já feito)
     upload_file.file.seek(0)
     content = upload_file.file.read()
     return content
+
 
 def parse_dataframe_from_upload(upload_file):
     content = _read_file_bytes(upload_file)
@@ -27,7 +26,6 @@ def parse_dataframe_from_upload(upload_file):
 
     try:
         if filename.endswith(".csv"):
-            # pd.read_csv aceita BytesIO
             df = pd.read_csv(bio)
         elif filename.endswith(".xlsx"):
             df = pd.read_excel(bio, engine="openpyxl")
@@ -36,7 +34,7 @@ def parse_dataframe_from_upload(upload_file):
     except Exception as e:
         raise HTTPException(status_code=400, detail=f"Erro ao ler arquivo: {str(e)}")
 
-    # Normalize column names: remove espaços, lower case
+    # Normalize column names
     df.columns = [str(c).strip().lower() for c in df.columns]
 
     # Checar colunas obrigatórias
@@ -46,14 +44,16 @@ def parse_dataframe_from_upload(upload_file):
 
     return df
 
+
 def validate_row(row, index):
     errors = []
-    # nome não vazio
+
+    # nome
     nome = row.get("nome")
     if pd.isna(nome) or str(nome).strip() == "":
         errors.append("nome vazio")
 
-    # preco float positivo
+    # preco
     preco = row.get("preco")
     try:
         preco_v = float(preco)
@@ -62,7 +62,7 @@ def validate_row(row, index):
     except Exception:
         errors.append("preco inválido")
 
-    # quantidade integer não-negativa
+    # quantidade
     quantidade = row.get("quantidade")
     try:
         quantidade_v = int(float(quantidade))
@@ -73,41 +73,62 @@ def validate_row(row, index):
 
     return errors
 
-def process_and_insert(upload_file, db: Session):
+
+def process_and_insert(upload_file, conn):
     df = parse_dataframe_from_upload(upload_file)
 
     inserted = 0
     rejected = 0
     errors = []
 
-    # itertuples é mais rápido, mas vamos iterar por index pra reportar linhas
+    cursor = conn.cursor()
+
     for idx, row in df.iterrows():
         row_data = {col: row[col] for col in df.columns}
+
+        # validações
         row_errors = validate_row(row_data, idx + 1)
         if row_errors:
             rejected += 1
             errors.append({"row": idx + 1, "errors": row_errors})
             continue
 
-        # cria objeto
+        # valores convertidos
         try:
-            produto = Produto(
-                nome=str(row_data["nome"]).strip(),
-                preco=float(row_data["preco"]),
-                quantidade=int(float(row_data["quantidade"]))
+            nome = str(row_data["nome"]).strip()
+            preco = float(row_data["preco"])
+            quantidade = int(float(row_data["quantidade"]))
+        except Exception as e:
+            rejected += 1
+            errors.append({"row": idx + 1, "errors": [f"erro ao processar linha: {str(e)}"]})
+            continue
+
+        # INSERT direto no PostgreSQL
+        try:
+            cursor.execute(
+                """
+                INSERT INTO produtos (nome, preco, quantidade)
+                VALUES (%s, %s, %s)
+                """,
+                (nome, preco, quantidade)
             )
-            db.add(produto)
             inserted += 1
+
         except Exception as e:
             rejected += 1
             errors.append({"row": idx + 1, "errors": [f"erro ao inserir: {str(e)}"]})
 
+    # commit ou rollback
     try:
-        db.commit()
+        conn.commit()
     except Exception as e:
-        db.rollback()
+        conn.rollback()
         raise HTTPException(status_code=500, detail=f"Erro ao gravar no banco: {str(e)}")
+    finally:
+        cursor.close()
 
-    return {"inserted": inserted, "rejected": rejected, "errors": errors}
-
-
+    return {
+        "inserted": inserted,
+        "rejected": rejected,
+        "errors": errors
+    }
