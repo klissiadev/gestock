@@ -1,7 +1,7 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from backend.routers.upload import router as upload_service
-
+from backend.routers.mail_router import router as mail_service
 
 app = FastAPI()
 
@@ -15,3 +15,4 @@ app.add_middleware(
 )
 
 app.include_router(upload_service)
+app.include_router(mail_service)
