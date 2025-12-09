@@ -1,16 +1,12 @@
-from fastapi import APIRouter, UploadFile, Depends, HTTPException
+from fastapi import APIRouter, UploadFile, Depends
 from backend.database.base import get_db
+from backend.services.import_service import process_import
 from backend.utils.file_validation import validate_upload_file
-from backend.services.parser_service import process_and_insert
 
 router = APIRouter(prefix="/upload", tags=["upload"])
 
-@router.post("/", summary="Upload e processamento CSV/XLSX")
-def upload_file(file: UploadFile, db = Depends(get_db)):
-    if not file:
-        raise HTTPException(status_code=400, detail="Arquivo não enviado.")
-
+@router.post("/{tipo}")
+def upload_file(tipo: str, file: UploadFile, db=Depends(get_db)):
     validate_upload_file(file)
-
-    result = process_and_insert(file, db)
+    result = process_import(file, db, import_type=tipo)
     return result
