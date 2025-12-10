@@ -1,0 +1,7 @@
+
+const handleMailTrigger = async () => {
+    const response = await fetch("http://localhost:8000/triggerMail/", { method: "POST" });
+    if (!response.ok) throw new Error("Erro ao pedir email");
+    const data = await response.json();
+    console.log("Resposta do servidor:", data);
+  };

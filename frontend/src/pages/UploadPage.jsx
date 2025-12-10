@@ -18,6 +18,17 @@ export default function UploadPage() {
     setLoading(false);
   };
 
+  /* Posição temporaria da função de mailtrigger */
+  const handleMailTrigger = async () => {
+    const response = await fetch("http://localhost:8000/triggerMail/", { method: "POST" });
+    if (!response.ok) throw new Error("Erro ao pedir email");
+    const data = await response.json();
+    console.log("Resposta do servidor:", data);
+  };
+
+  
+
+
   const container = {
     position: "fixed",
     top: 0,
@@ -101,6 +112,15 @@ export default function UploadPage() {
         {response && (
           <pre style={responseBox}>{JSON.stringify(response, null, 2)}</pre>
         )}
+
+        <p>
+          <br />
+          <hr />
+          <br />
+        </p>
+        <button style={button} onClick={handleMailTrigger}>
+          Disparar E-mails (testandinho)
+        </button>
       </div>
     </div>
   );
