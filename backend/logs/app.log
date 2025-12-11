@@ -111,3 +111,17 @@
 {"timestamp": "2025-12-04T14:52:03.438305", "level": "INFO", "logger": "backend", "message": "Endpoint root acessado", "module": "logger", "function": "log_info", "line": 101, "request_id": "0f71c121-3df6-46db-a368-dd1c7cb1a48f", "endpoint": "/"}
 {"timestamp": "2025-12-04T14:52:03.438305", "level": "INFO", "logger": "backend", "message": "Response enviado: GET http://127.0.0.1:8000/ - 200 (1.554727554321289ms)", "module": "logger", "function": "log_response", "line": 64, "request_id": "0f71c121-3df6-46db-a368-dd1c7cb1a48f", "event_type": "response", "method": "GET", "url": "http://127.0.0.1:8000/", "status_code": 200, "duration_ms": 1.55}
 {"timestamp": "2025-12-04T14:52:03.438305", "level": "INFO", "logger": "uvicorn.access", "message": "127.0.0.1:53220 - \"GET / HTTP/1.1\" 200", "module": "httptools_impl", "function": "send", "line": 476}
+{"timestamp": "2025-12-04T15:14:58.374423", "level": "INFO", "logger": "uvicorn.error", "message": "Shutting down", "module": "server", "function": "shutdown", "line": 264}
+{"timestamp": "2025-12-04T15:14:58.478809", "level": "INFO", "logger": "uvicorn.error", "message": "Waiting for application shutdown.", "module": "on", "function": "shutdown", "line": 67}
+{"timestamp": "2025-12-04T15:14:58.478809", "level": "INFO", "logger": "backend", "message": "Aplicação encerrada", "module": "logger", "function": "log_info", "line": 101, "event": "shutdown", "app_name": "backend"}
+{"timestamp": "2025-12-04T15:14:58.478809", "level": "INFO", "logger": "uvicorn.error", "message": "Application shutdown complete.", "module": "on", "function": "shutdown", "line": 76}
+{"timestamp": "2025-12-04T15:14:58.478809", "level": "INFO", "logger": "uvicorn.error", "message": "Finished server process [624]", "module": "server", "function": "_serve", "line": 94}
+{"timestamp": "2025-12-11T14:56:58.305842", "level": "INFO", "logger": "uvicorn.error", "message": "Started server process [21144]", "module": "server", "function": "_serve", "line": 84}
+{"timestamp": "2025-12-11T14:56:58.305842", "level": "INFO", "logger": "uvicorn.error", "message": "Waiting for application startup.", "module": "on", "function": "startup", "line": 48}
+{"timestamp": "2025-12-11T14:56:58.305842", "level": "INFO", "logger": "backend", "message": "Aplicação iniciada", "module": "logger", "function": "log_info", "line": 101, "event": "startup", "app_name": "backend"}
+{"timestamp": "2025-12-11T14:56:58.305842", "level": "INFO", "logger": "uvicorn.error", "message": "Application startup complete.", "module": "on", "function": "startup", "line": 62}
+{"timestamp": "2025-12-11T14:59:12.075700", "level": "INFO", "logger": "uvicorn.error", "message": "Shutting down", "module": "server", "function": "shutdown", "line": 264}
+{"timestamp": "2025-12-11T14:59:12.184680", "level": "INFO", "logger": "uvicorn.error", "message": "Waiting for application shutdown.", "module": "on", "function": "shutdown", "line": 67}
+{"timestamp": "2025-12-11T14:59:12.184680", "level": "INFO", "logger": "backend", "message": "Aplicação encerrada", "module": "logger", "function": "log_info", "line": 101, "event": "shutdown", "app_name": "backend"}
+{"timestamp": "2025-12-11T14:59:12.188283", "level": "INFO", "logger": "uvicorn.error", "message": "Application shutdown complete.", "module": "on", "function": "shutdown", "line": 76}
+{"timestamp": "2025-12-11T14:59:12.188283", "level": "INFO", "logger": "uvicorn.error", "message": "Finished server process [21144]", "module": "server", "function": "_serve", "line": 94}
