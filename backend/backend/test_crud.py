@@ -29,7 +29,10 @@ def test_crud_operations():
             
             print(f"\n3. Testando busca por ID ({log_id})...")
             log = service.buscar_por_id(log_id)
-            print(f"✅ Log encontrado: {log['nome_arquivo']}")
+            if log:
+                print(f"✅ Log encontrado: {log.get('nome_arquivo', 'N/A')}")
+            else:
+                print("❌ Log não encontrado")
             
             print(f"\n4. Testando atualização...")
             update_data = {"status": "CONCLUIDO", "qntd_registros": 150}
@@ -44,6 +47,8 @@ def test_crud_operations():
         
     except Exception as e:
         print(f"❌ Erro durante testes: {e}")
+        import traceback
+        traceback.print_exc()
     finally:
         conn.close()
 

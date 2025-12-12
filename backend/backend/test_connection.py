@@ -10,11 +10,11 @@ def test_connection():
         cursor.execute("""
             SELECT EXISTS (
                 SELECT FROM information_schema.tables 
-                WHERE table_name = 'logimportacao'
+                WHERE table_name = 'LogImportacao'
             );
         """)
         exists = cursor.fetchone()['exists']
-        print(f"✅ Tabela 'logimportacao' existe: {exists}")
+        print(f"✅ Tabela 'LogImportacao' existe: {exists}")
         
         cursor.close()
         conn.close()
