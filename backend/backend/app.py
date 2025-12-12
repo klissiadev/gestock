@@ -5,7 +5,7 @@ from backend.routers.upload import router as upload_service
 from backend.routers.mail_router import router as mail_service
 from backend.routers.produto_router import router as produto_router
 from backend.routers.movimentacao_router import router as movimentacao_router
-
+from backend.routers import test_db
 app = FastAPI()
 
 app.add_middleware(

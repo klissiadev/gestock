@@ -16,6 +16,7 @@ def get_connection():
             user=os.getenv("PG_USER", "postgres"),
             password=os.getenv("PG_PASSWORD", "postgres"),
             cursor_factory=RealDictCursor,
+            connect_timeout=5
         )
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Erro ao conectar ao banco: {e}")
