@@ -1,10 +1,12 @@
+# backend/main.py
 from fastapi import FastAPI
-from backend.routers.log_importacao_router import router as log_importacao_router
+from backend.routers import log_importacao_router  # Importe isso
 
 app = FastAPI()
 
-app.include_router(log_importacao_router)
+# Registre a rota
+app.include_router(log_importacao_router.router)
 
 @app.get("/")
-def root():
-    return {"msg": "API rodando!"}
+def read_root():
+    return {"message": "API funcionando"}

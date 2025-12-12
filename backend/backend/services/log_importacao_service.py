@@ -1,50 +1,61 @@
-import psycopg2
-from psycopg2.extras import RealDictCursor
-from backend.models.log_importacao import LogImportacaoCreate, LogImportacao
+from fastapi import HTTPException
+from backend.database.repository import Repository
 
+class LogImportacaoService:
+    def __init__(self, conn):
+        self.repo = Repository(conn)
 
-def get_connection():
-    return psycopg2.connect(
-        host="localhost",
-        dbname="db_gestock",
-        user="postgres",
-        password="sua_senha"
-    )
+    def criar_log(self, log_data: dict):
+        try:
+            # Opção 1: Insert simples
+            ok = self.repo.insert("log_importacao", log_data)
+            
+            # Opção 2: Se quiser retornar o ID gerado
+            # new_id = self.repo.insert_returning("log_importacao", log_data, "id_log_importacao")
+            
+            if not ok:
+                raise HTTPException(status_code=400, detail="Erro ao criar log de importação")
+            
+            self.repo.commit()
+            return {"message": "Log de importação criado com sucesso"}
+            
+        except Exception as e:
+            self.repo.conn.rollback()
+            raise HTTPException(status_code=500, detail=str(e))
 
+    def listar_logs(self):
+        try:
+            return self.repo.fetch_all("log_importacao")
+        except Exception as e:
+            raise HTTPException(status_code=500, detail=str(e))
 
-def criar_log_importacao(log: LogImportacaoCreate) -> LogImportacao:
-    conn = get_connection()
-    cur = conn.cursor(cursor_factory=RealDictCursor)
+    def buscar_por_id(self, log_id: int):
+        try:
+            log = self.repo.fetch_one("log_importacao", "id_log_importacao", log_id)
+            if not log:
+                raise HTTPException(status_code=404, detail="Log não encontrado")
+            return log
+        except Exception as e:
+            raise HTTPException(status_code=500, detail=str(e))
 
-    query = """
-        INSERT INTO "LogImportacao" 
-        (nome_arquivo, qntd_registros, data_importacao, status, msg_erro, id_usuario)
-        VALUES (%s, %s, NOW(), %s, %s, %s)
-        RETURNING 
-            id_log_importacao,
-            nome_arquivo,
-            qntd_registros,
-            data_importacao,
-            status,
-            msg_erro,
-            id_usuario;
-    """
+    def atualizar_log(self, log_id: int, dados_atualizacao: dict):
+        try:
+            ok = self.repo.update("log_importacao", "id_log_importacao", log_id, dados_atualizacao)
+            if not ok:
+                raise HTTPException(status_code=400, detail="Erro ao atualizar log")
+            self.repo.commit()
+            return {"message": "Log atualizado com sucesso"}
+        except Exception as e:
+            self.repo.conn.rollback()
+            raise HTTPException(status_code=500, detail=str(e))
 
-    cur.execute(
-        query,
-        (
-            log.nome_arquivo,
-            log.qntd_registros,
-            log.status,
-            log.msg_erro,
-            log.id_usuario
-        )
-    )
-
-    resultado = cur.fetchone()
-
-    conn.commit()
-    cur.close()
-    conn.close()
-
-    return LogImportacao(**resultado)
+    def deletar_log(self, log_id: int):
+        try:
+            ok = self.repo.delete("log_importacao", "id_log_importacao", log_id)
+            if not ok:
+                raise HTTPException(status_code=400, detail="Erro ao deletar log")
+            self.repo.commit()
+            return {"message": "Log deletado com sucesso"}
+        except Exception as e:
+            self.repo.conn.rollback()
+            raise HTTPException(status_code=500, detail=str(e))
