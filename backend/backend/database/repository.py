@@ -16,7 +16,7 @@ class Repository:
             placeholders = ", ".join(["%s"] * len(data))
             values = tuple(data.values())
 
-            sql = f"INSERT INTO {table} ({cols}) VALUES ({placeholders})"
+            sql = f'INSERT INTO "{table}" ({cols}) VALUES ({placeholders})'
             self.cursor.execute(sql, values)
             return True
 
