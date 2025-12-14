@@ -5,7 +5,7 @@ const ProductTable = () => {
     const [table, setTable] = useState(null);
 
     // Eu tinha notado que tava chamando 2 vezes a API (só pra garantir que isso nao vai acontecer)
-    const jaChamou = useRef(false); 
+    const jaChamou = useRef(false);
     useEffect(() => {
         if (jaChamou.current) return;
         jaChamou.current = true;
@@ -29,19 +29,19 @@ const ProductTable = () => {
     // Formatacao da tabela
     const colunas = Object.keys(table[0]);
 
-    // CSS da tabela
-    
     return (
         <div className="tabela-container">
             <h2 style={{ textAlign: 'center', color: '#333' }}>Lista de Produtos</h2>
             <table className="styled-table">
                 <thead>
-                    {colunas.map(coluna => (
-                        <th key={coluna}>
-                            {coluna.replace('_', ' ')}
-                        </th>
-                    )
-                    )}
+                    <tr>
+                        {colunas.map(coluna => (
+                            <th key={coluna}>
+                                {coluna.replace('_', ' ')}
+                            </th>
+                        )
+                        )}
+                    </tr>
                 </thead>
 
                 <tbody>
