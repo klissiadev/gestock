@@ -1,6 +1,11 @@
 from pydantic import BaseModel
-from datetime import date
+from datetime import date, datetime
 from typing import Optional
+
+# =========================
+# IMPORTAÇÃO (CONFIG)
+# =========================
+
 IMPORT_SCHEMAS = {
     "products": {
         "required_columns": ["id", "name", "sku", "unit", "price"]
@@ -12,6 +17,11 @@ IMPORT_SCHEMAS = {
         "required_columns": ["product_id", "tipo", "quantidade", "data"]
     }
 }
+
+# =========================
+# PRODUTO
+# =========================
+
 class ProdutoBase(BaseModel):
     nome: str
     descricao: Optional[str] = None
@@ -40,7 +50,11 @@ class ProdutoUpdate(BaseModel):
 
 class ProdutoOut(ProdutoBase):
     cod_produto: int
-    
+
+# =========================
+# MOVIMENTAÇÃO
+# =========================
+
 class MovimentacaoBase(BaseModel):
     tipo_movimento: str
     data_movimento: date
@@ -56,5 +70,32 @@ class MovimentacaoCreate(MovimentacaoBase):
 
 class MovimentacaoOut(MovimentacaoBase):
     id_movimentacao: int
-    
-    
+
+# =========================
+# LOG DE IMPORTAÇÃO
+# =========================
+
+class LogImportacaoBase(BaseModel):
+    nome_arquivo: str
+    qntd_registros: int
+    data_importacao: date  # pode ser datetime se preferir
+    status: str
+    msg_erro: Optional[str] = None
+    id_usuario: int
+
+
+class LogImportacaoCreate(LogImportacaoBase):
+    pass
+
+
+class LogImportacaoUpdate(BaseModel):
+    nome_arquivo: Optional[str] = None
+    qntd_registros: Optional[int] = None
+    data_importacao: Optional[date] = None
+    status: Optional[str] = None
+    msg_erro: Optional[str] = None
+    id_usuario: Optional[int] = None
+
+
+class LogImportacaoOut(LogImportacaoBase):
+    id_log_importacao: int
