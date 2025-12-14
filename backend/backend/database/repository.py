@@ -18,10 +18,8 @@ class Repository:
         """Adiciona aspas duplas ao identificador se necessário"""
         if identifier.startswith('"') and identifier.endswith('"'):
             return identifier
-
         if re.search(r'[A-Z]', identifier) or not re.match(r'^[a-z_][a-z0-9_]*$', identifier):
             return f'"{identifier}"'
-
         return identifier
 
     def _build_where_clause(
@@ -30,8 +28,8 @@ class Repository:
         value: Any = None
     ) -> Tuple[str, List[Any]]:
         """
-        Constrói cláusula WHERE
-        Compatível com:
+        Constrói cláusula WHERE.
+        Suporta:
           - modo antigo: key, value
           - modo novo: dict
         """
@@ -46,7 +44,6 @@ class Repository:
 
             parts = []
             values = []
-
             for key, val in conditions.items():
                 if isinstance(val, (list, tuple)):
                     placeholders = ", ".join(["%s"] * len(val))
@@ -65,10 +62,6 @@ class Repository:
     # =================================================
 
     def insert(self, table: str, data: dict) -> bool:
-        """
-        Insere registro (compatível com versão antiga)
-        Retorna True se sucesso
-        """
         try:
             table_q = self._quote_identifier(table)
             cols = ", ".join(self._quote_identifier(k) for k in data.keys())
@@ -84,9 +77,6 @@ class Repository:
             raise HTTPException(status_code=500, detail=f"Erro ao inserir: {str(e)}")
 
     def insert_returning(self, table: str, data: dict, returning: str) -> Any:
-        """
-        Insere e retorna valor da coluna (ex: id)
-        """
         try:
             table_q = self._quote_identifier(table)
             cols = ", ".join(self._quote_identifier(k) for k in data.keys())
@@ -117,17 +107,9 @@ class Repository:
         key_or_conditions: Union[str, Dict[str, Any]],
         value: Any = None
     ) -> Optional[Dict]:
-        """
-        Modo antigo:
-            fetch_one("tabela", "id", 1)
-
-        Modo novo:
-            fetch_one("tabela", {"id": 1})
-        """
         try:
             table_q = self._quote_identifier(table)
             where_clause, values = self._build_where_clause(key_or_conditions, value)
-
             sql = f"SELECT * FROM {table_q}{where_clause} LIMIT 1"
             self.cursor.execute(sql, values)
             row = self.cursor.fetchone()
@@ -143,18 +125,9 @@ class Repository:
         value: Any = None,
         order_by: str = None
     ) -> List[Dict]:
-        """
-        Modo antigo:
-            fetch_all("tabela")
-            fetch_all("tabela", "ativo", True)
-
-        Modo novo:
-            fetch_all("tabela", {"ativo": True}, order_by="nome")
-        """
         try:
             table_q = self._quote_identifier(table)
             where_clause, values = self._build_where_clause(conditions, value)
-
             sql = f"SELECT * FROM {table_q}{where_clause}"
 
             if order_by:
@@ -178,13 +151,6 @@ class Repository:
         value_or_data: Any,
         data: dict = None
     ) -> int:
-        """
-        Modo antigo:
-            update("tabela", "id", 1, {"nome": "Novo"})
-
-        Modo novo:
-            update("tabela", {"id": 1}, {"nome": "Novo"})
-        """
         try:
             table_q = self._quote_identifier(table)
 
@@ -198,11 +164,7 @@ class Repository:
             if not update_data:
                 raise ValueError("Nenhum dado para atualizar")
 
-            set_clause = ", ".join(
-                f"{self._quote_identifier(k)} = %s"
-                for k in update_data.keys()
-            )
-
+            set_clause = ", ".join(f"{self._quote_identifier(k)} = %s" for k in update_data.keys())
             where_clause, where_values = self._build_where_clause(conditions)
             values = list(update_data.values()) + where_values
 
@@ -224,17 +186,9 @@ class Repository:
         key_or_conditions: Union[str, Dict[str, Any]],
         value: Any = None
     ) -> int:
-        """
-        Modo antigo:
-            delete("tabela", "id", 1)
-
-        Modo novo:
-            delete("tabela", {"id": 1})
-        """
         try:
             table_q = self._quote_identifier(table)
             where_clause, values = self._build_where_clause(key_or_conditions, value)
-
             sql = f"DELETE FROM {table_q}{where_clause}"
             self.cursor.execute(sql, values)
             return self.cursor.rowcount
