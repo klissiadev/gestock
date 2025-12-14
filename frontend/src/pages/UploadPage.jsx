@@ -3,6 +3,7 @@ import { uploadFile } from "../api/uploadApi";
 
 export default function UploadPage() {
   const [file, setFile] = useState(null);
+  const [tipo, setTipo] = useState("Produto");
   const [response, setResponse] = useState(null);
   const [loading, setLoading] = useState(false);
 
@@ -13,33 +14,17 @@ export default function UploadPage() {
     }
 
     setLoading(true);
-    const result = await uploadFile(file);
+    const result = await uploadFile(file, tipo);
     setResponse(result);
     setLoading(false);
   };
 
-  /* Posição temporaria da função de mailtrigger */
-  const handleMailTrigger = async () => {
-    const response = await fetch("http://localhost:8000/triggerMail/", { method: "POST" });
-    if (!response.ok) throw new Error("Erro ao pedir email");
-    const data = await response.json();
-    console.log("Resposta do servidor:", data);
-  };
-
-  
-
-
   const container = {
     position: "fixed",
-    top: 0,
-    left: 0,
-    width: "100vw",
-    height: "100vh",
-
+    inset: 0,
     display: "flex",
     justifyContent: "center",
     alignItems: "center",
-
     background: "#eef2f7",
     fontFamily: "Arial, sans-serif",
   };
@@ -47,27 +32,18 @@ export default function UploadPage() {
   const card = {
     background: "#fff",
     padding: "30px",
-    width: "380px",
+    width: "420px",
     borderRadius: "14px",
     boxShadow: "0 6px 20px rgba(0,0,0,0.15)",
     textAlign: "center",
   };
 
-  const title = {
-    fontSize: "22px",
-    fontWeight: "bold",
-    marginBottom: "20px",
-    color: "#333",
-  };
-
-  const fileInput = {
+  const input = {
     width: "100%",
     padding: "10px",
     borderRadius: "8px",
     border: "1px solid #ccc",
-    background: "#fafafa",
-    marginBottom: "20px",
-    cursor: "pointer",
+    marginBottom: "15px",
   };
 
   const button = {
@@ -80,11 +56,11 @@ export default function UploadPage() {
     fontSize: "16px",
     fontWeight: "bold",
     cursor: "pointer",
-    transition: "0.3s",
   };
 
   const responseBox = {
     background: "#000",
+    color: "#0f0",
     padding: "15px",
     borderRadius: "8px",
     marginTop: "20px",
@@ -96,11 +72,20 @@ export default function UploadPage() {
   return (
     <div style={container}>
       <div style={card}>
-        <h1 style={title}>Upload de Planilha</h1>
+        <h2>Upload de Planilha</h2>
+
+        <select
+          style={input}
+          value={tipo}
+          onChange={(e) => setTipo(e.target.value)}
+        >
+          <option value="Produto">Produto</option>
+          <option value="Movimentacao">Movimentação</option>
+        </select>
 
         <input
           type="file"
-          style={fileInput}
+          style={input}
           accept=".csv, .xlsx"
           onChange={(e) => setFile(e.target.files[0])}
         />
@@ -110,17 +95,10 @@ export default function UploadPage() {
         </button>
 
         {response && (
-          <pre style={responseBox}>{JSON.stringify(response, null, 2)}</pre>
+          <pre style={responseBox}>
+            {JSON.stringify(response, null, 2)}
+          </pre>
         )}
-
-        <p>
-          <br />
-          <hr />
-          <br />
-        </p>
-        <button style={button} onClick={handleMailTrigger}>
-          Disparar E-mails (testandinho)
-        </button>
       </div>
     </div>
   );
