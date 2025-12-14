@@ -14,9 +14,10 @@ class view_service:
     def __init__(self, conn):
         self.repo = Repository(conn)
     
-    def see_product_table(self):
+    def see_product_table(self, direcao: str, order: str):
         return self.repo.fetch_all(
                 table="Produto",
                 columns=["cod_produto", "nome", "descricao", "categoria", "valor_unitario", "estoque_atual", "estoque_minimo"],
-                order_by="cod_produto"
+                order_by=order,
+                direction=direcao
                 )
