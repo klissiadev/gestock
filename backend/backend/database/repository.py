@@ -123,12 +123,20 @@ class Repository:
         table: str,
         conditions: Union[Dict[str, Any], str, None] = None,
         value: Any = None,
-        order_by: str = None
+        order_by: str = None,
+        columns: List[str] = None
     ) -> List[Dict]:
         try:
             table_q = self._quote_identifier(table)
             where_clause, values = self._build_where_clause(conditions, value)
-            sql = f"SELECT * FROM {table_q}{where_clause}"
+
+            # Adicionado condicional de colunas (permite voce escolher que colunas exibir de uma tabela)
+            if columns:
+                col_q = ", ".join(self._quote_identifier(c) for c in columns)
+            else:
+                col_q = "*"
+
+            sql = f"SELECT {col_q} FROM {table_q}{where_clause}"
 
             if order_by:
                 order_q = ", ".join(self._quote_identifier(c.strip()) for c in order_by.split(","))
