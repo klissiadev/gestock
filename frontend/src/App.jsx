@@ -1,7 +1,8 @@
 import UploadPage from "./pages/UploadPage";
+import ProductTable from "./pages/ProductTable";
 
 function App() {
-  return <UploadPage />;
+  return <ProductTable />;
 }
 
 export default App;
