@@ -43,13 +43,14 @@ app.add_middleware(
     CORSMiddleware,
     allow_origins=[
         "http://localhost:8000",
-        "http://localhost:3000",
-        "http://localhost:5173",
-    ],
+        "http://127.0.0.1:8000", 
+        "http://localhost:3000", 
+        "http://localhost:5173"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
 
 # Logging automático
 app.add_middleware(LoggingMiddleware)
@@ -97,27 +98,3 @@ async def read_root(request: Request):
 app.include_router(upload_service)
 app.include_router(mail_service)
 app.include_router(produto_router)
-app.include_router(movimentacao_router)
-
-# =========================
-# EVENTOS DE CICLO DE VIDA
-# =========================
-@app.on_event("startup")
-async def startup_event():
-    app_logger.log_info(
-        "Aplicação iniciada",
-        {
-            "event": "startup",
-            "app_name": "backend"
-        }
-    )
-
-@app.on_event("shutdown")
-async def shutdown_event():
-    app_logger.log_info(
-        "Aplicação encerrada",
-        {
-            "event": "shutdown",
-            "app_name": "backend"
-        }
-    )
