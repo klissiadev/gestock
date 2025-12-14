@@ -124,6 +124,7 @@ class Repository:
         conditions: Union[Dict[str, Any], str, None] = None,
         value: Any = None,
         order_by: str = None,
+        direction: str = None,
         columns: List[str] = None
     ) -> List[Dict]:
         try:
@@ -140,7 +141,7 @@ class Repository:
 
             if order_by:
                 order_q = ", ".join(self._quote_identifier(c.strip()) for c in order_by.split(","))
-                sql += f" ORDER BY {order_q}"
+                sql += f" ORDER BY {order_q} {direction}"
 
             self.cursor.execute(sql, values)
             return [dict(row) for row in self.cursor.fetchall()]

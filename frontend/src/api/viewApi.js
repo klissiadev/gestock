@@ -1,5 +1,5 @@
 
-export async function handlePTable() {
+export async function handlePTable(orderBy, isAsc) {
     try {
         // TO DO: verificar se o usuario esta logado
         // Solucao: Enviar o token pelo metodo HTTP no header
@@ -9,7 +9,11 @@ export async function handlePTable() {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
-                }
+                },
+                body: JSON.stringify({
+                    "orderBy": orderBy,
+                    "isAsc": isAsc
+                })
             }
         );
 
