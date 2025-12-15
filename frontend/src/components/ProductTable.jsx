@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { handlePTable } from '../api/viewApi';
 
 const ProductTable = () => {
-    // Todos os Estados
+    // Todos os Estados (considerando todos os filtros e ordenações)
     const [table, setTable] = useState(null);
     const [orderBy, setOrderBy] = useState("cod_produto");
     const [isAsc, setIsAsc] = useState(true);
@@ -11,7 +11,9 @@ const ProductTable = () => {
     const [categoria, setCategoria] = useState("");
     const [opcoesCategoria, setOpcoesCategoria] = useState([]);
 
-    const itemsPerPage = 10;
+    const [isBaixoEstoque, setIsBaixoEstoque] = useState(false);
+    const [isVencidos, setIsVencidos] = useState(false);
+
 
     // Funcao do botao de pesquisar
     const handlePesquisar = () => {
@@ -23,7 +25,7 @@ const ProductTable = () => {
         const carregarDados = async () => {
             try {
                 // Busca os dados filtrados do backend
-                const dados = await handlePTable(orderBy, isAsc, searchTerm, categoria);
+                const dados = await handlePTable(orderBy, isAsc, searchTerm, categoria, isBaixoEstoque, isVencidos);
                 setTable(dados);
 
                 // Primeira vez que carrega -> salva as opcoes de categoria pela primeira vez pra nao perder as informações
@@ -45,7 +47,7 @@ const ProductTable = () => {
         };
         carregarDados();
 
-    }, [searchTerm, orderBy, isAsc, categoria]);
+    }, [searchTerm, orderBy, isAsc, categoria, isBaixoEstoque, isVencidos]);
 
 
     // Renderizacao condicional enquanto carrega os dados
@@ -63,6 +65,10 @@ const ProductTable = () => {
 
     // Definicao das colunas da tabela 
     const colunas = table.length > 0 ? Object.keys(table[0]) : [];
+
+    const handleCheckboxChange = (setter) => (e) => {
+        setter(e.target.checked);
+    }
 
     return (
         // Container principal
@@ -133,6 +139,19 @@ const ProductTable = () => {
                             </button>
                         </div>
                     </div>
+
+                    <div className="flex flex-col gap-2">
+                        <div className="flex items-center gap-2">
+                            <input type="checkbox" id="estoque_baixo" name="estoque_baixo" onChange={handleCheckboxChange(setIsBaixoEstoque)} />
+                            <label htmlFor="estoque_baixo">Apenas produtos com estoque baixo</label>
+                        </div>
+
+                        <div className="flex items-center gap-2">
+                            <input type="checkbox" id="vencido" name="vencido" onChange={handleCheckboxChange(setIsVencidos)} />
+                            <label htmlFor="vencido">Apenas produtos vencidos</label>
+                        </div>
+                    </div>
+
                 </div>
             </div>
 
