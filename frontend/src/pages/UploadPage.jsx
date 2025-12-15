@@ -1,11 +1,13 @@
 import { useState } from "react";
-import { uploadFile } from "../api/uploadApi";
+import { uploadFile,handleFileSelect } from "../api/uploadApi";
 
 export default function UploadPage() {
   const [file, setFile] = useState(null);
+  const [fileName, setFileName] = useState("Nenhum arquivo selecionado");
   const [tipo, setTipo] = useState("Produto");
   const [response, setResponse] = useState(null);
   const [loading, setLoading] = useState(false);
+  const [fileInfo, setFileInfo] = useState(null);
 
   const handleUpload = async () => {
     if (!file) {
@@ -38,8 +40,9 @@ export default function UploadPage() {
     textAlign: "center",
   };
 
+
   const input = {
-    width: "100%",
+    width: "90%",
     padding: "10px",
     borderRadius: "8px",
     border: "1px solid #ccc",
@@ -47,7 +50,7 @@ export default function UploadPage() {
   };
 
   const button = {
-    width: "100%",
+    width: "90%",
     padding: "12px",
     background: loading ? "#888" : "#0066ff",
     color: "#fff",
@@ -69,10 +72,14 @@ export default function UploadPage() {
     fontSize: "14px",
   };
 
+  const h2 = {
+    color: "#0066ff"
+  };
+
   return (
     <div style={container}>
       <div style={card}>
-        <h2>Upload de Planilha</h2>
+        <h2 style={h2}>Upload de Planilha</h2>
 
         <select
           style={input}
@@ -87,8 +94,20 @@ export default function UploadPage() {
           type="file"
           style={input}
           accept=".csv, .xlsx"
-          onChange={(e) => setFile(e.target.files[0])}
+          onChange={(e) => handleFileSelect(e, setFile, setFileName, setFileInfo)}
         />
+
+        <p style={{color:'#000'}}>{fileName}</p>
+
+        {fileInfo && (
+          <div style={{ fontSize: "13px", color: "#555", marginBottom: "10px" }}>
+            <div>Tamanho: {(fileInfo.size / 1024).toFixed(2)} KB</div>
+            <div>
+              Última modificação:{" "}
+              {fileInfo.lastModified.toLocaleString("pt-BR")}
+            </div>
+          </div>
+        )}
 
         <button style={button} onClick={handleUpload} disabled={loading}>
           {loading ? "Enviando..." : "Enviar"}

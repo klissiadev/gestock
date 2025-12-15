@@ -7,18 +7,29 @@ class LogImportacaoService:
 
     def criar_log(self, log_data: dict):
         try:
-            # Opção 1: Insert simples
-            ok = self.repo.insert("LogImportacao", log_data)
-            
-            # Opção 2: Se quiser retornar o ID gerado
-            # new_id = self.repo.insert_returning("log_importacao", log_data, "id_log_importacao")
-            
-            if not ok:
-                raise HTTPException(status_code=400, detail="Erro ao criar log de importação")
-            
+            new_id = self.repo.insert_returning(
+                "LogImportacao",
+                log_data,
+                "id_log_importacao"
+            )
+
+            if not new_id:
+                raise HTTPException(
+                    status_code=400,
+                    detail="Erro ao criar log de importação"
+                )
+
             self.repo.commit()
-            return {"message": "Log de importação criado com sucesso"}
-            
+
+            # Busca o log recém-criado
+            log = self.repo.fetch_one(
+                "LogImportacao",
+                "id_log_importacao",
+                new_id
+            )
+
+            return log
+
         except Exception as e:
             self.repo.conn.rollback()
             raise HTTPException(status_code=500, detail=str(e))
