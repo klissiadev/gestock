@@ -9,11 +9,10 @@ router = APIRouter(prefix="/views", tags=["visualizar"])
 
 @router.post(path="/product")
 async def testando_tabela(filter: product_filters, db = Depends(get_db)):
-
     direcao = "ASC" if filter.isAsc else "DESC"
     order_by = filter.orderBy
-
-    print(direcao, order_by)
+    search_term = filter.search
+    category = filter.categoria
 
     view = view_service(db)
-    return view.see_product_table(direcao, order_by)
+    return view.see_product_table(direcao, order_by, search_term, category)
