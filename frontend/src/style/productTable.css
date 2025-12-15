@@ -1,3 +1,5 @@
+@import "tailwindcss";
+
 /* Container da tabela */
 .tabela-container {
   margin: 20px auto;
