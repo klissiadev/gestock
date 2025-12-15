@@ -8,10 +8,9 @@ class product_filters(BaseModel):
 
     # Filtro por: categoria, preco max e min
     categoria: Optional[str] = None
+    isBaixoEstoque: bool = False
+    isVencido: bool = False
 
     # preco_min: Optional[float] = None
     # preco_max: Optional[float] = None
     
-    # Filtros logicos
-    # apenas_baixo_estoque: bool = False
-    # apenas_vencidos: bool = False

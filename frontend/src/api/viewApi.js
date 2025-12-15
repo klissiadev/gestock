@@ -1,11 +1,13 @@
 // frontend/src/api/viewApi.js
 // Funcoes para interagir com a API de visualizacao de dados
 
-
-export async function handlePTable(orderBy, isAsc, search, categoria) {
+export async function handlePTable(orderBy, isAsc, search, categoria, isBaixoEstoque, isVencido) {
     try {
         // TO DO: verificar se o usuario esta logado
         // Solucao: Enviar o token pelo metodo HTTP no header
+        console.log("Requisitando dados da tabela de produtos com os parametros:");
+        console.log({ orderBy, isAsc, search, categoria, isBaixoEstoque, isVencido });
+
         const response = await fetch(
             `http://localhost:8000/views/product`,
             {
@@ -17,7 +19,9 @@ export async function handlePTable(orderBy, isAsc, search, categoria) {
                     "orderBy": orderBy,
                     "isAsc": isAsc,
                     "search": search,
-                    "categoria": categoria
+                    "categoria": categoria,
+                    "isBaixoEstoque": isBaixoEstoque,
+                    "isVencido": isVencido
                 })
             }
         );
