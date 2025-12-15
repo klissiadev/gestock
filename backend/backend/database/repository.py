@@ -22,6 +22,7 @@ class Repository:
             return f'"{identifier}"'
         return identifier
 
+
     def _build_where_clause(
         self,
         conditions: Union[Dict[str, Any], str, None],
@@ -57,6 +58,60 @@ class Repository:
 
         return "", []
 
+    
+    def _build_conditions(self, conditions: Union[Dict, str], value: Any = None) -> Tuple[List[str], List[Any]]:
+        """
+        Faz a mesma coisa que o _build_where_clause, a diferença que nao tem WHERE!!!!
+        Não apaguei porque to meio cansada pra mexer numa função que meu cerebro nao entendeu 100% e quebrar alguma coisa
+        Então tem essa variação não muito charmosa
+        """
+        parts = []
+        values = []
+
+        # Modo string
+        if isinstance(conditions, str) and value is not None:
+            parts.append(f"{self._quote_identifier(conditions)} = %s")
+            values.append(value)
+
+        # Modo Dict
+        elif isinstance(conditions, dict):
+            for key, val in conditions.items():
+                if isinstance(val, (list, tuple)) and val:
+                    # IN query
+                    placeholders = ", ".join(["%s"] * len(val))
+                    parts.append(f"{self._quote_identifier(key)} IN ({placeholders})")
+                    values.extend(val)
+                else:
+                    # Igualdade simples
+                    parts.append(f"{self._quote_identifier(key)} = %s")
+                    values.append(val)
+        
+        return parts, values
+
+    def _build_search_clause(
+            self,
+            term: str,
+            cols: List[str]   
+    ) -> Tuple[Optional[str], List[Any]]:
+        """
+        Monta a query para buscar um 'term' em uma lista de colunas determinadas
+        Retorna uma tupla (sql_string, lista_valores).
+        """
+        # Se vazio
+        if not term or not cols:
+            return None, []
+        
+        clauses = [f"{self._quote_identifier(c)} ILIKE %s" for c in cols]
+
+        if not clauses:
+            return None, []
+
+        sql_part = f"({' OR '.join(clauses)})"
+        wildcard = f"%{term}%"
+        values = [wildcard] * len(cols)
+
+        return sql_part, values
+        
     # =================================================
     # INSERT
     # =================================================
@@ -125,25 +180,38 @@ class Repository:
         value: Any = None,
         order_by: str = None,
         direction: str = None,
-        columns: List[str] = None
+        columns: List[str] = None,
+        search_term: str = None,
+        search_cols: List[str] = None
     ) -> List[Dict]:
         try:
+            # 1. Monta SELECT em col_Q
             table_q = self._quote_identifier(table)
-            where_clause, values = self._build_where_clause(conditions, value)
+            col_q = ", ".join(self._quote_identifier(c) for c in columns) if columns else "*"
 
-            # Adicionado condicional de colunas (permite voce escolher que colunas exibir de uma tabela)
-            if columns:
-                col_q = ", ".join(self._quote_identifier(c) for c in columns)
-            else:
-                col_q = "*"
+            # 2. Filtros exatos (como o categoria)
+            where_parts, query_values = self._build_conditions(conditions, value)
 
-            sql = f"SELECT {col_q} FROM {table_q}{where_clause}"
+            # 3. filtro de busca
+            search_part, search_values = self._build_search_clause(search_term, search_cols)
 
+            # 4. Unifica tudo
+            if search_part:
+                where_parts.append(search_part)    
+                query_values.extend(search_values)  
+            
+            # 5. Constrói o WHERE final
+            where_sql = (" WHERE " + " AND ".join(where_parts)) if where_parts else ""
+
+            # 6. Monta ORDER BY
+            order_sql = ""
             if order_by:
                 order_q = ", ".join(self._quote_identifier(c.strip()) for c in order_by.split(","))
-                sql += f" ORDER BY {order_q} {direction}"
+                order_sql = f" ORDER BY {order_q} {direction}"
 
-            self.cursor.execute(sql, values)
+            # 7. Executa
+            sql = f"SELECT {col_q} FROM {table_q}{where_sql}{order_sql}"
+            self.cursor.execute(sql, query_values)
             return [dict(row) for row in self.cursor.fetchall()]
 
         except Exception as e:
