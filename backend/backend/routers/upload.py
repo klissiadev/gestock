@@ -8,6 +8,14 @@ from backend.utils.file_validation import validate_upload_file
 
 router = APIRouter(prefix="/upload", tags=["upload"])
 
+@router.post("/produtos")
+def upload_produtos(file: UploadFile, db=Depends(get_db)):
+    return upload_file("produtos", file, db)
+
+
+@router.post("/movimentacoes")
+def upload_movimentacoes(file: UploadFile, db=Depends(get_db)):
+    return upload_file("movimentacoes", file, db)
 
 @router.post("/{tipo}")
 def upload_file(tipo: str, file: UploadFile, db=Depends(get_db)):
