@@ -57,49 +57,10 @@ class view_service:
         - Lista de produtos que correspondem aos critérios de busca e ordenação.
         """
         condicoes_db = {}
-
         if categoria:
             condicoes_db["categoria"] = categoria
             
-        if apenas_baixo_estoque:
-            # Busca todos os produtos primeiramente
-            # Depois filtra os que estao com estoque baixo
-            all_products = self.repo.fetch_all(
-                table="Produto",
-                conditions=condicoes_db,
-                columns=["cod_produto", "nome", "descricao", "categoria", "valor_unitario", "estoque_atual", "estoque_minimo"],
-                order_by=order,
-                direction=direcao,
-                search_term=search_t,
-                search_cols=["nome", "descricao"],
-            )
-            
-            low_stock_products = []
-            for produto in all_products:
-                low_stock_threshold = self._calculate_low_stock_threshold(produto)
-                if produto["estoque_atual"] <= low_stock_threshold:
-                    low_stock_products.append(produto)
-            return low_stock_products
-            
-        if apenas_vencidos:
-            all_products = self.repo.fetch_all(
-                table="Produto",
-                conditions=condicoes_db,
-                columns=["cod_produto", "nome", "descricao", "categoria", "valor_unitario", "estoque_atual", "estoque_minimo", "data_validade"],
-                order_by=order,
-                direction=direcao,
-                search_term=search_t,
-                search_cols=["nome", "descricao"],
-            )
-            
-            expired_products = []
-            for produto in all_products:
-                if self._check_vencido(produto):
-                    #produto.pop("data_validade", None)  # Remove a data de validade do resultado final
-                    expired_products.append(produto)
-            return expired_products
-            
-        return self.repo.fetch_all(
+        all_products = self.repo.fetch_all(
                 table="Produto",
                 conditions=condicoes_db,
                 columns=["cod_produto", "nome", "descricao", "categoria", "valor_unitario", "estoque_atual", "estoque_minimo"],
@@ -108,6 +69,30 @@ class view_service:
                 search_term=search_t,
                 search_cols=["nome", "descricao"],
                 )
+        
+        if not apenas_baixo_estoque and not apenas_vencidos:
+            # Remover data_validade se não estiver filtrando por vencidos
+            for p in all_products:
+                p.pop("data_validade", None)
+            return all_products
+
+        filtered_products = []
+        for produto in all_products:
+            low_stock_threshold = self._calculate_low_stock_threshold(produto)
+            is_low_stock = produto["estoque_atual"] <= low_stock_threshold     # Verifica se o produto está com baixo estoque
+            is_expired = self._check_vencido(produto)                          # Verifica se o produto está vencido
+            
+            # Aplicação dos filtros adicionais
+            if apenas_baixo_estoque and not is_low_stock: 
+                continue
+            if apenas_vencidos and not is_expired:
+                continue
+            
+            if "data_validade" in produto and not apenas_vencidos:
+                produto.pop("data_validade", None)
+            filtered_products.append(produto) 
+        return filtered_products
+
         
     def see_movimentacao_table(self, direcao:str, order:str, search_t:str, tipo_movimentacao:str):
         """
