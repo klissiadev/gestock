@@ -43,6 +43,8 @@ class view_service:
             return data_validade < datetime.now().date()
         return False 
     
+    def _add_quotation_mark(self, value: str) -> str:
+        return f"""{value}"""
     
     def see_product_table(self, direcao: str, order: str, search_t: str, categoria: str, apenas_baixo_estoque: bool, apenas_vencidos: bool):
         """
@@ -109,7 +111,20 @@ class view_service:
         - Lista de movimentações que correspondem aos critérios de busca e ordenação.
         """
         return self.repo.fetch_all(
-                    table="Movimentacao",
-                    direction="DESC"
-                    )
+            table="Movimentacao",
+            type_join="JOIN",
+            join_tables=[
+                ("Usuario", '"Usuario"."id_usuario" = "Movimentacao"."id_usuario"'),
+                ("Produto", '"Produto"."cod_produto" = "Movimentacao"."cod_produto"')
+            ],
+            columns=[
+                "Movimentacao.id_movimentacao",
+                "Movimentacao.data_movimento",
+                "Movimentacao.tipo_movimento",
+                "Usuario.nome AS nome_usuario",
+                "Produto.nome AS nome_produto"
+            ],
+            order_by="Movimentacao.id_movimentacao",
+            direction="ASC"
+        )
 

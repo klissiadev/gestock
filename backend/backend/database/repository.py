@@ -15,12 +15,24 @@ class Repository:
     # =================================================
 
     def _quote_identifier(self, identifier: str) -> str:
-        """Adiciona aspas duplas ao identificador se necessário"""
-        if identifier.startswith('"') and identifier.endswith('"'):
-            return identifier
-        if re.search(r'[A-Z]', identifier) or not re.match(r'^[a-z_][a-z0-9_]*$', identifier):
-            return f'"{identifier}"'
-        return identifier
+        """
+        Formata identificadores SQL no padrão:
+        - "Tabela".coluna
+        - "Tabela".coluna AS alias
+        - "Tabela"
+        """
+        # 1. Trata alias: Usuario.nome AS nome_usuario
+        if " AS " in identifier.upper():
+            left, alias = identifier.split(" AS ", 1)
+            return f"{self._quote_identifier(left)} AS {alias}"
+
+        # 2. Trata tabela.coluna
+        if "." in identifier:
+            table, col = identifier.split(".", 1)
+            return f"\"{table}\".{col}"
+
+        # 3. Trata identificador simples (tabela)
+        return f"\"{identifier}\""
 
 
     def _build_where_clause(
