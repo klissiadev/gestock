@@ -176,6 +176,8 @@ class Repository:
     def fetch_all(
         self,
         table: str,
+        type_join: str = None,
+        join_tables: List[Tuple[str, str]] = None,
         conditions: Union[Dict[str, Any], str, None] = None,
         value: Any = None,
         order_by: str = None,
@@ -188,29 +190,37 @@ class Repository:
             # 1. Monta SELECT em col_Q
             table_q = self._quote_identifier(table)
             col_q = ", ".join(self._quote_identifier(c) for c in columns) if columns else "*"
+            
+            # 2. Monta o JOIN
+            join_sql = ""
+            if type_join and join_tables:
+                for join_table, join_condition in join_tables:
+                    join_table_q = self._quote_identifier(join_table)
+                    join_sql += f" {type_join} {join_table_q} ON {join_condition}"
 
-            # 2. Filtros exatos (como o categoria)
+            # 3. Filtros exatos (como o categoria)
             where_parts, query_values = self._build_conditions(conditions, value)
 
-            # 3. filtro de busca
+            # 4. filtro de busca
             search_part, search_values = self._build_search_clause(search_term, search_cols)
 
-            # 4. Unifica tudo
+            # 5. Unifica tudo
             if search_part:
                 where_parts.append(search_part)    
                 query_values.extend(search_values)  
             
-            # 5. Constrói o WHERE final
+            # 6. Constrói o WHERE final
             where_sql = (" WHERE " + " AND ".join(where_parts)) if where_parts else ""
 
-            # 6. Monta ORDER BY
+            # 7. Monta ORDER BY
             order_sql = ""
             if order_by:
                 order_q = ", ".join(self._quote_identifier(c.strip()) for c in order_by.split(","))
                 order_sql = f" ORDER BY {order_q} {direction}"
 
-            # 7. Executa
-            sql = f"SELECT {col_q} FROM {table_q}{where_sql}{order_sql}"
+            # 8. Executa
+            sql = f"SELECT {col_q} FROM {table_q}{join_sql}{where_sql}{order_sql}"
+            print(sql)
             self.cursor.execute(sql, query_values)
             return [dict(row) for row in self.cursor.fetchall()]
 

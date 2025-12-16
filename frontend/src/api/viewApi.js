@@ -5,8 +5,8 @@ export async function handlePTable(orderBy, isAsc, search, categoria, isBaixoEst
     try {
         // TO DO: verificar se o usuario esta logado
         // Solucao: Enviar o token pelo metodo HTTP no header
-        console.log("Requisitando dados da tabela de produtos com os parametros:");
-        console.log({ orderBy, isAsc, search, categoria, isBaixoEstoque, isVencido });
+        //console.log("Requisitando dados da tabela de produtos com os parametros:");
+        //console.log({ orderBy, isAsc, search, categoria, isBaixoEstoque, isVencido });
 
         const response = await fetch(
             `http://localhost:8000/views/product`,
@@ -30,28 +30,22 @@ export async function handlePTable(orderBy, isAsc, search, categoria, isBaixoEst
             throw new Error(`Erro na API: ${response.status}`);
         }
         const dados = await response.json();
-        console.log(dados);
+        // console.log(dados);
         return dados;
     } catch {
         return { error: "Nao foi possivel ler a tabela de produtos" };
     }
 };
 
-export async function handleMTable(orderBy, isAsc, search, tipoMov) {
+export async function handleMTable() {
     try {
         const response = await fetch(
-            `http://localhost:8000/views/movimentacao`,
+            `http://localhost:8000/views/moviment`,
             {
                 method: "POST",
                 headers:{
                     "Content-Type": "application/json",
-                },
-                body: JSON.stringify({
-                    "orderBy": orderBy,
-                    "isAsc": isAsc,
-                    "search": search,
-                    "tipoMov": tipoMov
-                })
+                }
             }
         );
 
@@ -60,10 +54,10 @@ export async function handleMTable(orderBy, isAsc, search, tipoMov) {
         }
 
         const dados = await response.json();
-        // console.log(dados);
+        console.log(dados);
         return dados;
 
     } catch {
         return { error: "Nao foi possivel ler a tabela de movimentacoes" };
     }
-}
+};
