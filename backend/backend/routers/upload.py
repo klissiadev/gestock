@@ -19,6 +19,7 @@ def upload_file(tipo: str, file: UploadFile, db=Depends(get_db)):
 
     # Cria log da importação
     log_service = LogImportacaoService(db)
+
     log_data = {
         "nome_arquivo": file.filename,
         "qntd_registros": result.get("registros_processados", 0),
@@ -28,7 +29,7 @@ def upload_file(tipo: str, file: UploadFile, db=Depends(get_db)):
         "id_usuario": 1  # TODO: substituir pelo usuário autenticado
     }
 
-    log_service.criar_log(log_data)
-    log_service.repo.commit()
+    # 🔹 cria o log e RECEBE o log criado
+    log = log_service.criar_log(log_data)
 
-    return result
+    return log

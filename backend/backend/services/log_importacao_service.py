@@ -32,7 +32,10 @@ class LogImportacaoService:
 
         except Exception as e:
             self.repo.conn.rollback()
-            raise HTTPException(status_code=500, detail=str(e))
+            import traceback
+            traceback.print_exc()
+            raise
+
 
     def listar_logs(self):
         try:

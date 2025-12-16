@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { uploadFile,handleFileSelect } from "../api/uploadApi";
+import { uploadFile, handleFileSelect } from "../api/uploadApi";
 
 export default function UploadPage() {
   const [file, setFile] = useState(null);
@@ -21,68 +21,92 @@ export default function UploadPage() {
     setLoading(false);
   };
 
+  /* ===== STYLES ===== */
+
   const container = {
     position: "fixed",
     inset: 0,
     display: "flex",
     justifyContent: "center",
     alignItems: "center",
-    background: "#eef2f7",
-    fontFamily: "Arial, sans-serif",
+    background: "linear-gradient(135deg, #eef2f7, #dbe4f0)",
+    fontFamily: "Inter, Arial, sans-serif",
   };
 
   const card = {
     background: "#fff",
-    padding: "30px",
-    width: "420px",
-    borderRadius: "14px",
-    boxShadow: "0 6px 20px rgba(0,0,0,0.15)",
+    padding: "32px",
+    width: "440px",
+    borderRadius: "18px",
+    boxShadow: "0 12px 30px rgba(0,0,0,0.12)",
+  };
+
+  const title = {
     textAlign: "center",
+    color: "#1e40af",
+    marginBottom: "8px",
   };
 
+  const subtitle = {
+    textAlign: "center",
+    fontSize: "14px",
+    color: "#64748b",
+    marginBottom: "24px",
+  };
 
-  const input = {
-    width: "90%",
+  const select = {
+    width: "100%",
     padding: "10px",
-    borderRadius: "8px",
-    border: "1px solid #ccc",
-    marginBottom: "15px",
-  };
-
-  const button = {
-    width: "90%",
-    padding: "12px",
-    background: loading ? "#888" : "#0066ff",
-    color: "#fff",
-    border: "none",
-    borderRadius: "8px",
-    fontSize: "16px",
-    fontWeight: "bold",
-    cursor: "pointer",
-  };
-
-  const responseBox = {
-    background: "#000",
-    color: "#0f0",
-    padding: "15px",
-    borderRadius: "8px",
-    marginTop: "20px",
-    whiteSpace: "pre-wrap",
-    textAlign: "left",
+    borderRadius: "10px",
+    border: "1px solid #cbd5e1",
+    marginBottom: "16px",
     fontSize: "14px",
   };
 
-  const h2 = {
-    color: "#0066ff"
+  const fileInfoBox = {
+    fontSize: "13px",
+    color: "#475569",
+    background: "#f1f5f9",
+    padding: "10px 14px",
+    borderRadius: "10px",
+    marginBottom: "16px",
+  };
+
+  const button = {
+    width: "100%",
+    padding: "14px",
+    background: loading ? "#94a3b8" : "#2563eb",
+    color: "#fff",
+    border: "none",
+    borderRadius: "12px",
+    fontSize: "16px",
+    fontWeight: "600",
+    cursor: loading ? "not-allowed" : "pointer",
+    transition: "0.2s",
+  };
+
+  const responseBox = {
+    background: "#020617",
+    color: "#4ade80",
+    padding: "16px",
+    borderRadius: "12px",
+    marginTop: "20px",
+    whiteSpace: "pre-wrap",
+    fontSize: "13px",
+    maxHeight: "200px",
+    overflow: "auto",
   };
 
   return (
     <div style={container}>
       <div style={card}>
-        <h2 style={h2}>Upload de Planilha</h2>
+        <h2 style={title}>Upload de Planilha</h2>
+        <p style={subtitle}>
+          Envie arquivos <strong>.csv</strong> ou <strong>.xlsx</strong>
+        </p>
 
         <select
-          style={input}
+          style={select}
           value={tipo}
           onChange={(e) => setTipo(e.target.value)}
         >
@@ -92,15 +116,32 @@ export default function UploadPage() {
 
         <input
           type="file"
-          style={input}
           accept=".csv, .xlsx"
-          onChange={(e) => handleFileSelect(e, setFile, setFileName, setFileInfo)}
+          style={{
+            width: "95%",
+            padding: "10px",
+            borderRadius: "10px",
+            border: "1px solid #cbd5e1",
+            marginBottom: "8px",
+            fontSize: "14px",
+          }}
+          onChange={(e) =>
+            handleFileSelect(e, setFile, setFileName, setFileInfo)
+          }
         />
 
-        <p style={{color:'#000'}}>{fileName}</p>
+        <p
+          style={{
+            fontSize: "13px",
+            color: file ? "#1e293b" : "#94a3b8",
+            marginBottom: "12px",
+          }}
+        >
+          {fileName}
+        </p>
 
         {fileInfo && (
-          <div style={{ fontSize: "13px", color: "#555", marginBottom: "10px" }}>
+          <div style={fileInfoBox}>
             <div>Tamanho: {(fileInfo.size / 1024).toFixed(2)} KB</div>
             <div>
               Última modificação:{" "}
@@ -110,7 +151,7 @@ export default function UploadPage() {
         )}
 
         <button style={button} onClick={handleUpload} disabled={loading}>
-          {loading ? "Enviando..." : "Enviar"}
+          {loading ? "Enviando arquivo..." : "Enviar arquivo"}
         </button>
 
         {response && (
