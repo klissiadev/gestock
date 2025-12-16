@@ -44,3 +44,32 @@ export async function uploadFile(file, tipo) {
     return { error: "Erro ao enviar o arquivo" };
   }
 }
+
+export const handleFileSelect = (
+  event,
+  setFile,
+  setFileName,
+  setFileInfo
+) => {
+  const files = event.target.files;
+
+  if (files && files.length > 0) {
+    const file = files[0];
+
+    setFile(file);
+    setFileName(file.name);
+
+    setFileInfo({
+      size: file.size,
+      lastModified: new Date(file.lastModified),
+      type: file.type,
+    });
+
+    return;
+  }
+
+  setFile(null);
+  setFileName("Nenhum arquivo selecionado");
+  setFileInfo(null);
+};
+

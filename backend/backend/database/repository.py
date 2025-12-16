@@ -2,14 +2,14 @@
 from fastapi import HTTPException
 from typing import Optional, List, Dict, Any, Tuple, Union
 import re
+from psycopg2.extras import RealDictCursor
 
 
 class Repository:
 
     def __init__(self, conn):
         self.conn = conn
-        self.cursor = conn.cursor()
-
+        self.cursor = conn.cursor(cursor_factory=RealDictCursor)
     # =================================================
     # MÉTODOS AUXILIARES
     # =================================================
@@ -91,11 +91,11 @@ class Repository:
             """
             self.cursor.execute(sql, values)
             result = self.cursor.fetchone()
-            return result[0] if result else None
+            return result[returning] if result else None
 
         except Exception as e:
             self.conn.rollback()
-            raise HTTPException(status_code=500, detail=f"Erro ao inserir: {str(e)}")
+            raise
 
     # =================================================
     # SELECT
