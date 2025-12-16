@@ -98,7 +98,7 @@ class view_service:
         return filtered_products
 
         
-    def see_movimentacao_table(self):
+    def see_movimentacao_table(self, direcao: str, order: str, search_t: str):
         """
         Responsável por buscar as movimentações de estoque no banco de dados com base nos filtros fornecidos.
         Parâmetros:
@@ -124,7 +124,9 @@ class view_service:
                 "Usuario.nome AS nome_usuario",
                 "Produto.nome AS nome_produto"
             ],
-            order_by="Movimentacao.id_movimentacao",
-            direction="ASC"
+            search_term=search_t,
+            search_cols=["nome_produto", "nome_usuario", "tipo_movimento"],
+            order_by=order,
+            direction=direcao,
         )
 

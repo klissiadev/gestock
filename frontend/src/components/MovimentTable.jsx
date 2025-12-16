@@ -4,23 +4,32 @@ import { handleMTable } from '../api/viewApi';
 // Fazer isso depois de implementar todos os filtros da tabela de produtos
 
 const MovimentTable = () => {
-    const [table, setTable] = useState([]);
+    const [table, setTable] = useState(null);
+    const [orderBy, setOrderBy] = useState("");
+    const [isAsc, setIsAsc] = useState(true);
+    const [digitado, setDigitado] = useState("");
+    const [searchTerm, setSearchTerm] = useState("");
+
+    // Funcao do botao de pesquisar
+    const handlePesquisar = () => {
+        setSearchTerm(digitado);
+    };
 
     useEffect(() => {
-            const carregarDados = async () => {
-                try {
-                    // Busca os dados filtrados do backend
-                    const dados = await handleMTable();
-                    setTable(dados);
-    
-                } catch (error) {
-                    console.error("Erro ao buscar tabela:", error);
-                    setTable([]);
-                }
-            };
-            carregarDados();
-    
-        }, []);
+        const carregarDados = async () => {
+            try {
+                // Busca os dados filtrados do backend
+                const dados = await handleMTable(orderBy, isAsc, searchTerm);
+                setTable(dados);
+
+            } catch (error) {
+                console.error("Erro ao buscar tabela:", error);
+                setTable(null);
+            }
+        };
+        carregarDados();
+
+    }, [orderBy, isAsc, searchTerm]);
 
 
     if (!table) {
@@ -37,10 +46,65 @@ const MovimentTable = () => {
         // Container principal
         <div className="max-w-6xl mx-auto p-6 bg-white shadow-lg rounded-xl mt-10">
 
+            {/* CABEÇALHO DE CONTROLES*/}
+            <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-6 mb-8 border-b pb-6 border-slate-200">
+                {/* BLOCO DE ORDENAÇÃO */}
+                <div className="w-full md:w-auto">
+                    <h2 className="text-sm font-semibold text-slate-500 uppercase tracking-wider mb-2">Ordenação</h2>
+                    <div className="flex gap-2">
+                        <select
+                            className="w-full md:w-48 bg-slate-50 border border-slate-300 text-slate-700 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block p-2.5"
+                            value={orderBy}
+                            onChange={(e) => setOrderBy(e.target.value)}
+                        >
+                            {colunas.map(coluna => (
+                                <option key={coluna} value={coluna}>
+                                    {coluna.replace('_', ' ')}
+                                </option>
+                            ))}
+                        </select>
+
+                        <button
+                            onClick={() => setIsAsc(!isAsc)}
+                            className="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg transition-colors border border-slate-300"
+                            title={isAsc ? "Ascendente" : "Descendente"}
+                        >
+                            {isAsc ? "⬇️" : "⬆️"}
+                        </button>
+                    </div>
+                </div>
+
+                {/* BLOCO DE FILTROS E BUSCA */}
+                <div className="w-full md:w-auto flex flex-col md:flex-row gap-3">
+                    <div className='flex flex-col flex-1'>
+                        <label className="text-sm font-semibold text-slate-500 uppercase tracking-wider mb-2">Buscar</label>
+                        <div className="flex gap-2">
+                            <input
+                                type="text"
+                                className="bg-slate-50 border border-slate-300 text-slate-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
+                                placeholder="Nome do produto..."
+                                value={digitado}
+                                onChange={(e) => setDigitado(e.target.value)}
+                                onKeyDown={(e) => e.key === 'Enter' && handlePesquisar()}
+                            />
+                            <button
+                                type="button"
+                                onClick={handlePesquisar}
+                                className="text-white bg-blue-600 hover:bg-blue-700 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 transition-all"
+                            >
+                                Pesquisar
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+
+
             {/* TABELA */}
             {table.length > 0 ? (
                 <section>
-                    <h2 className="text-2xl font-bold text-slate-800 mb-6 text-center">Lista de Produtos</h2>
+                    <h2 className="text-2xl font-bold text-slate-800 mb-6 text-center">Lista de Movimentação</h2>
                     <div className="relative overflow-x-auto rounded-lg border border-slate-200">
                         <table className="w-full text-sm text-left text-slate-600">
                             <thead className="text-xs text-slate-700 uppercase bg-slate-100 border-b border-slate-200">

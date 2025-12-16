@@ -30,14 +30,13 @@ export async function handlePTable(orderBy, isAsc, search, categoria, isBaixoEst
             throw new Error(`Erro na API: ${response.status}`);
         }
         const dados = await response.json();
-        // console.log(dados);
         return dados;
     } catch {
         return { error: "Nao foi possivel ler a tabela de produtos" };
     }
 };
 
-export async function handleMTable() {
+export async function handleMTable(orderBy, isAsc, search) {
     try {
         const response = await fetch(
             `http://localhost:8000/views/moviment`,
@@ -45,7 +44,12 @@ export async function handleMTable() {
                 method: "POST",
                 headers:{
                     "Content-Type": "application/json",
-                }
+                },
+                body: JSON.stringify({
+                    "orderBy": orderBy,
+                    "isAsc": isAsc,
+                    "search": search,
+                })
             }
         );
 
@@ -54,7 +58,6 @@ export async function handleMTable() {
         }
 
         const dados = await response.json();
-        console.log(dados);
         return dados;
 
     } catch {

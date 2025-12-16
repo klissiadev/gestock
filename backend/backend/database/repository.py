@@ -21,7 +21,7 @@ class Repository:
         - "Tabela".coluna AS alias
         - "Tabela"
         """
-        # 1. Trata alias: Usuario.nome AS nome_usuario
+        # Usuario.nome AS nome_usuario
         if " AS " in identifier.upper():
             left, alias = identifier.split(" AS ", 1)
             return f"{self._quote_identifier(left)} AS {alias}"
