@@ -26,6 +26,7 @@ class view_service:
         estoque_minimo = produto.get("estoque_minimo", 0)
         return math.floor(estoque_minimo * 1.2) 
     
+    
     def _check_vencido(self, produto):
         """
         Verifica se um produto está vencido com base na data atual.
@@ -41,6 +42,7 @@ class view_service:
         if data_validade:
             return data_validade < datetime.now().date()
         return False 
+    
     
     def see_product_table(self, direcao: str, order: str, search_t: str, categoria: str, apenas_baixo_estoque: bool, apenas_vencidos: bool):
         """
@@ -94,7 +96,7 @@ class view_service:
         return filtered_products
 
         
-    def see_movimentacao_table(self, direcao:str, order:str, search_t:str, tipo_movimentacao:str):
+    def see_movimentacao_table(self):
         """
         Responsável por buscar as movimentações de estoque no banco de dados com base nos filtros fornecidos.
         Parâmetros:
@@ -106,17 +108,8 @@ class view_service:
         Retorna:
         - Lista de movimentações que correspondem aos critérios de busca e ordenação.
         """
-        condicoes_db = {}
-
-        if tipo_movimentacao:
-            condicoes_db["tipo_movimentacao"] = tipo_movimentacao
-
         return self.repo.fetch_all(
-                table="Movimentacao_Estoque",
-                conditions=condicoes_db,
-                columns=["cod_movimentacao", "cod_produto", "quantidade", "tipo_movimentacao", "data_hora", "responsavel"],
-                order_by=order,
-                direction=direcao,
-                search_term=search_t,
-                search_cols=["cod_produto", "responsavel"],
-                )
+                    table="Movimentacao",
+                    direction="DESC"
+                    )
+
