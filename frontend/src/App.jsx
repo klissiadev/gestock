@@ -1,8 +1,12 @@
-import UploadPage from "./pages/UploadPage";
-import StockSheets from "./pages/StockSheets";
+import { BrowserRouter } from "react-router-dom";
+import AppRoutes from "./routes/AppRoutes";
 
 function App() {
-  return <StockSheets />;
+  return (
+    <BrowserRouter>
+      <AppRoutes />
+    </BrowserRouter>
+  )
 }
 
 export default App;
