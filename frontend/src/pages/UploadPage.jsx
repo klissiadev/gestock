@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { uploadFile, handleFileSelect } from "../api/uploadApi";
-import { handleMailTrigger} from "../api/emailApi";
+import { handleMailTrigger } from "../api/emailApi";
 
 export default function UploadPage() {
   const [file, setFile] = useState(null);
@@ -32,6 +32,7 @@ export default function UploadPage() {
     alignItems: "center",
     background: "linear-gradient(135deg, #eef2f7, #dbe4f0)",
     fontFamily: "Inter, Arial, sans-serif",
+    padding: "20px",
   };
 
   const card = {
@@ -160,16 +161,13 @@ export default function UploadPage() {
             {JSON.stringify(response, null, 2)}
           </pre>
         )}
-      </div>
 
-      <p>
-        <br />
-        <hr />
-        <br />
-      </p>
-      <button style={button} onClick={handleMailTrigger}>
-        Disparar E-mails (testandinho)
-      </button>
+          <hr style={{margin: '30px'}}/>
+
+        <button style={button} onClick={handleMailTrigger}>
+          Disparar E-mails (Teste)
+        </button>
+      </div>
     </div>
   );
 }
