@@ -5,7 +5,7 @@ import { handleMTable } from '../api/viewApi';
 
 const MovimentTable = () => {
     const [table, setTable] = useState(null);
-    const [orderBy, setOrderBy] = useState("");
+    const [orderBy, setOrderBy] = useState("id_movimentacao");
     const [isAsc, setIsAsc] = useState(true);
     const [digitado, setDigitado] = useState("");
     const [searchTerm, setSearchTerm] = useState("");
