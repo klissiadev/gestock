@@ -3,6 +3,7 @@ from io import BytesIO
 import pandas as pd
 from fastapi import HTTPException
 from charset_normalizer import from_bytes
+import csv
 
 def read_uploaded_file(upload_file):
     # transforma upload_file do FastAPI em um conteúdo em bytes
@@ -32,7 +33,16 @@ def parse_to_dataframe(upload_file):
         # --------------------------
         if filename.endswith(".csv"):
             encoding = detect_encoding(content)
-            df = pd.read_csv(BytesIO(content), encoding=encoding)
+            
+            # Detector de separador
+            sample = content[:2048].decode(encoding, errors="ignore")
+            try:
+                dialect = csv.Sniffer().sniff(sample)
+                sep = dialect.delimiter
+            except:
+                sep = ";"  # fallback comum
+
+            df = pd.read_csv(BytesIO(content), encoding=encoding, sep=sep)
 
         # --------------------------
         # XLSX → não usa encoding
