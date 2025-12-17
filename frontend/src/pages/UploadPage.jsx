@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { uploadFile, handleFileSelect } from "../api/uploadApi";
+import { handleMailTrigger} from "../api/emailApi";
 
 export default function UploadPage() {
   const [file, setFile] = useState(null);
@@ -160,6 +161,15 @@ export default function UploadPage() {
           </pre>
         )}
       </div>
+
+      <p>
+        <br />
+        <hr />
+        <br />
+      </p>
+      <button style={button} onClick={handleMailTrigger}>
+        Disparar E-mails (testandinho)
+      </button>
     </div>
   );
 }

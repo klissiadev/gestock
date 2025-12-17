@@ -1,0 +1,95 @@
+@import "tailwindcss";
+
+/* Container da tabela */
+.tabela-container {
+  margin: 20px auto;
+  max-width: 1000px;
+  overflow-x: auto; /* Permite rolagem lateral em telas pequenas */
+  box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+  border-radius: 8px;
+}
+
+.orderby-container {
+
+}
+
+/* A tabela em si */
+.styled-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-family: sans-serif;
+  font-size: 0.9em;
+  background-color: white;
+}
+
+/* Cabeçalho */
+.styled-table thead tr {
+  background-color: #009879; /* Cor verde moderna (pode trocar por azul #007bff) */
+  color: #ffffff;
+  text-align: left;
+}
+
+/* Células e Cabeçalhos */
+.styled-table th,
+.styled-table td {
+  padding: 12px 15px;
+}
+
+/* Linhas do corpo */
+.styled-table tbody tr {
+  border-bottom: 1px solid #dddddd;
+}
+
+/* Efeito Zebrado (linhas pares de cor diferente) */
+.styled-table tbody tr:nth-of-type(even) {
+  background-color: #f3f3f3;
+}
+
+/* Borda inferior final mais grossa */
+.styled-table tbody tr:last-of-type {
+  border-bottom: 2px solid #009879;
+}
+
+/* ... Seu CSS anterior continua aqui ... */
+
+/* --- INÍCIO DO MODO ESCURO --- */
+@media (prefers-color-scheme: dark) {
+
+  /* Fundo da página (opcional, caso você ainda não tenha definido) */
+  body {
+    background-color: #121212;
+    color: #e0e0e0;
+  }
+
+  /* Fundo da tabela fica cinza escuro */
+  .styled-table {
+    background-color: #1e1e1e;
+    color: #dddddd;
+  }
+
+  /* Ajuste das bordas para cinza chumbo */
+  .styled-table tbody tr {
+    border-bottom: 1px solid #333333;
+  }
+
+  /* Linha Zebrada (agora num tom um pouco mais claro que o fundo) */
+  .styled-table tbody tr:nth-of-type(even) {
+    background-color: #2a2a2a;
+  }
+
+  /* Hover no modo escuro */
+  .styled-table tbody tr:hover {
+    background-color: #383838;
+    color: #4ade80; /* Um verde mais neon para brilhar no escuro */
+  }
+
+  /* O cabeçalho verde pode ficar igual, ou um pouco mais escuro para não ofuscar */
+  .styled-table thead tr {
+    background-color: #007f65; 
+  }
+
+  /* Sombra mais sutil no modo escuro */
+  .tabela-container {
+    box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
+  }
+}
