@@ -38,6 +38,8 @@ export async function handlePTable(orderBy, isAsc, search, categoria, isBaixoEst
 
 export async function handleMTable(orderBy, isAsc, search) {
     try {
+        console.log("Requisitando dados da tabela de movimentacoes com os parametros:");
+        console.log({ orderBy, isAsc, search });
         const response = await fetch(
             `http://localhost:8000/views/moviment`,
             {
@@ -56,6 +58,8 @@ export async function handleMTable(orderBy, isAsc, search) {
         if (!response.ok) {
             throw new Error(`Erro na API: ${response.status}`);
         }
+
+        
 
         const dados = await response.json();
         return dados;

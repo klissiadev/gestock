@@ -114,8 +114,8 @@ class view_service:
             table="Movimentacao",
             type_join="JOIN",
             join_tables=[
-                ("Usuario", '"Usuario"."id_usuario" = "Movimentacao"."id_usuario"'),
-                ("Produto", '"Produto"."cod_produto" = "Movimentacao"."cod_produto"')
+                ("Usuario", '"Usuario".id_usuario = "Movimentacao".id_usuario'),
+                ("Produto", '"Produto".cod_produto = "Movimentacao".cod_produto')
             ],
             columns=[
                 "Movimentacao.id_movimentacao",
@@ -125,7 +125,7 @@ class view_service:
                 "Produto.nome AS nome_produto"
             ],
             search_term=search_t,
-            search_cols=["nome_produto", "nome_usuario", "tipo_movimento"],
+            search_cols=["Produto.nome", "Usuario.nome", "Movimentacao.tipo_movimento"],
             order_by=order,
             direction=direcao,
         )
