@@ -2,6 +2,7 @@ const allowedExtensions = ["csv", "xlsx"];
 const allowedMimeTypes = [
   "text/csv",
   "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+  "application/vnd.ms-excel"
 ];
 
 function validateFile(file) {
@@ -9,6 +10,9 @@ function validateFile(file) {
 
   const extension = file.name.split(".").pop().toLowerCase();
   const mime = file.type;
+
+  console.log("Validando arquivo:", { extension, mime });
+  console.log("Permitidos MIME: ", allowedMimeTypes);
 
   if (!allowedExtensions.includes(extension)) {
     return { valid: false, error: "Envie apenas CSV ou XLSX." };
@@ -38,7 +42,6 @@ export async function uploadFile(file, tipo) {
         body: formData,
       }
     );
-
     return await response.json();
   } catch {
     return { error: "Erro ao enviar o arquivo" };
