@@ -33,16 +33,13 @@ def parse_to_dataframe(upload_file):
         # --------------------------
         if filename.endswith(".csv"):
             encoding = detect_encoding(content)
+            df = pd.read_csv(BytesIO(content), encoding=encoding, sep=";")
             
-            # Detector de separador
-            sample = content[:2048].decode(encoding, errors="ignore")
-            try:
-                dialect = csv.Sniffer().sniff(sample)
-                sep = dialect.delimiter
-            except:
-                sep = ";"  # fallback comum
-
-            df = pd.read_csv(BytesIO(content), encoding=encoding, sep=sep)
+            # tenta converter datas comuns no sistema (GG/MM/AAAA) para o formato AAAA-MM-DD
+            df["data_cadastro"] = pd.to_datetime(df["data_cadastro"], dayfirst=True, errors="coerce")
+            df["data_validade"] = pd.to_datetime(df["data_validade"], dayfirst=True, errors="coerce")
+            df["data_cadastro"] = df["data_cadastro"].dt.strftime("%Y-%m-%d")
+            df["data_validade"] = df["data_validade"].dt.strftime("%Y-%m-%d")
 
         # --------------------------
         # XLSX → não usa encoding

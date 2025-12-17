@@ -20,11 +20,13 @@ def process_import(upload_file, conn, import_type="produtos"):
     inserted = 0
     rejected = 0
     errors = []
+    
+    print(f"Iniciando processamento de importação do tipo: {import_type}")
 
     for idx, row in df.iterrows():
         row_dict = row.to_dict()
         row_errors = validate_row(row_dict, schema)
-
+        print("Erros na linha", idx+1, row_errors)
         if row_errors:
             rejected += 1
             errors.append({"row": idx+1, "errors": row_errors})
@@ -32,6 +34,7 @@ def process_import(upload_file, conn, import_type="produtos"):
 
         # Normalização
         data = {}
+        print(data)
         for col, rules in schema["columns"].items():
             if rules["type"] == "int":
                 data[col] = int(float(row_dict[col]))
@@ -39,6 +42,8 @@ def process_import(upload_file, conn, import_type="produtos"):
                 data[col] = float(row_dict[col])
             else:
                 data[col] = str(row_dict[col]).strip()
+        print(data)     
+        
 
         success = repo.insert(schema["table"], data)
 
@@ -52,7 +57,8 @@ def process_import(upload_file, conn, import_type="produtos"):
     repo.close()
 
     return {
-        "inserted": inserted,
-        "rejected": rejected,
-        "errors": errors
+        "registros_processados": inserted,
+        "rejeitados": rejected,
+        "erros": errors,
+        "erro_geral": None
     }
