@@ -1,8 +1,29 @@
+
 from fastapi import HTTPException
 from backend.database.schemas import IMPORT_SCHEMAS
 from backend.services.parser_service import parse_to_dataframe
 from backend.services.validation_service import validate_row
 from backend.database.repository import Repository
+import pandas as pd
+from datetime import date, datetime
+
+def normalize_value(value):
+    # Pandas NaN / NaT
+    if pd.isna(value):
+        return None
+
+    # datetime ou date
+    if isinstance(value, (datetime, date)):
+        return value
+
+    # Strings problemáticas
+    if isinstance(value, str):
+        v = value.strip()
+        if v.lower() in ("", "nan", "none", "null"):
+            return None
+        return v
+
+    return value
 
 def process_import(upload_file, conn, import_type="produtos"):
     if import_type not in IMPORT_SCHEMAS:
@@ -20,30 +41,38 @@ def process_import(upload_file, conn, import_type="produtos"):
     inserted = 0
     rejected = 0
     errors = []
-    
-    print(f"Iniciando processamento de importação do tipo: {import_type}")
 
     for idx, row in df.iterrows():
         row_dict = row.to_dict()
         row_errors = validate_row(row_dict, schema)
-        print("Erros na linha", idx+1, row_errors)
+
         if row_errors:
             rejected += 1
             errors.append({"row": idx+1, "errors": row_errors})
             continue
 
-        # Normalização
         data = {}
-        print(data)
+
         for col, rules in schema["columns"].items():
+            raw_value = row_dict.get(col)
+            value = normalize_value(raw_value)
+
+            if value is None:
+                data[col] = None
+                continue
+
             if rules["type"] == "int":
-                data[col] = int(float(row_dict[col]))
+                data[col] = int(float(value))
+
             elif rules["type"] == "float":
-                data[col] = float(row_dict[col])
+                data[col] = float(value)
+
+            elif rules["type"] == "date":
+                # psycopg2 aceita date ou string YYYY-MM-DD
+                data[col] = value
+
             else:
-                data[col] = str(row_dict[col]).strip()
-        print(data)     
-        
+                data[col] = str(value).strip()
 
         success = repo.insert(schema["table"], data)
 
@@ -57,8 +86,7 @@ def process_import(upload_file, conn, import_type="produtos"):
     repo.close()
 
     return {
-        "registros_processados": inserted,
-        "rejeitados": rejected,
-        "erros": errors,
-        "erro_geral": None
+        "inserted": inserted,
+        "rejected": rejected,
+        "errors": errors
     }

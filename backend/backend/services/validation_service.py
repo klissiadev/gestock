@@ -7,18 +7,20 @@ def validate_row(row, schema):
     for col, rules in schema["columns"].items():
         val = row.get(col)
 
+        # Trata NaN como None
+        if pd.isna(val):
+            val = None
+
         # Campo obrigatório
-        if rules.get("required") and (pd.isna(val) or str(val).strip() == ""):
+        if rules["required"] and (val is None or str(val).strip() == ""):
             errors.append(f"{col} vazio")
             continue
 
-        # Se campo não é obrigatório e está vazio, ignora
-        if pd.isna(val) or str(val).strip() == "":
-            continue
+        if val is None:
+            continue  # campo opcional vazio é OK
 
-        field_type = rules.get("type")
+        field_type = rules["type"]
 
-        # ===== validação por tipo =====
         if field_type == "float":
             try:
                 float(val)
@@ -36,8 +38,6 @@ def validate_row(row, schema):
             try:
                 datetime.strptime(str(val), date_format)
             except:
-                errors.append(
-                    f"{col} inválido (formato esperado: {date_format})"
-                )
+                errors.append(f"{col} inválido (formato esperado {date_format})")
 
     return errors

@@ -33,13 +33,20 @@ def parse_to_dataframe(upload_file):
         # --------------------------
         if filename.endswith(".csv"):
             encoding = detect_encoding(content)
-            df = pd.read_csv(BytesIO(content), encoding=encoding, sep=";")
-            
+
+            # detecta delimitador automaticamente
+            sample = content[:1024].decode(encoding, errors="ignore")
+            dialect = csv.Sniffer().sniff(sample, delimiters=";,")
+            sep = dialect.delimiter
+
+            df = pd.read_csv(BytesIO(content), encoding=encoding, sep=sep)
             # tenta converter datas comuns no sistema (GG/MM/AAAA) para o formato AAAA-MM-DD
-            df["data_cadastro"] = pd.to_datetime(df["data_cadastro"], dayfirst=True, errors="coerce")
-            df["data_validade"] = pd.to_datetime(df["data_validade"], dayfirst=True, errors="coerce")
-            df["data_cadastro"] = df["data_cadastro"].dt.strftime("%Y-%m-%d")
-            df["data_validade"] = df["data_validade"].dt.strftime("%Y-%m-%d")
+            for col in ["data_cadastro", "data_validade"]:
+                if col in df.columns:
+                    df[col] = pd.to_datetime(df[col], dayfirst=True, errors="coerce")
+                    df[col] = df[col].apply(
+                        lambda x: x.strftime("%Y-%m-%d") if pd.notna(x) else None
+                    )
 
         # --------------------------
         # XLSX → não usa encoding
@@ -55,5 +62,4 @@ def parse_to_dataframe(upload_file):
 
     # Normaliza colunas
     df.columns = [c.strip().lower() for c in df.columns]
-
     return df
