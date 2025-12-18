@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { uploadFile, handleFileSelect } from "../api/uploadApi";
 import { handleMailTrigger } from "../api/emailApi";
+import { ToastContainer, toast } from 'react-toastify';
 
 export default function UploadPage() {
   const [file, setFile] = useState(null);
@@ -20,6 +21,15 @@ export default function UploadPage() {
     const result = await uploadFile(file, tipo);
     setResponse(result);
     setLoading(false);
+  };
+
+  const handleMail = async () => {
+    try {
+      handleMailTrigger();
+      toast.success("E-mails agendados para envio");
+    } catch (error) {
+      toast.error("Erro ao agendar envio de e-mails");
+    }
   };
 
   /* ===== STYLES ===== */
@@ -101,6 +111,7 @@ export default function UploadPage() {
 
   return (
     <div style={container}>
+      <ToastContainer />
       <div style={card}>
         <h2 style={title}>Upload de Planilha</h2>
         <p style={subtitle}>
@@ -162,9 +173,9 @@ export default function UploadPage() {
           </pre>
         )}
 
-          <hr style={{margin: '30px'}}/>
+        <hr style={{ margin: '30px' }} />
 
-        <button style={button} onClick={handleMailTrigger}>
+        <button style={button} onClick={handleMail} disabled={loading}>
           Disparar E-mails (Teste)
         </button>
       </div>
