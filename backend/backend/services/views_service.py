@@ -67,7 +67,7 @@ class view_service:
         all_products = self.repo.fetch_all(
                 table="Produto",
                 conditions=condicoes_db,
-                columns=["cod_produto", "nome", "descricao", "categoria", "valor_unitario", "estoque_atual", "estoque_minimo"],
+                columns=["cod_produto", "nome", "descricao", "categoria", "valor_unitario", "estoque_atual", "estoque_minimo", "data_validade"],
                 order_by=order,
                 direction=direcao,
                 search_term=search_t,
@@ -91,9 +91,7 @@ class view_service:
                 continue
             if apenas_vencidos and not is_expired:
                 continue
-            
-            if "data_validade" in produto and not apenas_vencidos:
-                produto.pop("data_validade", None)
+            produto.pop("data_validade", None)  # Remover data_validade antes de retornar
             filtered_products.append(produto) 
         return filtered_products
 
