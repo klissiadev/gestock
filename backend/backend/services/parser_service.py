@@ -5,6 +5,9 @@ from fastapi import HTTPException
 from charset_normalizer import from_bytes
 import csv
 
+import unicodedata
+import re
+
 def read_uploaded_file(upload_file):
     # transforma upload_file do FastAPI em um conteúdo em bytes
     upload_file.file.seek(0) # reseta o ponteiro para o início do arquivo
@@ -26,6 +29,14 @@ def parse_to_dataframe(upload_file):
     content = read_uploaded_file(upload_file)
     filename = upload_file.filename.lower()
 
+    def normalize_column(col: str) -> str:
+        col = col.strip().lower()
+        col = col.replace("\ufeff", "")  # remove BOM
+        col = unicodedata.normalize("NFKD", col)
+        col = col.encode("ascii", "ignore").decode("ascii")
+        col = re.sub(r"\s+", "_", col)
+        return col
+
     # leitura do arquivo e transformação em DataFrame
     try:
         # --------------------------
@@ -40,6 +51,8 @@ def parse_to_dataframe(upload_file):
             sep = dialect.delimiter
 
             df = pd.read_csv(BytesIO(content), encoding=encoding, sep=sep)
+            # normalização das colunas
+            df.columns = [normalize_column(c) for c in df.columns]
             # tenta converter datas comuns no sistema (GG/MM/AAAA) para o formato AAAA-MM-DD
             for col in ["data_cadastro", "data_validade"]:
                 if col in df.columns:
@@ -53,13 +66,19 @@ def parse_to_dataframe(upload_file):
         # --------------------------
         elif filename.endswith(".xlsx"):
             df = pd.read_excel(BytesIO(content), engine="openpyxl")
+            df.columns = [normalize_column(c) for c in df.columns]
+
+            for col in ["data_cadastro", "data_validade"]:
+                if col in df.columns:
+                    df[col] = pd.to_datetime(df[col], errors="coerce")
+                    df[col] = df[col].apply(
+                        lambda x: x.strftime("%Y-%m-%d") if pd.notna(x) else None
+                    )
 
         else:
             raise HTTPException(status_code=400, detail="Formato não suportado.")
     
     except Exception as e:
         raise HTTPException(status_code=400, detail=f"Erro ao ler arquivo: {e}")
-
-    # Normaliza colunas
-    df.columns = [c.strip().lower() for c in df.columns]
+    
     return df

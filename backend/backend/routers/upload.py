@@ -1,4 +1,4 @@
-from fastapi import APIRouter, UploadFile, Depends
+from fastapi import APIRouter, UploadFile, Depends, HTTPException
 from datetime import date
 
 from backend.services.file_service import file_hash_exists, save_file_hash
@@ -14,48 +14,57 @@ router = APIRouter(prefix="/upload", tags=["upload"])
 
 @router.post("/{tipo}")
 def upload_file(tipo: str, file: UploadFile, db=Depends(get_db)):
-    # 1. Valida arquivo
+
+    # 1. Validação do arquivo
     validate_upload_file(file)
 
-    # 2. Gera hash
+    # 2. Geração do hash
     file_hash = generate_file_hash_stream(file.file)
 
-    # 3. Verifica duplicidade (AVISO, não bloqueia)
-    is_duplicate = file_hash_exists(db, file_hash)
-
-    # volta ponteiro
+    # 3. Reposiciona ponteiro
     file.file.seek(0)
 
-    # 4. Processa importação
+    log_service = LogImportacaoService(db)
+
+    # 4. Verifica duplicidade (BLOQUEIA)
+    if file_hash_exists(db, file_hash):
+
+        log = log_service.criar_log({
+            "nome_arquivo": file.filename,
+            "qntd_registros": 0,
+            "data_importacao": date.today(),
+            "status": "DUPLICADO",
+            "msg_erro": "Arquivo já foi importado anteriormente",
+            "id_usuario": 1
+        })
+
+        raise HTTPException(
+            status_code=409,
+            detail="Arquivo duplicado. Este arquivo já foi importado."
+        )
+
+    # 5. Processa importação
     result = process_import(file, db, import_type=tipo)
 
-    # 5. Salva hash somente se houve inserções
+    # 6. Salva hash somente se houver inserções
     if result.get("inserted", 0) > 0:
         save_file_hash(db, file.filename, file_hash)
 
-    # 6. Cria log
-    log_service = LogImportacaoService(db)
-
+    # 7. Log de sucesso ou parcial
     total_processados = result.get("inserted", 0) + result.get("rejected", 0)
 
-    log_data = {
+    log = log_service.criar_log({
         "nome_arquivo": file.filename,
         "qntd_registros": total_processados,
         "data_importacao": date.today(),
         "status": "SUCESSO" if not result.get("errors") else "PARCIAL",
-        "msg_erro": (
-            "Arquivo duplicado importado novamente"
-            if is_duplicate
-            else None
-        ),
+        "msg_erro": None,
         "id_usuario": 1
-    }
+    })
 
-    log = log_service.criar_log(log_data)
-
-    # 7. Retorno completo
+    # 8. Retorno
     return {
         "importacao": result,
-        "duplicado": is_duplicate,
+        "duplicado": False,
         "log": log
     }
