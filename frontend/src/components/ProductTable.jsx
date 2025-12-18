@@ -59,7 +59,7 @@ const ProductTable = () => {
     if (!table) {
         return (
             <div className="p-10 text-center text-slate-500 animate-pulse">
-                <p className="text-lg font-medium">Carregando dados da tabela... ⏳</p>
+                <p className="text-lg font-medium">Carregando dados da tabela...</p>
             </div>
         );
     }
