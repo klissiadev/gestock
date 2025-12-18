@@ -58,7 +58,7 @@ def process_import(upload_file, conn, import_type="produtos"):
 
         data = {}
 
-        for col, rules in columns_schema.items():
+        for col, rules in schema["columns"].items():
             raw_value = row_dict.get(col)
             value = normalize_value(raw_value)
             
