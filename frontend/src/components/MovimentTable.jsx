@@ -10,6 +10,10 @@ const MovimentTable = () => {
     const [digitado, setDigitado] = useState("");
     const [searchTerm, setSearchTerm] = useState("");
 
+    // Paginacao
+    const [currentPage, setCurrentPage] = useState(1);
+    const itemsPerPage = 10;
+
     // Funcao do botao de pesquisar
     const handlePesquisar = () => {
         setSearchTerm(digitado);
@@ -21,6 +25,7 @@ const MovimentTable = () => {
                 // Busca os dados filtrados do backend
                 const dados = await handleMTable(orderBy, isAsc, searchTerm);
                 setTable(dados);
+                setCurrentPage(1);
 
             } catch (error) {
                 console.error("Erro ao buscar tabela:", error);
@@ -39,6 +44,12 @@ const MovimentTable = () => {
             </div>
         );
     }
+
+    // Sistema de paginacao
+    const indexOfLastItem = currentPage * itemsPerPage;
+    const indexOfFirstItem = indexOfLastItem - itemsPerPage;
+    const currentItems = table.slice(indexOfFirstItem, indexOfLastItem);
+    const totalPages = Math.ceil(table.length / itemsPerPage);
 
     const colunas = table.length > 0 ? Object.keys(table[0]) : [];
 
@@ -117,7 +128,7 @@ const MovimentTable = () => {
                                 </tr>
                             </thead>
                             <tbody>
-                                {table.map((item, index) => (
+                                {currentItems.map((item, index) => (
                                     <tr
                                         key={index}
                                         className="bg-white border-b hover:bg-slate-50 transition-colors"
@@ -131,6 +142,34 @@ const MovimentTable = () => {
                                 ))}
                             </tbody>
                         </table>
+                    </div>
+                    {/* CONTROLES DE PAGINAÇÃO */}
+                    <div className="flex items-center justify-between mt-6 px-2">
+                        <span className="text-sm text-slate-600">
+                            Mostrando <span className="font-semibold text-slate-800">{indexOfFirstItem + 1}</span> a <span className="font-semibold text-slate-800">{Math.min(indexOfLastItem, table.length)}</span> de <span className="font-semibold text-slate-800">{table.length}</span> registros
+                        </span>
+
+                        <div className="inline-flex gap-2">
+                            <button
+                                onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
+                                disabled={currentPage === 1}
+                                className="px-4 py-2 text-sm font-medium text-slate-700 bg-white border border-slate-300 rounded-lg hover:bg-slate-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                            >
+                                Anterior
+                            </button>
+
+                            <div className="flex items-center gap-1 px-4 text-sm font-medium text-slate-700">
+                                Página {currentPage} de {totalPages}
+                            </div>
+
+                            <button
+                                onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
+                                disabled={currentPage === totalPages}
+                                className="px-4 py-2 text-sm font-medium text-slate-700 bg-white border border-slate-300 rounded-lg hover:bg-slate-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                            >
+                                Próxima
+                            </button>
+                        </div>
                     </div>
                 </section>
             ) : (
