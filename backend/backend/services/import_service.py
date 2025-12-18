@@ -42,6 +42,11 @@ def process_import(upload_file, conn, import_type="produtos"):
     rejected = 0
     errors = []
 
+    
+
+    # Esse For é demoniaco, ele ta sendo culpado pela demora
+    # Numa planilha de 3 mil linhas, ele demora 6 minutos
+    # É preciso otimizar isso aqui pra melhorar a performance
     for idx, row in df.iterrows():
         row_dict = row.to_dict()
         row_errors = validate_row(row_dict, schema)
@@ -53,9 +58,14 @@ def process_import(upload_file, conn, import_type="produtos"):
 
         data = {}
 
-        for col, rules in schema["columns"].items():
+        for col, rules in columns_schema.items():
             raw_value = row_dict.get(col)
             value = normalize_value(raw_value)
+            
+            # Quantas vezes ele passa aqui? 
+            # Resposta: MUITAS VEZES, tipo 23999 vezes
+            # print(f"comecou a analisar os valores: {count}")
+            # count += 1
 
             if value is None:
                 data[col] = None
@@ -82,6 +92,7 @@ def process_import(upload_file, conn, import_type="produtos"):
             rejected += 1
             errors.append({"row": idx+1, "errors": [success[1]]})
 
+    print("depois do for")
     repo.commit()
     repo.close()
 

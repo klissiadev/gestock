@@ -46,11 +46,11 @@ def parse_to_dataframe(upload_file):
             encoding = detect_encoding(content)
 
             # detecta delimitador automaticamente
-            sample = content[:1024].decode(encoding, errors="ignore")
-            dialect = csv.Sniffer().sniff(sample, delimiters=";,")
-            sep = dialect.delimiter
+            # sample = content[:1024].decode(encoding, errors="ignore")
+            # dialect = csv.Sniffer().sniff(sample, delimiters=";,")
+            # sep = dialect.delimiter
 
-            df = pd.read_csv(BytesIO(content), encoding=encoding, sep=sep)
+            df = pd.read_csv(BytesIO(content), encoding=encoding, sep=None, engine="python")
             # normalização das colunas
             df.columns = [normalize_column(c) for c in df.columns]
             # tenta converter datas comuns no sistema (GG/MM/AAAA) para o formato AAAA-MM-DD

@@ -224,7 +224,7 @@ const ProductTable = () => {
                 </section>
             ) : (
                 <div className="p-10 text-center text-slate-500">
-                    <p className="text-lg">Nenhum produto encontrado. 😕</p>
+                    <p className="text-lg">Nenhum produto encontrado. </p>
                 </div>
             )}
 
