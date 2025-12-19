@@ -3,7 +3,7 @@ import random
 from datetime import datetime, timedelta
 
 
-TOTAL = 100
+TOTAL = 3000
 ARQUIVO = "produtos.csv"
 
 nomes = [
