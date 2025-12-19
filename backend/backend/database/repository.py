@@ -2,7 +2,7 @@
 from fastapi import HTTPException
 from typing import Optional, List, Dict, Any, Tuple, Union
 import re
-from psycopg2.extras import RealDictCursor
+from psycopg2.extras import RealDictCursor, execute_values
 
 
 class Repository:
@@ -329,3 +329,41 @@ class Repository:
             self.cursor.close()
         except:
             pass
+
+
+    # bulk insert para a otimização de importação
+    def bulk_insert(self, table: str, rows: list[dict]):
+        if not rows:
+            return {"success": 0, "failed": []}
+
+        try:
+            # quote da tabela
+            table_q = self._quote_identifier(table)
+
+            # quote das colunas
+            columns = list(rows[0].keys())
+            cols_q = ", ".join(self._quote_identifier(col) for col in columns)
+
+            # valores
+            values = [
+                tuple(row[col] for col in columns)
+                for row in rows
+            ]
+
+            sql = f"""
+                INSERT INTO {table_q} ({cols_q})
+                VALUES %s
+            """
+
+            execute_values(self.cursor, sql, values)
+            return {"success": len(rows), "failed": []}
+
+        except Exception as e:
+            self.conn.rollback()
+            return {
+                "success": 0,
+                "failed": [
+                    {"index": i, "error": str(e)}
+                    for i in range(len(rows))
+                ]
+            }
