@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { handlePTable } from '../api/viewApi';
+import { handlePTable } from '../../../api/viewApi';
 
 const ProductTable = () => {
     // Todos os Estados (considerando todos os filtros e ordenações)
