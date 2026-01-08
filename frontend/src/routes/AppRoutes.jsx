@@ -1,7 +1,7 @@
 import React from 'react'
 import { Route, Routes } from 'react-router-dom'
-import StockSheets from '../pages/StockSheets'
-import UploadPage from '../pages/UploadPage'
+import StockSheets from '../features/estoque/pages/StockSheets'
+import UploadPage from '../features/upload/pages/UploadPage'
 
 
 const AppRoutes = () => {

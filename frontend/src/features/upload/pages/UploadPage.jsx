@@ -1,6 +1,6 @@
 import { useState } from "react";
-import { uploadFile, handleFileSelect } from "../api/uploadApi";
-import { handleMailTrigger } from "../api/emailApi";
+import { uploadFile, handleFileSelect } from "../../../api/uploadApi";
+import { handleMailTrigger } from "../../../api/emailApi";
 import { ToastContainer, toast } from 'react-toastify';
 
 export default function UploadPage() {

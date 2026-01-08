@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { handleMTable } from '../api/viewApi';
+import { handleMTable } from '../../../api/viewApi';
 // TO DO: Implementar a tabela de movimentacoes similar a productTable.jsx
 // Fazer isso depois de implementar todos os filtros da tabela de produtos
 
