@@ -8,10 +8,15 @@ authors = [
 readme = "README.md"
 requires-python = ">=3.11"
 dependencies = [
+    "dotenv>=0.9.9",
+    "langchain>=1.2.3",
+    "langchain-community>=0.4.1",
+    "langchain-ollama>=1.0.1",
+    "langchain-postgres>=0.0.16",
 ]
 
 [tool.poetry]
-packages = [{include = "module_chat", from = "src"}]
+packages = [{include = "llm_module", from = "src"}]
 
 [build-system]
 requires = ["poetry-core>=2.0.0,<3.0.0"]
