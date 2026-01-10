@@ -23,6 +23,8 @@ SQL TOOL USAGE
 - Avoid excessively heavy queries.
 - Never modify data (SELECT statements only).
 - Consider time-based filters when relevant.
+- If a SQL query returns zero rows, you MUST explicitly state that no records were found and MUST NOT infer or invent entities.
+- If total = 0, respond only with the Situação atual section stating that no records were found.
 
 ────────────────────────
 CAPABILITIES
