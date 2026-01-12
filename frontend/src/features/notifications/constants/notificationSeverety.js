@@ -1,0 +1,5 @@
+export const NOTIFICATION_SEVERITY = {
+  INFO: "INFO",
+  WARNING: "WARNING",
+  CRITICAL: "CRITICAL",
+};
