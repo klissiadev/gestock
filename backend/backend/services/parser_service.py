@@ -54,12 +54,24 @@ def parse_to_dataframe(upload_file):
             # normalização das colunas
             df.columns = [normalize_column(c) for c in df.columns]
             # tenta converter datas comuns no sistema (GG/MM/AAAA) para o formato AAAA-MM-DD
-            for col in ["data_cadastro", "data_validade"]:
-                if col in df.columns:
-                    df[col] = pd.to_datetime(df[col], dayfirst=True, errors="coerce")
-                    df[col] = df[col].apply(
-                        lambda x: x.strftime("%Y-%m-%d") if pd.notna(x) else None
-                    )
+            date_columns = [c for c in df.columns if c.startswith("data_")]
+
+            for col in date_columns:
+                df[col] = pd.to_datetime(df[col], dayfirst=False, errors="coerce")
+                df[col] = df[col].apply(
+                    lambda x: x.strftime("%Y-%m-%d") if pd.notna(x) else None
+                )
+            money_columns = [c for c in df.columns if c.startswith("preco_")]
+
+            for col in money_columns:
+                df[col] = (
+                    df[col]
+                    .astype(str)
+                    .str.replace("R$", "", regex=False)
+                    .str.replace(".", "", regex=False)
+                    .str.replace(",", ".", regex=False)
+                    .str.strip()
+                )
 
         # --------------------------
         # XLSX → não usa encoding
@@ -68,12 +80,25 @@ def parse_to_dataframe(upload_file):
             df = pd.read_excel(BytesIO(content), engine="openpyxl")
             df.columns = [normalize_column(c) for c in df.columns]
 
-            for col in ["data_cadastro", "data_validade"]:
-                if col in df.columns:
-                    df[col] = pd.to_datetime(df[col], errors="coerce")
-                    df[col] = df[col].apply(
-                        lambda x: x.strftime("%Y-%m-%d") if pd.notna(x) else None
-                    )
+            date_columns = [c for c in df.columns if c.startswith("data_")]
+
+            for col in date_columns:
+                df[col] = pd.to_datetime(df[col], dayfirst=True, errors="coerce")
+                df[col] = df[col].apply(
+                    lambda x: x.strftime("%Y-%m-%d") if pd.notna(x) else None
+                )
+
+            money_columns = [c for c in df.columns if c.startswith("preco_")]
+
+            for col in money_columns:
+                df[col] = (
+                    df[col]
+                    .astype(str)
+                    .str.replace("R$", "", regex=False)
+                    .str.replace(".", "", regex=False)
+                    .str.replace(",", ".", regex=False)
+                    .str.strip()
+                )
 
         else:
             raise HTTPException(status_code=400, detail="Formato não suportado.")
