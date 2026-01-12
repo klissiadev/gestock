@@ -12,6 +12,7 @@ from llm_module.tools.sql_tools import (
     tool_produtos_vencimento_proximo,
     tool_contagem_produtos,
 )
+from llm_module.tools.mcp_tools import tool_get_current_time
 
 load_dotenv()
 SYSTEM_PROMPT_LOCATION = os.getenv("SYSTEM_PROMPT_LOCATION")
@@ -19,13 +20,14 @@ MAX_INPUT_SIZE = int(os.getenv("MAX_INPUT_LENGTH", "4000"))
 
 class chat_bot_service:
     def __init__(self):
-        self.model = ChatOllama(model="llama3.2:3b", temperature=0.7)
+        self.model = ChatOllama(model="llama3.1:8b", temperature=0.0)
         self.middleware = []
         self.tools = [
             tool_listar_produtos,
             tool_produtos_vencendo,
             tool_produtos_vencimento_proximo,
             tool_contagem_produtos,
+            tool_get_current_time
         ]
         self.prompt = SystemMessage(content=self._get_system_prompt())
         self.agent = self._build_agent()
@@ -79,7 +81,7 @@ class chat_bot_service:
         if len(content) > MAX_INPUT_SIZE:
             raise RuntimeError("Entrada muito longa")
 
-    def send_message(self, 
+    async def send_message(self, 
                      user_input: str, 
                      session_id: str | None = None, 
                      user_id: str | None = None
@@ -95,7 +97,7 @@ class chat_bot_service:
         
         self._validate_user_input(user_input=user_input)
         
-        result = self.agent.invoke(
+        result = await self.agent.ainvoke(
             {
                 "messages": [HumanMessage(content=user_input)]
             },
@@ -131,18 +133,29 @@ class chat_bot_service:
         """
         pass
 
+async def testes():
+    chat = chat_bot_service()
 
-# Testes
-chat = chat_bot_service()
-# print(chat.send_message("Quantos produtos temos no estoque?"))
-# print(" ")
-print(chat.send_message("Liste os produtos que estão para vencer nos próximos 15 dias."))
-print(" ")
-print(chat.send_message("Liste os produtos que estão para vencer nos próximos 2000 dias."))
-print(" ")
+    resp = await chat.send_message("que dia é hoje? que horas são?")
+    print(resp)
+    print("------------------------")
 
-# print(chat.send_message("Me liste todos os produtos cadastrados no sistema."))
-# print(" ")
-# print(chat.send_message("Qual produto vai vencer primeiro?"))
-# print(" ")
+    resp = await chat.send_message(
+        "Liste os produtos que estão para vencer nos próximos 15 dias."
+    )
+    print(resp)
+    print("------------------------")
+
+    resp = await chat.send_message(
+        "Liste os produtos que estão para vencer nos próximos 2000 dias."
+    )
+    print(resp)
+    print("------------------------")
+
+if __name__ == "__main__":
+    print("Iniciando testes...\n")
+    import asyncio
+    asyncio.run(testes())
+    print("Testes finalizados.")
+
         
