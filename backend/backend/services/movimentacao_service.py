@@ -7,14 +7,54 @@ class MovimentacaoService:
     def __init__(self, conn):
         self.repo = Repository(conn)
 
-    def registrar_movimentacao(self, mov: dict):
-        ok = self.repo.insert("movimentacoes", mov)
+    # =========================
+    # ENTRADA
+    # =========================
+    def registrar_entrada(self, dados: dict):
+        ok = self.repo.insert(
+            "app_core.movimentacoes_entrada",
+            dados
+        )
         if not ok:
-            raise HTTPException(status_code=400, detail="Erro ao inserir movimentação.")
-        self.repo.commit()
-        return {"message": "Movimentação registrada com sucesso"}
+            raise HTTPException(
+                status_code=400,
+                detail="Erro ao registrar entrada de produto."
+            )
 
-    def listar_movimentacoes(self):
-        cursor = self.repo.cursor
-        cursor.execute("SELECT * FROM movimentacoes ORDER BY data DESC")
-        return cursor.fetchall()
+        self.repo.commit()
+        return {"message": "Entrada registrada com sucesso"}
+
+    def listar_entradas(self):
+        sql = """
+            SELECT *
+            FROM app_core.movimentacoes_entrada
+            ORDER BY created_at DESC
+        """
+        self.repo.cursor.execute(sql)
+        return self.repo.cursor.fetchall()
+
+    # =========================
+    # SAÍDA
+    # =========================
+    def registrar_saida(self, dados: dict):
+        ok = self.repo.insert(
+            "app_core.movimentacoes_saida",
+            dados
+        )
+        if not ok:
+            raise HTTPException(
+                status_code=400,
+                detail="Erro ao registrar saída de produto."
+            )
+
+        self.repo.commit()
+        return {"message": "Saída registrada com sucesso"}
+
+    def listar_saidas(self):
+        sql = """
+            SELECT *
+            FROM app_core.movimentacoes_saida
+            ORDER BY created_at DESC
+        """
+        self.repo.cursor.execute(sql)
+        return self.repo.cursor.fetchall()

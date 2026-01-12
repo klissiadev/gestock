@@ -5,6 +5,7 @@ from backend.services.validation_service import validate_row
 from backend.database.repository import Repository
 import pandas as pd
 from datetime import date, datetime
+from decimal import Decimal
 
 
 def normalize_value(value):
@@ -22,6 +23,13 @@ def normalize_value(value):
 
     return value
 
+def parse_date(value, fmt=None):
+    if isinstance(value, (date, datetime)):
+        return value
+    if fmt:
+        return datetime.strptime(value, fmt).date()
+    return value
+
 
 def process_import(upload_file, conn, import_type="produtos"):
     if import_type not in IMPORT_SCHEMAS:
@@ -31,7 +39,12 @@ def process_import(upload_file, conn, import_type="produtos"):
     df = parse_to_dataframe(upload_file)
 
     # Verifica colunas obrigatórias
-    missing = set(schema["columns"].keys()) - set(df.columns)
+    required_columns = {
+        col for col, rules in schema["columns"].items()
+        if rules.get("required", False)
+    }
+
+    missing = required_columns - set(df.columns)
     if missing:
         raise HTTPException(
             status_code=400,
@@ -46,16 +59,17 @@ def process_import(upload_file, conn, import_type="produtos"):
 
     # PREPARAÇÃO PARA PERFORMANCE
     type_cast = {
-        "int": lambda v: int(float(v)),
-        "float": lambda v: float(v),
-        "date": lambda v: v,
-        "str": lambda v: str(v).strip(),
+        "int": lambda v, fmt=None: int(float(v)),
+        "float": lambda v, fmt=None: Decimal(str(v)),
+        "date": lambda v, fmt=None: parse_date(v, fmt),
+        "str": lambda v, fmt=None: str(v).strip(),
     }
 
     columns_rules = schema["columns"]
 
     rows_to_insert = []
     rows_index_map = []
+    db_columns = repo.get_table_columns(schema["table"])
 
     # LOOP SEM INSERT
     for idx, row in enumerate(df.itertuples(index=False), start=1):
@@ -77,7 +91,7 @@ def process_import(upload_file, conn, import_type="produtos"):
                 continue
 
             cast_func = type_cast.get(rules["type"], type_cast["str"])
-            data[col] = cast_func(value)
+            data[col] = cast_func(value, rules.get("format"))
 
         rows_to_insert.append(data)
         rows_index_map.append(idx)

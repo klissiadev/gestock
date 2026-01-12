@@ -163,6 +163,20 @@ class Repository:
         except Exception as e:
             self.conn.rollback()
             raise
+    
+    def get_table_columns(self, table_name: str):
+        sql = """
+            SELECT column_name
+            FROM information_schema.columns
+            WHERE table_schema = %s AND table_name = %s
+            ORDER BY ordinal_position
+        """
+        schema, table = table_name.split(".")
+
+        cursor = self.cursor
+        cursor.execute(sql, (schema, table))
+
+        return [row["column_name"] for row in cursor.fetchall()]
 
     # =================================================
     # SELECT
@@ -357,7 +371,13 @@ class Repository:
 
             execute_values(self.cursor, sql, values)
             return {"success": len(rows), "failed": []}
-
+        
+        except psycopg2.errors.ForeignKeyViolation as e:
+            return {
+                "success": 0,
+                "failed": [{"index": i, "error": "Chave estrangeira inválida"}]
+            }
+        
         except Exception as e:
             self.conn.rollback()
             return {

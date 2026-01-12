@@ -9,11 +9,23 @@ def get_service(conn=Depends(get_connection)):
     return MovimentacaoService(conn)
 
 
-@router.post("/")
-def registrar_movimentacao(movimentacao: dict, service: MovimentacaoService = Depends(get_service)):
-    return service.registrar_movimentacao(movimentacao)
+# -------- ENTRADA --------
+@router.post("/entrada")
+def registrar_entrada(dados: dict, service: MovimentacaoService = Depends(get_service)):
+    return service.registrar_entrada(dados)
 
 
-@router.get("/")
-def listar_movimentacoes(service: MovimentacaoService = Depends(get_service)):
-    return service.listar_movimentacoes()
+@router.get("/entrada")
+def listar_entradas(service: MovimentacaoService = Depends(get_service)):
+    return service.listar_entradas()
+
+
+# -------- SAÍDA --------
+@router.post("/saida")
+def registrar_saida(dados: dict, service: MovimentacaoService = Depends(get_service)):
+    return service.registrar_saida(dados)
+
+
+@router.get("/saida")
+def listar_saidas(service: MovimentacaoService = Depends(get_service)):
+    return service.listar_saidas()
