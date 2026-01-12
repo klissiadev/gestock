@@ -20,7 +20,7 @@ MAX_INPUT_SIZE = int(os.getenv("MAX_INPUT_LENGTH", "4000"))
 
 class chat_bot_service:
     def __init__(self):
-        self.model = ChatOllama(model="llama3.1:8b", temperature=0.0)
+        self.model = ChatOllama(model="llama3.2:3b", temperature=0.1)
         self.middleware = []
         self.tools = [
             tool_listar_produtos,
@@ -112,8 +112,12 @@ class chat_bot_service:
         return result["messages"][-1].content
     
     """
-    As funcoes a seguir precisam da existencia de uma tela de usuario para funcionar... vish
-    """
+    As funcoes a seguir precisam da existencia de uma tela de usuario para funcionar... 
+    TO DO: Desenhar tabela
+        - Usuario
+        - Sessao
+        - Mensagens
+        Usuario (1,1) ---- (0,N) Sessao (1,1) ---- (0,N) Mensagens
     
     def start_session(self, user_id: str | None = None):
         pass
@@ -122,16 +126,15 @@ class chat_bot_service:
         pass
 
     def get_history(self, session_id: str | None = None):
-        """
-            Busca o histórico de conserva de uma respectiva sessao
-        """
         pass
 
     def clear_history(self, session_id: str | None = None):
-        """
-            Limpa o historico de conversa (que o assistente ira se lembrar na hora de conversar)
-        """
         pass
+    """
+
+"""
+Bloco de testes, um exemplo de como chamar a Minerva
+"""
 
 async def testes():
     chat = chat_bot_service()
