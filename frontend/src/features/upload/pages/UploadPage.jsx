@@ -6,7 +6,7 @@ import { ToastContainer, toast } from 'react-toastify';
 export default function UploadPage() {
   const [file, setFile] = useState(null);
   const [fileName, setFileName] = useState("Nenhum arquivo selecionado");
-  const [tipo, setTipo] = useState("Produto");
+  const [tipo, setTipo] = useState("produtos","movimentacoes_saida", "movimentacoes_entrada");
   const [response, setResponse] = useState(null);
   const [loading, setLoading] = useState(false);
   const [fileInfo, setFileInfo] = useState(null);
@@ -123,8 +123,9 @@ export default function UploadPage() {
           value={tipo}
           onChange={(e) => setTipo(e.target.value)}
         >
-          <option value="Produto">Produto</option>
-          <option value="Movimentacao">Movimentação</option>
+          <option value="produtos">Produto</option>
+          <option value="movimentacoes_saida">Movimentação de saída</option>
+          <option value="movimentacoes_entrada">Movimentação de entrada</option>
         </select>
 
         <input

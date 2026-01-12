@@ -70,6 +70,12 @@ def process_import(upload_file, conn, import_type="produtos"):
     rows_to_insert = []
     rows_index_map = []
     db_columns = repo.get_table_columns(schema["table"])
+    for col in schema["columns"].keys():
+        if col not in db_columns:
+            raise HTTPException(
+                status_code=400,
+                detail=f"Coluna '{col}' não existe na tabela {schema['table']}"
+            )
 
     # LOOP SEM INSERT
     for idx, row in enumerate(df.itertuples(index=False), start=1):
@@ -116,7 +122,6 @@ def process_import(upload_file, conn, import_type="produtos"):
                 })
 
     repo.commit()
-    repo.close()
 
     return {
         "inserted": inserted,
