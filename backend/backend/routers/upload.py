@@ -14,6 +14,7 @@ router = APIRouter(prefix="/upload", tags=["upload"])
 
 @router.post("/{tipo}")
 def upload_file(tipo: str, file: UploadFile, db=Depends(get_db)):
+    tipo = tipo.lower().strip()
 
     # 1. Validação do arquivo
     validate_upload_file(file)

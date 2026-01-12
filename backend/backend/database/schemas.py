@@ -114,7 +114,7 @@ class MovimentacaoSaidaOut(MovimentacaoSaidaBase):
 class LogImportacaoBase(BaseModel):
     nome_arquivo: str
     qntd_registros: int
-    data_importacao: date  # ou datetime se preferir
+    data_importacao: date
     status: str
     msg_erro: Optional[str] = None
     id_usuario: int
