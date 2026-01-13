@@ -1,5 +1,6 @@
 from langchain_mcp_adapters.client import MultiServerMCPClient
 from langchain.tools import tool
+from datetime import datetime
 
 _client = MultiServerMCPClient(
     {
@@ -30,7 +31,10 @@ async def _get_mcp_time_tool():
 @tool
 async def tool_get_current_time() -> str:
     """
-    Retorna a data e hora atual.
+    Retorna a data e hora atual em um formato estruturado para comparações temporais.
+    Uso principal:
+        - Verificar se um produto está vencido ou próximo da data de validade.
+        - Calcular intervalos de dias entre a data atual e uma data futura ou passada.
     """
     mcp_tool = await _get_mcp_time_tool()
     result = await mcp_tool.ainvoke({"timezone": "America/Manaus"})
@@ -39,6 +43,32 @@ async def tool_get_current_time() -> str:
     texto_json = result[0]["text"]
     import json
     dados = json.loads(texto_json)
-    
     return json.dumps(dados, ensure_ascii=False, indent=2)
 
+@tool
+def tool_calcular_validade(data_validade: str) -> dict:
+    """
+        Compara a data de validade (formato ISO) com data de hoje
+        Retorna se está vencido e quantos dias faltam.
+    """ 
+    validade = datetime.fromisoformat(data_validade).date()
+    atual = datetime.now().date()
+    
+    delta = (validade - atual).days
+    info = {}
+    
+    if delta > 0:
+        info = {
+            "status": "válido",
+            "data_validade": data_validade,
+            "mensagem": f"Faltam {delta} dias para vencer.", 
+        }
+    else:
+        # Usamos abs(delta) para não ficar "vencido há -10 dias"
+        info = {
+            "status": "vencido",
+            "data_validade": data_validade,
+            "mensagem": f"Produto vencido há {abs(delta)} dias" if delta < 0 else "Produto vence hoje."
+        }
+    
+    return info

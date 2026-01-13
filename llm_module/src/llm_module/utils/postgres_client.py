@@ -33,13 +33,17 @@ class PostgresClient:
 
     def fetch_all(self, query: str, params: tuple = ()):
         """
-        Executa uma query de SELECT e retorna todos os registros.
+            Executa uma query de SELECT e retorna todos os registros normalizados para JSON.
         """
-        with self.conn.cursor(row_factory=psycopg.rows.dict_row) as cur:
-            cur.execute(query, params)
-            # Processo de normalizacao aqui
-            result = cur.fetchall()
-            return self._normalize_date(result)
+        try:
+            with self.conn.cursor(row_factory=psycopg.rows.dict_row) as cur:
+                cur.execute(query, params)
+                result = cur.fetchall()
+                # Chama a normalização antes de retornar para a Tool da LLM
+                return self._normalize_date(result)
+        except Exception as e:
+            print(f"Erro na execução da query: {e}")
+            return []
 
     def close(self):
         """
