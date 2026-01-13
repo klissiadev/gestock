@@ -12,6 +12,7 @@ if (-not $uvExists) {
     }
 
     pipx install uv
+    ollama pull llama3.2:3b
 } else {
     Write-Host "uv encontrado."
 }
