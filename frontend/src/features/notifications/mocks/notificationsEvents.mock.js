@@ -31,8 +31,7 @@ export const notificationEventsMock = [
         isNearMinimum : true
       },
       data:{
-        currentStock: 18,
-        minimumStock: 15
+        currentStock: 18
       }
     },
     reference: {
