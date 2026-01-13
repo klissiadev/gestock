@@ -4,6 +4,13 @@ from typing import Optional, List, Dict, Any, Tuple, Union
 import re
 from psycopg2.extras import RealDictCursor, execute_values
 
+"""
+TO DO: Adaptar a classe repository a virar o PostgreClient usado pela LLM
+de tal forma que utilize o pycopg3 ao invés do 2 (pelo uso da biblioteca langchain_postgres durante o desenvolvimento de logs de conversa)
+
+
+"""
+
 
 class Repository:
 
