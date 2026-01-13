@@ -2,7 +2,7 @@ import { NOTIFICATION_TYPE } from "../constants/notificationType";
 
 /**
  * Modelo de evento bruto (fato do sistema).
- * Esse model NÃO tem título, mensagem ou severidade.
+ * Esse model NÃO tem título, mensagem ou urgência.
  * Ele será normalizado depois.
  */
 
