@@ -3,16 +3,14 @@ from langchain.agents import create_agent
 from langchain_community.document_loaders import TextLoader
 from langchain_core.messages import SystemMessage
 from langchain.messages import HumanMessage
+from langchain_community.agent_toolkits import SQLDatabaseToolkit
+from langchain_community.utilities import SQLDatabase
 from dotenv import load_dotenv
 import os, time, uuid
 
-from llm_module.tools.sql_tools import (
-    tool_listar_produtos,
-    tool_produtos_vencendo,
-    tool_produtos_vencimento_proximo,
-    tool_contagem_produtos,
-)
 from llm_module.tools.mcp_tools import tool_get_current_time
+from llm_module.tools.mcp_tools import tool_calcular_validade
+from llm_module.tools.sql_tools import tool_consultar_estoque
 
 load_dotenv()
 SYSTEM_PROMPT_LOCATION = os.getenv("SYSTEM_PROMPT_LOCATION")
@@ -20,40 +18,23 @@ MAX_INPUT_SIZE = int(os.getenv("MAX_INPUT_LENGTH", "4000"))
 
 class chat_bot_service:
     def __init__(self):
-        self.model = ChatOllama(model="llama3.2:3b", temperature=0.1)
+        self.model = ChatOllama(model="qwen2.5:7B", temperature=0.0)
         self.middleware = []
-        self.tools = [
-            tool_listar_produtos,
-            tool_produtos_vencendo,
-            tool_produtos_vencimento_proximo,
-            tool_contagem_produtos,
-            tool_get_current_time
-        ]
+        self.tools = [tool_get_current_time, tool_consultar_estoque, tool_calcular_validade]
         self.prompt = SystemMessage(content=self._get_system_prompt())
         self.agent = self._build_agent()
 
-    def _build_agent(self,
-                    session_id: str | None = None, 
-                    user_id: str | None = None
-                    ):
-        """
-        Responsavel pela construcao do agente
-        -> retorna agente com seu prompt inicializado
-        -> checkpoints de memoria determinados
-        -> ferramentas atribuidas 
+    def _build_agent(self):
         
-        TO DO: 
-        - adicionar ferramentas
-        - adicionar middleware
-        - adicionar memoria (por isso variaveis de id_Sessao e id_usuario)
-        """ 
-        return create_agent(
+        agent = create_agent(
             model=self.model,
             middleware=self.middleware,
             tools=self.tools,
             system_prompt=self.prompt,
             checkpointer=None
         )
+        
+        return agent
 
     def _get_system_prompt(self) -> str:
         if not SYSTEM_PROMPT_LOCATION:
@@ -109,28 +90,7 @@ class chat_bot_service:
             }
         )
 
-        return result["messages"][-1].content
-    
-    """
-    As funcoes a seguir precisam da existencia de uma tela de usuario para funcionar... 
-    TO DO: Desenhar tabela
-        - Usuario
-        - Sessao
-        - Mensagens
-        Usuario (1,1) ---- (0,N) Sessao (1,1) ---- (0,N) Mensagens
-    
-    def start_session(self, user_id: str | None = None):
-        pass
-
-    def end_session(self, session_id: str | None = None):
-        pass
-
-    def get_history(self, session_id: str | None = None):
-        pass
-
-    def clear_history(self, session_id: str | None = None):
-        pass
-    """
+        return result["messages"]
 
 """
 Bloco de testes, um exemplo de como chamar a Minerva
@@ -139,20 +99,27 @@ Bloco de testes, um exemplo de como chamar a Minerva
 async def testes():
     chat = chat_bot_service()
 
-    resp = await chat.send_message("que dia é hoje? que horas são?")
-    print(resp)
+    resp = await chat.send_message(
+        "Que produto vai vencer primeiro e em quantos dias ele vence?"
+    )
+    print("------------------------")
+    print(resp[-1].content)
     print("------------------------")
 
     resp = await chat.send_message(
-        "Liste os produtos que estão para vencer nos próximos 15 dias."
+        "Qual produto tem o maior estoque mínimo?"
     )
     print(resp)
     print("------------------------")
-
+    print(resp[-1].content)
+    print("------------------------")
+    
     resp = await chat.send_message(
-        "Liste os produtos que estão para vencer nos próximos 2000 dias."
+        "Tem parafuso na tabela de produto?"
     )
-    print(resp)
+
+    print("------------------------")
+    print(resp[-1].content)
     print("------------------------")
 
 if __name__ == "__main__":
