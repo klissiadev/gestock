@@ -2,7 +2,7 @@ from fastapi import APIRouter
 from pydantic import BaseModel
 from llm_module.services.llm_service import LLMService
 
-router = APIRouter(prefix="/llm", tags=["LLM"])
+router = APIRouter(tags=["LLM"])
 service = LLMService()
 
 
