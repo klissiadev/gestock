@@ -56,6 +56,7 @@ def tool_consultar_estoque(query_sql: str) -> dict:
         return {"erro": f"Erro na query SQL: {str(e)}"}
 
 # AINDA EM DESENVOLVIMENTO E FORA DE USO
+@tool
 def tool_descobrir_tabelas():
     """
     Retorna a lista de tabelas disponíveis para consulta no banco de dados, com suas respectivas colunas.
