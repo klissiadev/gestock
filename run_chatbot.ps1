@@ -31,7 +31,7 @@ if (-not $uvExists) {
 # Caminho do projeto (portável)
 # -----------------------------
 $documentsPath = [Environment]::GetFolderPath("MyDocuments")
-$projectPath   = Join-Path $documentsPath "GitHub\gestock\llm_module"
+$projectPath   = Join-Path $documentsPath "gestock\llm_module"
 
 if (-not (Test-Path $projectPath)) {
     Write-Error "Projeto não encontrado em: $projectPath"
