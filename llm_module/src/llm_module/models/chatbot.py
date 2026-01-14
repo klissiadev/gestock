@@ -11,6 +11,7 @@ import os, time, uuid
 from llm_module.tools.mcp_tools import tool_get_current_time
 from llm_module.tools.mcp_tools import tool_calcular_validade
 from llm_module.tools.sql_tools import tool_consultar_estoque
+from llm_module.tools.sql_tools import tool_descobrir_tabelas
 
 load_dotenv()
 SYSTEM_PROMPT_LOCATION = os.getenv("SYSTEM_PROMPT_LOCATION")
@@ -18,9 +19,9 @@ MAX_INPUT_SIZE = int(os.getenv("MAX_INPUT_LENGTH", "4000"))
 
 class chat_bot_service:
     def __init__(self):
-        self.model = ChatOllama(model="qwen2.5:7B", temperature=0.3)
+        self.model = ChatOllama(model="qwen2.5:7B", temperature=0.0)
         self.middleware = []
-        self.tools = [tool_get_current_time, tool_consultar_estoque, tool_calcular_validade]
+        self.tools = [tool_get_current_time, tool_consultar_estoque, tool_calcular_validade, tool_descobrir_tabelas]
         self.prompt = SystemMessage(content=self._get_system_prompt())
         self.agent = self._build_agent()
 
