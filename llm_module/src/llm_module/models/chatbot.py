@@ -101,7 +101,7 @@ async def testes():
     chat = chat_bot_service()
 
     resp = await chat.send_message(
-        "Tem produto inativo no sistema?"
+        "Verifique a movimentação de parafusos no estoque."
     )
     print("------------------------")
     print(resp[-1].content)
