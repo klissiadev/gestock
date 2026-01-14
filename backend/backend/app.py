@@ -12,6 +12,7 @@ from backend.routers.mail_router import router as mail_service
 from backend.routers.produto_router import router as produto_router
 from backend.routers.movimentacao_router import router as movimentacao_router
 from backend.routers.views_router import router as view_router
+from backend.routers.event_router import router as event_router
 
 # =========================
 # IMPORTS DE LOGGING
@@ -101,3 +102,4 @@ app.include_router(mail_service)
 app.include_router(produto_router)
 app.include_router(view_router)
 app.include_router(movimentacao_router)
+app.include_router(event_router)
