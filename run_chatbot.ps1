@@ -18,8 +18,8 @@ if (-not $uvExists) {
 
     # Verifica se ollama existe antes de usar
     if (Get-Command ollama -ErrorAction SilentlyContinue) {
-        Write-Host "Baixando modelo llama3.2:3b..."
-        ollama pull llama3.2:3b
+        Write-Host "Baixando modelo qwen2.5:7B..."
+        ollama pull qwen2.5:7B
     } else {
         Write-Warning "Ollama não encontrado. Pulei o download do modelo."
     }
