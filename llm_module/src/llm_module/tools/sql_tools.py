@@ -14,6 +14,23 @@ def _wrap_rows(rows: list[dict]) -> dict:
         "items": rows,
         "empty": len(rows) == 0
     }
+    
+def _normalize_table_info(information: list[dict]) -> dict:
+    """
+    Normaliza a informação das tabelas para um formato mais amigável.
+    """
+    esquema = {}
+    for row in information:
+        table_name = row['table_name']
+        column_name = row['column_name']
+        data_type = row['data_type']
+        
+        if table_name not in esquema:
+            esquema[table_name] = []
+        
+        esquema[table_name].append(f"{column_name} ({data_type})")
+    
+    return esquema
 
 
 @tool
@@ -38,4 +55,15 @@ def tool_consultar_estoque(query_sql: str) -> dict:
     except Exception as e:
         return {"erro": f"Erro na query SQL: {str(e)}"}
 
-
+# AINDA EM DESENVOLVIMENTO E FORA DE USO
+def tool_descobrir_tabelas():
+    """
+    Retorna a lista de tabelas disponíveis para consulta no banco de dados, com suas respectivas colunas.
+    """
+    columns = []
+    
+    query_table = "SELECT table_name, column_name, data_type FROM information_schema.columns WHERE table_schema = 'app_core' ORDER BY table_name;"
+    table_names = database.fetch_all(query_table)   
+    table_names = _normalize_table_info(table_names)
+    
+    return table_names

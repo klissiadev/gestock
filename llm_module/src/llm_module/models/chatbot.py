@@ -18,7 +18,7 @@ MAX_INPUT_SIZE = int(os.getenv("MAX_INPUT_LENGTH", "4000"))
 
 class chat_bot_service:
     def __init__(self):
-        self.model = ChatOllama(model="qwen2.5:7B", temperature=0.0)
+        self.model = ChatOllama(model="qwen2.5:7B", temperature=0.3)
         self.middleware = []
         self.tools = [tool_get_current_time, tool_consultar_estoque, tool_calcular_validade]
         self.prompt = SystemMessage(content=self._get_system_prompt())
@@ -100,24 +100,23 @@ async def testes():
     chat = chat_bot_service()
 
     resp = await chat.send_message(
-        "Que produto vai vencer primeiro e em quantos dias ele vence?"
+        "Tem produto inativo no sistema?"
     )
     print("------------------------")
     print(resp[-1].content)
     print("------------------------")
 
     resp = await chat.send_message(
-        "Qual produto tem o maior estoque mínimo?"
+        "tem placas no sistema? quais são?"
     )
-    print(resp)
     print("------------------------")
     print(resp[-1].content)
     print("------------------------")
     
     resp = await chat.send_message(
-        "Tem parafuso na tabela de produto?"
+        "Tem parafuso na tabela de produto? Se tem, que tipo de parafuso é?"
     )
-
+    
     print("------------------------")
     print(resp[-1].content)
     print("------------------------")
