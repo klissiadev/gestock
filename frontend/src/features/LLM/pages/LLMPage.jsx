@@ -57,7 +57,7 @@ const LLMPage = () => {
           style={{ width: "80%" }}
         />
         <button onClick={handleSend} disabled={loading}>
-          {loading ? "Enviando..." : "Enviar"}
+          {loading ? "Pensando..." : "Enviar"}
         </button>
       </div>
     </div>
