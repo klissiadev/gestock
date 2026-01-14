@@ -7,9 +7,7 @@ export const notificationEventsMock = [
     id: "evt-001",
     type: NOTIFICATION_TYPE.RUPTURE,
     context: {
-      flags: {
-        isBelowMinimum: true
-      },
+      state: "BELOW_MINIMUM",
       data: {
         currentStock: 3,
         minimumStock: 10
@@ -27,9 +25,7 @@ export const notificationEventsMock = [
     id: "evt-002",
     type: NOTIFICATION_TYPE.RUPTURE,
     context: {
-      flags:{
-        isNearMinimum : true
-      },
+      state: "ISNEAR_MINIMUM",
       data:{
         currentStock: 18
       }
@@ -46,9 +42,7 @@ export const notificationEventsMock = [
     id: "evt-003",
     type: NOTIFICATION_TYPE.VALIDITY,
     context: {
-      flags:{
-        isNearExpiration: true
-      },  
+      state: "ISNEAR_EXPIRATION",
       data:{
         expirationDate: "2026-01-20"
       }
@@ -65,9 +59,7 @@ export const notificationEventsMock = [
     id: "evt-004",
     type: NOTIFICATION_TYPE.VALIDITY,
     context: {
-      flags:{
-        isExpired: true
-      },  
+      state: "IS_EXPIRED",
       data:{
         expirationDate: "2026-01-10"
       }
@@ -84,10 +76,7 @@ export const notificationEventsMock = [
     id: "evt-005",
     type: NOTIFICATION_TYPE.SUCCESS,
     context: {
-      flags:{
-        importCompleted: true,
-        stockUpdated: true
-      }
+      state: "STOCK_UPDATED",
     },
     reference: {
       type: "IMPORT",
@@ -101,11 +90,9 @@ export const notificationEventsMock = [
     id: "evt-006",
     type: NOTIFICATION_TYPE.SUGGESTION,
     context: {
-      flags:{
-        suggestReplenishment: true
-      },  
+      state: "SUGGEST_REPLENISHMENT",
       data:{
-        data: ""
+        suggestion: ""
       }
     },
     reference: {
