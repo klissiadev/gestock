@@ -50,11 +50,26 @@ const LLMPage = () => {
       </div>
 
       <div style={{ marginTop: 12 }}>
-        <input
+        <textarea
+          //permite enviar a mensagem ao apertar enter
+          //e adiciona uma linha ao apertar shift+enter
           value={input}
           onChange={(e) => setInput(e.target.value)}
+          onKeyDown={(e) => {
+            if (e.key === 'Enter' && !e.shiftKey) {
+              e.preventDefault();
+              handleSend();
+            }
+          }}
           placeholder="Digite sua pergunta..."
-          style={{ width: "80%" }}
+          style={{ 
+            width: "80%",
+            minHeight: "40px",
+            resize: "vertical",
+            fontFamily: "inherit",
+            padding: "8px"
+          }}
+          rows={2}
         />
         <button onClick={handleSend} disabled={loading}>
           {loading ? "Pensando..." : "Enviar"}
