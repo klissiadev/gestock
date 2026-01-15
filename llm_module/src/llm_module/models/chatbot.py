@@ -8,9 +8,8 @@ from langchain_community.utilities import SQLDatabase
 from dotenv import load_dotenv
 import os, time, uuid
 
-from llm_module.tools.mcp_tools import tool_get_current_time
-from llm_module.tools.mcp_tools import tool_calcular_validade
-from llm_module.tools.sql_tools import tool_consultar_estoque
+from llm_module.tools.sql_tools import (
+    tool_buscar_produto, tool_listar_produtos, tool_buscar_movimentacao, tool_calcular_validade, tool_listar_movimentacoes)
 
 load_dotenv()
 SYSTEM_PROMPT_LOCATION = os.getenv("SYSTEM_PROMPT_LOCATION")
@@ -20,7 +19,7 @@ class chat_bot_service:
     def __init__(self):
         self.model = ChatOllama(model="qwen2.5:7B", temperature=0.0)
         self.middleware = []
-        self.tools = [tool_get_current_time, tool_consultar_estoque, tool_calcular_validade]
+        self.tools = [tool_buscar_produto, tool_listar_produtos, tool_buscar_movimentacao, tool_calcular_validade, tool_listar_movimentacoes]
         self.prompt = SystemMessage(content=self._get_system_prompt())
         self.agent = self._build_agent()
 
@@ -90,7 +89,7 @@ class chat_bot_service:
             }
         )
 
-        return result["messages"][-1].content
+        return result["messages"]
 
 """
 Bloco de testes, um exemplo de como chamar a Minerva
