@@ -76,7 +76,7 @@ export function normalizeNotification(event) {
   }
   //VALIDADE 
   if (type === "VALIDITY"){
-    if(event.context.state === "IS_EXPIRED"){
+    if(event.context.state === "EXPIRED"){
         return baseNotification({
             id,
             type,
@@ -89,7 +89,7 @@ export function normalizeNotification(event) {
         })
     }
 
-    if(event.context.state === "ISNEAR_EXPIRATION"){
+    if(event.context.state === "NEAR_EXPIRATION"){
         return baseNotification({
             id,
             type,

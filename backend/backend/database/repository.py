@@ -191,7 +191,7 @@ class Repository:
         try:
             table_q = self._quote_identifier(table)
             where_clause, values = self._build_where_clause(key_or_conditions, value)
-            sql = f"SELECT * FROM {table_q}{where_clause} LIMIT 1"
+            sql = f"SELECT * FROM app_core.{table_q}{where_clause} LIMIT 1"
             self.cursor.execute(sql, values)
             row = self.cursor.fetchone()
             return dict(row) if row else None
