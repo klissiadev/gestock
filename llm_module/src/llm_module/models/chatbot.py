@@ -89,7 +89,7 @@ class chat_bot_service:
             }
         )
 
-        return result["messages"]
+        return result["messages"][-1].content
 
 """
 Bloco de testes, um exemplo de como chamar a Minerva
