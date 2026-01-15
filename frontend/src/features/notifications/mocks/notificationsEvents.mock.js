@@ -42,7 +42,7 @@ export const notificationEventsMock = [
     id: "evt-003",
     type: NOTIFICATION_TYPE.VALIDITY,
     context: {
-      state: "ISNEAR_EXPIRATION",
+      state: "NEAR_EXPIRATION",
       data:{
         expirationDate: "2026-01-20"
       }
@@ -59,7 +59,7 @@ export const notificationEventsMock = [
     id: "evt-004",
     type: NOTIFICATION_TYPE.VALIDITY,
     context: {
-      state: "IS_EXPIRED",
+      state: "EXPIRED",
       data:{
         expirationDate: "2026-01-10"
       }

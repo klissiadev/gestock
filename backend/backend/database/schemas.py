@@ -1,6 +1,8 @@
 from pydantic import BaseModel
 from datetime import date, datetime
-from typing import Optional
+from typing import Optional, Dict, Any, Literal
+from enum import Enum
+
 
 # =========================
 # SCHEMAS PARA IMPORTAÇÃO
@@ -132,3 +134,62 @@ class LogImportacaoUpdate(BaseModel):
 
 class LogImportacaoOut(LogImportacaoBase):
     id_log_importacao: int
+
+# =========================
+# EVENTOS DE NOTIFICAÇÃO
+# =========================
+
+# -------------------------
+# ENUMS DE EVENTO
+# -------------------------
+
+class NotificationEventType(str, Enum):
+    RUPTURE = "RUPTURE"
+    VALIDITY = "VALIDITY"
+    SUCCESS = "SUCCESS"
+    SUGGESTION = "SUGGESTION"
+
+
+class NotificationEventState(str, Enum):
+    BELOW_MINIMUM = "BELOW_MINIMUM"
+    NEAR_MINIMUM = "NEAR_MINIMUM"
+
+    EXPIRED = "EXPIRED"
+    NEAR_EXPIRATION = "NEAR_EXPIRATION"
+
+    IMPORT_SUCCESS = "IMPORT_SUCCESS"
+
+    SUGGEST_REPLENISHMENT = "SUGGEST_REPLENISHMENT"
+
+# -------------------------
+# CONTEXTO DO EVENTO
+# -------------------------
+
+class NotificationEventContext(BaseModel):
+    state: NotificationEventState
+    data: Optional[Dict[str, Any]] = None
+
+# -------------------------
+# REFERENCIA DO EVENTO
+# ------------------------- 
+
+class NotificationEventReference(BaseModel):
+    type: Literal["PRODUCT", "STOCK", "IMPORT"]
+    id: int
+
+# -------------------------
+# EVENTO
+# ------------------------- 
+
+class NotificationEventBase(BaseModel):
+    type: NotificationEventType
+    context: NotificationEventContext
+    reference: NotificationEventReference
+    user_id: int
+
+class NotificationEventCreate(NotificationEventBase):
+    pass
+
+class NotificationEventOut(NotificationEventBase):
+    id: int
+    created_at: datetime

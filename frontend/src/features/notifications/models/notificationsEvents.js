@@ -16,12 +16,7 @@ import { NOTIFICATION_TYPE } from "../constants/notificationType";
  * 
  * @property {string} context.state
  *
- * @property {Object} [context.data]
- * @property {number} [context.data.currentStock]
- * @property {number} [context.data.minimumStock]
- * @property {string} [context.data.expirationDate]
- * @property {string} [context.data.suggestion]
- * @property {string} [context.data.error]
+ * @property {Object<string, any>} [context.data]
  *
  * @property {Object} reference
  * @property {"PRODUCT" | "STOCK" | "IMPORT"} reference.type

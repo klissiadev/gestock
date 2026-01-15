@@ -5,7 +5,7 @@ from backend.services.event_service import EventService
 router = APIRouter(prefix="/eventos", tags=["Eventos"])
 
 
-def get_service(conn=Depends(get_connection)):
+def get_service(conn = Depends(get_connection)):
     return EventService(conn)
 
 
@@ -17,3 +17,7 @@ def criar_evento(evento: dict, service: EventService = Depends(get_service)):
 @router.get("/")
 def listar_eventos(service: EventService = Depends(get_service)):
     return service.listar_eventos()
+
+@router.get("/{event_id}")
+def buscar_evento(event_id: int, service: EventService = Depends(get_service)):
+    return service.buscar_por_id(event_id)
