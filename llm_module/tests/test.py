@@ -32,6 +32,7 @@ async def test_llm_behavior(bot, caso):
     # Executa a chamada
     mensagens = await bot.send_message(pergunta)
     resposta = mensagens[-1].content.lower()
+    print(resposta)
 
     if caso.get('should_answer') is False:
         termos_recusa = ["não encontrei", "não tenho informação", "não existe", "desculpe", "lamento"]
