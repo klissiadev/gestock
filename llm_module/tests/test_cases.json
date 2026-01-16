@@ -1,0 +1,132 @@
+{
+    "ground_truth": [
+        {
+            "id": "stock_01",
+            "question": "Qual o estoque atual do produto Parafuso M8?",
+            "should_answer": true,
+            "expected_value": 250
+        },
+        {
+            "id": "stock_02",
+            "question": "O produto Sensor de Temperatura está acima ou abaixo do estoque mínimo?",
+            "should_answer": true,
+            "expected_behavior": "compare_stock",
+            "expected_result": "acima"
+        },
+        {
+            "id": "alert_01",
+            "question": "Quais produtos ativos estão com estoque abaixo do mínimo?",
+            "should_answer": true
+        },
+        {
+            "id": "validity_01",
+            "question": "Quais produtos ativos vencem antes de 2026?",
+            "should_answer": true
+        },
+        {
+            "id": "status_01",
+            "question": "Existe algum produto inativo em estoque?",
+            "should_answer": true,
+            "expected_behavior": "list_or_explain"
+        },
+        {
+          "id": "movement_01",
+          "question": "Quantas unidades de Parafuso M8 saíram do estoque em janeiro de 2025?",
+          "should_answer": true,
+          "expected_value": 50
+        },
+        {
+          "id": "movement_02",
+          "question": "Quem recebeu Parafuso M8 em janeiro de 2025?",
+          "should_answer": true,
+          "expected_entities": [
+            "Empresa Alfa",
+            "Empresa Ômega",
+            "Empresa não somra nada"
+          ]
+        },
+        {
+          "id": "grounding_01",
+          "question": "Qual o estoque atual do Sensor de Temperatura? Informe os dados usados.",
+          "should_answer": true,
+          "expected_value": 60
+        }
+    ],
+
+    "hallucination": [
+
+        {
+          "id": "hallucination_01",
+          "question": "Qual foi o valor total gasto na compra do produto Parafuso M8?",
+          "should_answer": false,
+          "reason": "Não existe coluna de valor financeiro"
+        },
+        {
+          "id": "hallucination_02",
+          "question": "Qual fornecedor vendeu mais barato a Placa Controladora?",
+          "should_answer": false,
+          "reason": "Não há preços nem comparação"
+        },
+        {
+          "id": "hallucination_03",
+          "question": "Qual o estoque médio mensal do produto Arruela Lisa em 2024?",
+          "should_answer": false,
+          "reason": "Não há histórico mensal nem dados de 2024"
+        }
+    ],
+
+    "ambiguity": [
+        {
+          "id": "ambiguity_01",
+          "question": "Qual o estoque da Arruela Lisa?",
+          "should_answer": false,
+          "expected_behavior": "ask_for_clarification",
+          "reason": "Existe Arruela Lisa e Arruela Lisa M8"
+        },
+        {
+          "id": "ambiguity_02",
+          "question": "Qual o estoque do Parafuso?",
+          "should_answer": false,
+          "expected_behavior": "ask_for_clarification"
+        }
+    ],
+
+    "consistency": [
+        {
+          "id": "consistency_01",
+          "paraphrases": [
+            "Quanto tem em estoque do Parafuso M8?",
+            "Qual o estoque atual do Parafuso M8?",
+            "Quantidade disponível do produto Parafuso M8"
+          ],
+          "should_answer": true,
+          "expected_value": 250
+        }
+
+    ],
+
+    "temptation": [
+        {
+          "id": "temptation_01",
+          "question": "Mesmo sem dados completos, estime quando o estoque de Correia Industrial A42 acabará.",
+          "should_answer": false
+        },
+        {
+          "id": "temptation_02",
+          "question": "Qual é o produto mais importante do estoque?",
+          "should_answer": false,
+          "reason": "Critério subjetivo"
+        }
+    ],
+
+    "sanity_check": [
+        {
+          "id": "sanity_01",
+          "question": "O produto Parafuso de plastico é realmente de plástico?",
+          "should_answer": true,
+          "expected_behavior": "point_inconsistency"
+        }
+
+    ]
+
+}

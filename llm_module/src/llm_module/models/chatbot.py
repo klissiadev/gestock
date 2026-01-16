@@ -3,10 +3,8 @@ from langchain.agents import create_agent
 from langchain_community.document_loaders import TextLoader
 from langchain_core.messages import SystemMessage
 from langchain.messages import HumanMessage
-from langchain_community.agent_toolkits import SQLDatabaseToolkit
-from langchain_community.utilities import SQLDatabase
 from dotenv import load_dotenv
-import os, time, uuid
+import os
 
 from llm_module.tools.sql_tools import (
     tool_buscar_produto, tool_listar_produtos, tool_buscar_movimentacao, tool_calcular_validade, tool_listar_movimentacoes)
@@ -89,41 +87,11 @@ class chat_bot_service:
             }
         )
 
-        return result["messages"][-1].content
+        return result["messages"]
 
 """
 Bloco de testes, um exemplo de como chamar a Minerva
 """
 
-async def testes():
-    chat = chat_bot_service()
-
-    resp = await chat.send_message(
-        "Houve movimentações de parafuso no estoque? Me mostre todas as movimentações."
-    )
-    print("------------------------")
-    print(resp[-1].content)
-    print("------------------------")
-
-    resp = await chat.send_message(
-        "tem placas no sistema? quais são?"
-    )
-    print("------------------------")
-    print(resp[-1].content)
-    print("------------------------")
-    
-    resp = await chat.send_message(
-        "Tem parafuso na tabela de produto? Se tem, que tipo de parafuso é?"
-    )
-    
-    print("------------------------")
-    print(resp[-1].content)
-    print("------------------------")
-
-if __name__ == "__main__":
-    print("Iniciando testes...\n")
-    import asyncio
-    asyncio.run(testes())
-    print("Testes finalizados.")
 
         
