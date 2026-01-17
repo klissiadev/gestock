@@ -7,7 +7,7 @@ from dotenv import load_dotenv
 import os
 
 from llm_module.tools.sql_tools import (
-    tool_buscar_produto, tool_listar_produtos, tool_buscar_movimentacao, tool_calcular_validade, tool_listar_movimentacoes)
+    tool_buscar_produto, tool_listar_produtos, tool_buscar_movimentacao, tool_calcular_validade, tool_listar_movimentacoes, buscar_produtos_a_vencer, buscar_produtos_abaixo_estoque)
 
 load_dotenv()
 SYSTEM_PROMPT_LOCATION = os.getenv("SYSTEM_PROMPT_LOCATION")
@@ -17,7 +17,7 @@ class chat_bot_service:
     def __init__(self):
         self.model = ChatOllama(model="qwen2.5:7B", temperature=0.0)
         self.middleware = []
-        self.tools = [tool_buscar_produto, tool_listar_produtos, tool_buscar_movimentacao, tool_calcular_validade, tool_listar_movimentacoes]
+        self.tools = [buscar_produtos_a_vencer, tool_buscar_movimentacao, tool_buscar_produto, tool_listar_produtos, tool_calcular_validade, tool_listar_movimentacoes, buscar_produtos_abaixo_estoque]
         self.prompt = SystemMessage(content=self._get_system_prompt())
         self.agent = self._build_agent()
 
