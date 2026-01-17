@@ -16,12 +16,33 @@
         {
             "id": "alert_01",
             "question": "Quais produtos ativos estão com estoque abaixo do mínimo?",
-            "should_answer": true
+            "should_answer": true,
+            "expected_entities": [
+              "Correia Industrial A42",
+              "Fonte de Alimentação 24V",
+              "Arruela Lisa",
+              "Rolamento 6204",
+              "Porca Sextavada",
+              "Parafuso Aço",
+              "Tinta Branca",
+              "Parafuso M8",
+              "Porca Sextavada M8",
+              "Parafuso de plastico",
+              "Motor Elétrico 1HP",
+              "Conector Elétrico 3 Pinos"
+            ]
         },
         {
             "id": "validity_01",
-            "question": "Quais produtos ativos vencem antes de 2026?",
-            "should_answer": true
+            "question": "Quais produtos ativos vencem antes de 2028?",
+            "should_answer": true,
+            "expected_entities": [
+              "Arruela Lisa",
+              "Porca Sextavada",
+              "Parafuso Aço",
+              "Tinta Branca",
+              "Parafuso de plastico"
+            ]
         },
         {
             "id": "status_01",
@@ -79,15 +100,23 @@
         {
           "id": "ambiguity_01",
           "question": "Qual o estoque da Arruela Lisa?",
-          "should_answer": false,
-          "expected_behavior": "ask_for_clarification",
-          "reason": "Existe Arruela Lisa e Arruela Lisa M8"
+          "should_answer": true,
+          "expected_entities": [
+            "Arruela Lisa",
+            "Arruela Lisa M8"
+          ],
+          "expected_behavior": "list_all_matching_items"
         },
         {
           "id": "ambiguity_02",
           "question": "Qual o estoque do Parafuso?",
-          "should_answer": false,
-          "expected_behavior": "ask_for_clarification"
+          "should_answer": true,
+          "expected_entities": [
+            "Parafuso Aço",
+            "Parafuso de Plastico",
+            "Parafuso M8"
+          ],
+          "expected_behavior": "list_all_matching_items"
         }
     ],
 
