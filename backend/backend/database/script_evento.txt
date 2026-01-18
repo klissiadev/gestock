@@ -1,8 +1,0 @@
-CREATE TABLE notificacoes_eventos (
-    id INTEGER PRIMARY KEY DEFAULT AUTO_INCREMENT,
-    type TEXT NOT NULL,
-    context JSONB NOT NULL,
-    reference JSONB NOT NULL,
-    created_at TIMESTAMP DEFAULT now(),
-    user_id INTEGER NOT NULL,
-);

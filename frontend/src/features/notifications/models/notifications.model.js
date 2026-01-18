@@ -22,6 +22,7 @@ import { NOTIFICATION_SEVERITY } from "../constants/notificationSeverity";
  * @property {boolean} read
  * @property {string} createdAt
  * @property {string} userId
+ * @property {string} eventId
  */
 
 export {};

@@ -1,3 +1,4 @@
+#app.py
 from fastapi import FastAPI, Request, status
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
@@ -13,6 +14,7 @@ from backend.routers.produto_router import router as produto_router
 from backend.routers.movimentacao_router import router as movimentacao_router
 from backend.routers.views_router import router as view_router
 from backend.routers.event_router import router as event_router
+from backend.routers.notification_router import router as notification_router
 
 # =========================
 # IMPORTS DE LOGGING
@@ -103,3 +105,4 @@ app.include_router(produto_router)
 app.include_router(view_router)
 app.include_router(movimentacao_router)
 app.include_router(event_router)
+app.include_router(notification_router)

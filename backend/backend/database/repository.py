@@ -1,3 +1,4 @@
+#database/repository.py
 # camada padrão de acesso ao banco de dados
 from fastapi import HTTPException
 from typing import Optional, List, Dict, Any, Tuple, Union
@@ -283,7 +284,9 @@ class Repository:
 
             sql = f"UPDATE {table_q} SET {set_clause}{where_clause}"
             self.cursor.execute(sql, values)
+            self.conn.commit()
             return self.cursor.rowcount
+
 
         except Exception as e:
             self.conn.rollback()
