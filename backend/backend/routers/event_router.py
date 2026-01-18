@@ -1,6 +1,8 @@
+#routers/event_router.py
 from fastapi import APIRouter, Depends
 from backend.database.base import get_connection
 from backend.services.event_service import EventService
+from backend.database.schemas import NotificationEventCreate
 
 router = APIRouter(prefix="/eventos", tags=["Eventos"])
 
@@ -8,9 +10,11 @@ router = APIRouter(prefix="/eventos", tags=["Eventos"])
 def get_service(conn = Depends(get_connection)):
     return EventService(conn)
 
-
 @router.post("/")
-def criar_evento(evento: dict, service: EventService = Depends(get_service)):
+def criar_evento(
+    evento: NotificationEventCreate,
+    service: EventService = Depends(get_service)
+):
     return service.criar_evento(evento)
 
 

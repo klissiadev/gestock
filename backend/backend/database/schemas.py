@@ -1,3 +1,4 @@
+#database/schemas.py
 from pydantic import BaseModel
 from datetime import date, datetime
 from typing import Optional, Dict, Any, Literal
@@ -140,7 +141,7 @@ class LogImportacaoOut(LogImportacaoBase):
 # =========================
 
 # -------------------------
-# ENUMS DE EVENTO
+# ENUMS DE EVENTO E NOTIFICAÇÃO
 # -------------------------
 
 class NotificationEventType(str, Enum):
@@ -160,6 +161,12 @@ class NotificationEventState(str, Enum):
     IMPORT_SUCCESS = "IMPORT_SUCCESS"
 
     SUGGEST_REPLENISHMENT = "SUGGEST_REPLENISHMENT"
+
+class NotificationSeverity(str, Enum):
+    INFO = "INFO"
+    WARNING = "WARNING"
+    CRITICAL = "CRITICAL"
+    SUCCESS = "SUCCESS"
 
 # -------------------------
 # CONTEXTO DO EVENTO
@@ -192,4 +199,25 @@ class NotificationEventCreate(NotificationEventBase):
 
 class NotificationEventOut(NotificationEventBase):
     id: int
+    created_at: datetime
+
+# -------------------------
+# NOTIFICAÇÃO
+# ------------------------- 
+
+class NotificationBase(BaseModel):
+    type: NotificationEventType
+    severity: NotificationSeverity
+    title: str
+    message: str
+    reference: NotificationEventReference
+    event_id: int
+    user_id: int
+
+class NotificationCreate(NotificationBase):
+    pass
+
+class NotificationOut(NotificationBase):
+    id: int
+    read: Optional[bool] = None
     created_at: datetime
