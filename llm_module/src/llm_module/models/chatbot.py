@@ -86,12 +86,6 @@ class chat_bot_service:
         result = await self.agent.ainvoke(
             {
                 "messages": [HumanMessage(content=user_input)]
-            },
-            config={
-                "metadata": {
-                    "session_id": session_id,
-                    "user_id": user_id
-                }
             }
         )
 
