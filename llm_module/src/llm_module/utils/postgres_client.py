@@ -46,3 +46,4 @@ class PostgresClient:
         except Exception as e:
             print(f"Erro na execução da query: {e}")
             return []
+
