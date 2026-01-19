@@ -163,6 +163,8 @@ class NotificationEventState(str, Enum):
 
     SUGGEST_REPLENISHMENT = "SUGGEST_REPLENISHMENT"
 
+    ERROR = "ERROR"
+
 class NotificationSeverity(str, Enum):
     INFO = "INFO"
     WARNING = "WARNING"
@@ -182,7 +184,7 @@ class NotificationEventContext(BaseModel):
 # ------------------------- 
 
 class NotificationEventReference(BaseModel):
-    type: Literal["PRODUCT", "STOCK", "IMPORT"]
+    type: Literal["PRODUCT", "IMPORT"]
     id: int
 
 # -------------------------
