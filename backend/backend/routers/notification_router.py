@@ -6,17 +6,20 @@ from backend.database.schemas import NotificationCreate
 
 router = APIRouter(prefix="/notificacoes", tags=["Notificacoes"])
 
-
-def get_service(conn = Depends(get_connection)):
+def get_service(conn=Depends(get_connection)):
     return NotificationService(conn)
 
-@router.post("/")
-def criar_notificacao(
-    notificacao: NotificationCreate,
+@router.post("/from-event/{event_id}")
+def criar_notificacao_do_evento(
+    event_id: int,
     service: NotificationService = Depends(get_service)
 ):
-    return service.criar_notificacao(notificacao)
+    return service.processar_evento(event_id)
 
+@router.get("/notificacoes/from-event/{event_id}")
+def get_notification_from_event(event_id: int):
+    event = event_repo.get(event_id)
+    return notification_service.from_event(event)
 
 @router.get("/")
 def listar_notificacoes(service: NotificationService = Depends(get_service)):

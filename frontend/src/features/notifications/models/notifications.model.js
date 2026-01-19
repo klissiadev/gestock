@@ -1,3 +1,4 @@
+// frontend/src/features/models/notification.model.js
 import { NOTIFICATION_TYPE } from "../constants/notificationType";
 import { NOTIFICATION_SEVERITY } from "../constants/notificationSeverity";
 
@@ -21,8 +22,8 @@ import { NOTIFICATION_SEVERITY } from "../constants/notificationSeverity";
  *
  * @property {boolean} read
  * @property {string} createdAt
- * @property {string} userId
  * @property {string} eventId
+ * @property {string} userId
  */
 
 export {};

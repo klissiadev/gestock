@@ -149,6 +149,7 @@ class NotificationEventType(str, Enum):
     VALIDITY = "VALIDITY"
     SUCCESS = "SUCCESS"
     SUGGESTION = "SUGGESTION"
+    ERROR = "ERROR"
 
 
 class NotificationEventState(str, Enum):

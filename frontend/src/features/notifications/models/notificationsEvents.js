@@ -1,3 +1,4 @@
+// frontend/src/features/models/notificationEvents.model.js
 import { NOTIFICATION_TYPE } from "../constants/notificationType";
 
 /**
