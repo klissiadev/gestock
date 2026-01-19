@@ -1,16 +1,50 @@
-// frontend/src/features/services/notificationApi.js
-
-import axios from "@/lib/axios";
-import { normalizeNotification } from "../services/notificationNormalizer";
+const API_URL = "http://localhost:8000";
 
 export async function fetchNotifications() {
-  const { data } = await axios.get("/notificacoes");
+  try {
+    const response = await fetch(`${API_URL}/notificacoes`, {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+      },
+    });
 
-  return data
-    .map(normalizeNotification)
-    .filter(Boolean);
+    if (!response.ok) {
+      throw new Error(`Erro na API: ${response.status}`);
+    }
+
+    const data = await response.json();
+
+    if (!Array.isArray(data)) {
+      throw new Error("Formato inválido de notificações");
+    }
+
+    return data;
+  } catch (error) {
+    console.error("Erro ao buscar notificações:", error);
+    return [];
+  }
 }
 
 export async function markAsRead(notificationId) {
-  await axios.patch(`/notificacoes/${notificationId}/read`);
+  try {
+    const response = await fetch(
+      `${API_URL}/notificacoes/${notificationId}/read`,
+      {
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json",
+        },
+      }
+    );
+
+    if (!response.ok) {
+      throw new Error(`Erro ao marcar como lida: ${response.status}`);
+    }
+
+    return true;
+  } catch (error) {
+    console.error("Erro ao marcar notificação como lida:", error);
+    return false;
+  }
 }
