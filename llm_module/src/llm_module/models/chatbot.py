@@ -1,6 +1,8 @@
 from langchain_ollama import ChatOllama
 from langchain.agents import create_agent
 from langchain_community.document_loaders import TextLoader
+from langchain.agents.middleware import SummarizationMiddleware
+from langgraph.checkpoint.postgres import PostgresSaver # OU: from langgraph.checkpoint.postgres.aio import AsyncPostgresSaver
 from langchain_core.messages import SystemMessage
 from langchain.messages import HumanMessage
 from dotenv import load_dotenv
@@ -12,6 +14,13 @@ from llm_module.tools.sql_tools import (
 load_dotenv()
 SYSTEM_PROMPT_LOCATION = os.getenv("SYSTEM_PROMPT_LOCATION")
 MAX_INPUT_SIZE = int(os.getenv("MAX_INPUT_LENGTH", "4000"))
+
+# SummarizationMiddleware(
+#            model="gemma3:270m",
+#            trigger=("tokens", 1000),
+#            keep=("messages", 1)
+#        )
+# Nosso resumidorrrr
 
 class chat_bot_service:
     def __init__(self):
@@ -28,9 +37,9 @@ class chat_bot_service:
             middleware=self.middleware,
             tools=self.tools,
             system_prompt=self.prompt,
-            checkpointer=None
+            checkpointer=None,
+            
         )
-        
         return agent
 
     def _get_system_prompt(self) -> str:
@@ -62,7 +71,6 @@ class chat_bot_service:
     async def send_message(self, 
                      user_input: str, 
                      session_id: str | None = None, 
-                     user_id: str | None = None
                     ) -> dict:
         """
         Responsavel por enviar a entrada do usuario ao agente
