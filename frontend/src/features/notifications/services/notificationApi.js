@@ -26,6 +26,28 @@ export async function fetchNotifications() {
   }
 }
 
+export async function fetchUnreadNotifications(limit = 5, cursor = null) {
+  const params = new URLSearchParams({
+    read: "false",
+    limit: String(limit),
+  });
+
+  if (cursor) {
+    params.append("cursor", cursor);
+  }
+
+  const response = await fetch(
+    `http://localhost:8000/notificacoes?${params.toString()}`
+  );
+
+  if (!response.ok) {
+    throw new Error("Erro ao buscar notificações");
+  }
+
+  return response.json();
+}
+
+
 export async function markAsRead(notificationId) {
   try {
     const response = await fetch(

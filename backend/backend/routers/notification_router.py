@@ -22,8 +22,18 @@ def get_notification_from_event(event_id: int):
     return notification_service.from_event(event)
 
 @router.get("/")
-def listar_notificacoes(service: NotificationService = Depends(get_service)):
-    return service.listar_notificacoes()
+def listar_notificacoes(
+    read: bool | None = None,
+    limit: int = 20,
+    cursor: str | None = None,
+    service: NotificationService = Depends(get_service)
+):
+    return service.listar_notificacoes(
+        read=read,
+        limit=limit,
+        cursor=cursor
+    )
+
 
 @router.get("/{notification_id}")
 def buscar_notificacao(notification_id: int, service: NotificationService = Depends(get_service)):

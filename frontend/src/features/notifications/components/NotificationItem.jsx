@@ -1,38 +1,47 @@
-import { useEffect, useRef } from "react";
-import { toast } from "react-toastify";
-import { useNotifications } from "../../../hooks/useNotifications";
+export function NotificationItem({ notification, onClick }) {
+  const { title, message, read, createdAt } = notification;
 
-export default function NotificationToastTester() {
-  const { unread } = useNotifications();
+  return (
+    <div
+      onClick={onClick}
+      style={{
+        padding: "12px",
+        borderBottom: "1px solid #e5e7eb",
+        cursor: "pointer",
+        backgroundColor: read ? "#fff" : "#f0f9ff",
+      }}
+    >
+      <div style={{ display: "flex", justifyContent: "space-between" }}>
+        <strong>{title}</strong>
 
-  // Guarda IDs já exibidos (anti-spam no front)
-  const shownRef = useRef(new Set());
+        {!read && (
+          <span
+            style={{
+              width: 8,
+              height: 8,
+              backgroundColor: "#3b82f6",
+              borderRadius: "50%",
+            }}
+          />
+        )}
+      </div>
 
-  useEffect(() => {
-    unread.forEach((notification) => {
-      if (shownRef.current.has(notification.id)) return;
+      <p
+        style={{
+          margin: "6px 0",
+          color: "#555",
+          whiteSpace: "nowrap",
+          overflow: "hidden",
+          textOverflow: "ellipsis",
+          maxWidth: "100%",
+        }}
+      >
+        {message}
+      </p>
 
-      toast(notification.message, {
-        type: mapSeverity(notification.severity),
-      });
-
-      shownRef.current.add(notification.id);
-    });
-  }, [unread]);
-
-  return null; 
-}
-
-function mapSeverity(severity) {
-  switch (severity) {
-    case "CRITICAL":
-      return "error";
-    case "WARNING":
-      return "warning";
-    case "SUCCESS":
-      return "success";
-    case "INFO":
-    default:
-      return "info";
-  }
+      <small style={{ color: "#888" }}>
+        {new Date(createdAt).toLocaleString()}
+      </small>
+    </div>
+  );
 }
