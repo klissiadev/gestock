@@ -1,6 +1,6 @@
 import React from 'react'
 import { Route, Routes } from 'react-router-dom'
-import StockSheets from '../features/estoque/pages/StockSheets'
+import StockSheets from '../features/stock/pages/StockSheets'
 import UploadPage from '../features/upload/pages/UploadPage'
 
 
