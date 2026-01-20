@@ -1,3 +1,4 @@
+#database/repository.py
 # camada padrão de acesso ao banco de dados
 from fastapi import HTTPException
 from typing import Optional, List, Dict, Any, Tuple, Union
@@ -191,7 +192,7 @@ class Repository:
         try:
             table_q = self._quote_identifier(table)
             where_clause, values = self._build_where_clause(key_or_conditions, value)
-            sql = f"SELECT * FROM {table_q}{where_clause} LIMIT 1"
+            sql = f"SELECT * FROM app_core.{table_q}{where_clause} LIMIT 1"
             self.cursor.execute(sql, values)
             row = self.cursor.fetchone()
             return dict(row) if row else None
@@ -283,7 +284,9 @@ class Repository:
 
             sql = f"UPDATE {table_q} SET {set_clause}{where_clause}"
             self.cursor.execute(sql, values)
+            self.conn.commit()
             return self.cursor.rowcount
+
 
         except Exception as e:
             self.conn.rollback()
