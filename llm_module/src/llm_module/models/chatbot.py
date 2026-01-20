@@ -1,99 +1,191 @@
+import os
+import logging
+import asyncio
+from typing import Optional, List, Dict, Any
+
+from dotenv import load_dotenv
 from langchain_ollama import ChatOllama
 from langchain.agents import create_agent
 from langchain_community.document_loaders import TextLoader
 from langchain.agents.middleware import SummarizationMiddleware
-from langgraph.checkpoint.postgres import PostgresSaver # OU: from langgraph.checkpoint.postgres.aio import AsyncPostgresSaver
-from langchain_core.messages import SystemMessage
-from langchain.messages import HumanMessage
-from dotenv import load_dotenv
-import os
+from langgraph.checkpoint.postgres.aio import AsyncPostgresSaver
+from psycopg_pool import AsyncConnectionPool
+from psycopg.rows import dict_row
+from langchain_core.messages import SystemMessage, HumanMessage
 
 from llm_module.tools.sql_tools import (
-    tool_buscar_produto, tool_listar_produtos, tool_buscar_movimentacao, tool_calcular_validade, tool_listar_movimentacoes, buscar_produtos_a_vencer, buscar_produtos_abaixo_estoque)
+    tool_buscar_produto,
+    tool_listar_produtos,
+    tool_buscar_movimentacao,
+    tool_calcular_validade,
+    tool_listar_movimentacoes,
+    buscar_produtos_a_vencer,
+    buscar_produtos_abaixo_estoque,
+)
 
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
 load_dotenv()
-SYSTEM_PROMPT_LOCATION = os.getenv("SYSTEM_PROMPT_LOCATION")
-MAX_INPUT_SIZE = int(os.getenv("MAX_INPUT_LENGTH", "4000"))
 
-# SummarizationMiddleware(
-#            model="gemma3:270m",
-#            trigger=("tokens", 1000),
-#            keep=("messages", 1)
-#        )
-# Nosso resumidorrrr
-
-class chat_bot_service:
+class Config:
+    """Centraliza as configurações do ambiente."""
+    SYSTEM_PROMPT_LOCATION = os.getenv("SYSTEM_PROMPT_LOCATION")
+    MAX_INPUT_SIZE = int(os.getenv("MAX_INPUT_LENGTH", "4000"))
+    DB_URI = (
+        f"postgres://{os.getenv('DB_LLM_USER')}:{os.getenv('DB_LLM_PASSWORD')}"
+        f"@{os.getenv('DB_HOST')}:{os.getenv('DB_PORT')}/{os.getenv('DB_NAME')}"
+    )
+    
+class ChatBotService:
     def __init__(self):
-        self.model = ChatOllama(model="qwen2.5:7B", temperature=0.0)
-        self.middleware = []
-        self.tools = [buscar_produtos_a_vencer, tool_buscar_movimentacao, tool_buscar_produto, tool_listar_produtos, tool_calcular_validade, tool_listar_movimentacoes, buscar_produtos_abaixo_estoque]
-        self.prompt = SystemMessage(content=self._get_system_prompt())
-        self.agent = self._build_agent()
-
-    def _build_agent(self):
+        self.main_model = ChatOllama(model="qwen2.5:7B", temperature=0.0)
+        self.summary_model = ChatOllama(model="gemma3:270m", temperature=0.0)
         
-        agent = create_agent(
-            model=self.model,
+        self.tools = [
+            buscar_produtos_a_vencer, tool_buscar_movimentacao, 
+            tool_buscar_produto, tool_listar_produtos, 
+            tool_calcular_validade, tool_listar_movimentacoes, 
+            buscar_produtos_abaixo_estoque
+        ]
+        
+        self.agent = None
+        self.memory_pool = self._prepare_db_pool()
+        self.middleware = self._setup_middleware()
+        self._background_tasks = set()
+        
+    def _prepare_db_pool(self) -> AsyncConnectionPool:
+        return AsyncConnectionPool(
+            conninfo=Config.DB_URI,
+            max_size=20,
+            kwargs={
+                "autocommit": True,
+                "prepare_threshold": 0,
+                "row_factory": dict_row,
+            },
+            open=False
+        )
+        
+    def _setup_middleware(self) -> List[SummarizationMiddleware]:
+        return [
+            SummarizationMiddleware(
+                model=self.summary_model,
+                trigger=("tokens", 5000),
+                keep=("messages", 10)
+            )
+        ]
+        
+    async def init(self):
+        """Inicializa conexões assíncronas e o agente."""
+        await self.memory_pool.open()
+        
+        async with self.memory_pool.connection() as conn:
+            await conn.execute("SELECT 1")
+        
+        # Setup de Memoria do agente
+        conn = await self.memory_pool.getconn() 
+        checkpointer = AsyncPostgresSaver(conn)
+        await checkpointer.setup()
+        
+        # Criacao do agente
+        self.agent = create_agent(
+            model=self.main_model,
             middleware=self.middleware,
             tools=self.tools,
-            system_prompt=self.prompt,
-            checkpointer=None,
-            
+            system_prompt=SystemMessage(content=self._load_system_prompt()),
+            checkpointer=checkpointer,
         )
-        return agent
-
-    def _get_system_prompt(self) -> str:
-        if not SYSTEM_PROMPT_LOCATION:
-            raise ValueError("SYSTEM_PROMPT_LOCATION não definido")
-        
-        loader = TextLoader(SYSTEM_PROMPT_LOCATION, encoding='utf-8')
-        docs = loader.load()
-        return docs[0].page_content
+        return self
     
-    def _validate_user_input(self, user_input: str):
-        """
-        Responsavel por validar a entrada do usuario
-        -> se é uma string
-        -> se nao está vazia
-        -> se é muito longa
-        """
-        if not isinstance(user_input, str):
-            raise TypeError("Entrada deve ser uma string")
+    def _load_system_prompt(self) -> str:
+        if not Config.SYSTEM_PROMPT_LOCATION:
+            raise ValueError("Caminho do System Prompt não configurado no .env")
         
-        content = user_input.strip()
-
-        if not content:
-            raise ValueError("Entrada vazia")
+        loader = TextLoader(Config.SYSTEM_PROMPT_LOCATION, encoding='utf-8')
+        return loader.load()[0].page_content
+    
+    def _validate_input(self, text: str):
+        if not isinstance(text, str) or not text.strip():
+            raise ValueError("A entrada deve ser uma string não vazia.")
         
-        if len(content) > MAX_INPUT_SIZE:
-            raise RuntimeError("Entrada muito longa")
+        if len(text.strip()) > Config.MAX_INPUT_SIZE:
+            raise RuntimeError(f"Entrada excede o limite de {Config.MAX_INPUT_SIZE} caracteres.")
 
-    async def send_message(self, 
-                     user_input: str, 
-                     session_id: str | None = None, 
-                    ) -> dict:
-        """
-        Responsavel por enviar a entrada do usuario ao agente
-        Identificando qual sessão e qual usuario estamos conversando
-        Retorna um dicionario com a resposta e o id de sessao e usuario para identificacao
-        """
-
+    async def send_message(self, user_input: str, session_id: str = "guest") -> Any:
         if not self.agent:
-            raise RuntimeError("Agent nao inicializado")
-        
-        self._validate_user_input(user_input=user_input)
-        
-        result = await self.agent.ainvoke(
-            {
-                "messages": [HumanMessage(content=user_input)]
-            }
-        )
+            raise RuntimeError("Serviço não inicializado. Execute 'await service.init()'.")
 
-        return result["messages"]
+        try:
+            self._validate_input(user_input)
+
+            result = await self.agent.ainvoke(
+                {"messages": [HumanMessage(content=user_input)]},
+                {"configurable": {"thread_id": session_id}},
+            )
+            
+            bot_response = result["messages"][-1].content
+            
+            # Agenda o armazenamento de logs no banco de dados e protege de ser morto pelo GC
+            task = asyncio.create_task(
+                self._save_log(session_id, user_input, bot_response)
+            )
+            self._background_tasks.add(task)
+            task.add_done_callback(self._background_tasks.discard)
+            
+            return result["messages"][-1].content
+
+        except Exception as e:
+            logger.error(f"Erro na sessão {session_id}: {str(e)}", exc_info=True)
+            return {
+                "status": "error",
+                "session_id": session_id,
+                "response": "Desculpe, ocorreu um erro interno.",
+                "details": str(e)
+            }
+            
+    async def close(self):
+        """Fecha as conexões e aguarda tarefas pendentes."""
+        if self._background_tasks:
+            # Aguarda todas as tarefas de log pendentes terminarem
+            await asyncio.gather(*self._background_tasks, return_exceptions=True)
+
+        if self.memory_pool:
+            await self.memory_pool.close()
+            logger.info("Serviço encerrado com segurança.")
+
+    async def _save_log(self, session_id: str, user_input: str, bot_output: str):
+        """Armazena a interacao em texto puro num banco de dados"""
+        query = """
+            INSERT INTO conversation_logs (session_id, user_message, bot_response)
+            VALUES (%s, %s, %s)
+        """
+        try:
+            async with self.memory_pool.connection() as conn:
+                await conn.execute(query, (session_id, user_input, bot_output))
+        except Exception as e:
+            logger.error(f"Falha ao salvar log legível: {e}")
 
 """
 Bloco de testes, um exemplo de como chamar a Minerva
 """
+async def main():
+    chatbot = ChatBotService()
+    await chatbot.init()
+    try:
+        response = await chatbot.send_message("Olá, Minerva! Quais produtos vencem hoje?", session_id="user_123")
+        print(f"Minerva: {response}")
+    finally:
+        await chatbot.close()
+        
+if __name__ == "__main__":
+    # Detecta se é Windows para aplicar a correção de loop
+    if os.name == 'nt':
+        asyncio.set_event_loop_policy(asyncio.WindowsSelectorEventLoopPolicy())
+    
+    try:
+        asyncio.run(main())
+    except KeyboardInterrupt:
+        print("\nBot desligado pelo usuário.")
+    
 
 
         
