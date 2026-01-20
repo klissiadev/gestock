@@ -9,11 +9,9 @@ class LLMService:
         self,
         message: str,
         session_id: str | None = None,
-        user_id: str | None = None,
-    ) -> str:
+    ) -> dict:
         resposta = await self.chatbot.send_message(
             user_input=message,
             session_id=session_id,
-            user_id=user_id,
         )
         return resposta
