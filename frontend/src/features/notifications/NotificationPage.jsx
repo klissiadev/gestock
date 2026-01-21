@@ -1,16 +1,12 @@
-import React from 'react'
-import { useNotifications } from "../../../hooks/useNotifications";
-import { NotificationList } from './components/NotificationList';
-
+import { useNotifications } from "../../hooks/useNotifications";
+import { NotificationList } from "./components/NotificationList";
 
 const NotificationPage = () => {
-    const { notifications } = useNotifications();
-    return (
-        <>
-            <NotificationList/>
-            <div>NotificationPage</div>
-        </>
-    )
-}
+  const { notifications, loading } = useNotifications();
 
-export default NotificationPage
+  if (loading) return <p>Carregando...</p>;
+
+  return <NotificationList notifications={notifications} />;
+};
+
+export default NotificationPage;
