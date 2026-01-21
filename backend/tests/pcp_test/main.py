@@ -99,7 +99,7 @@ def main():
     # PROCESSAMENTO MENSAL
     # =========================
 
-    id_saida_global = 0
+    id_saida_global = 1
 
     for mes in range(1, 13):
         print("\n" + "="*120)

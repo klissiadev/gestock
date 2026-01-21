@@ -46,10 +46,13 @@ def process_import(upload_file, conn, import_type="produtos"):
 
     missing = required_columns - set(df.columns)
     if missing:
-        raise HTTPException(
-            status_code=400,
-            detail=f"Colunas faltando: {', '.join(missing)}"
-        )
+        # Permite que "ativo" falte, pois vamos criar automaticamente
+        missing = missing - {"ativo"}
+        if missing:
+            raise HTTPException(
+                status_code=400,
+                detail=f"Colunas faltando: {', '.join(missing)}"
+            )
 
     repo = Repository(conn)
 
@@ -63,6 +66,7 @@ def process_import(upload_file, conn, import_type="produtos"):
         "float": lambda v, fmt=None: Decimal(str(v)),
         "date": lambda v, fmt=None: parse_date(v, fmt),
         "str": lambda v, fmt=None: str(v).strip(),
+        "bool": lambda v, fmt=None: bool(v),
     }
 
     columns_rules = schema["columns"]
@@ -90,7 +94,11 @@ def process_import(upload_file, conn, import_type="produtos"):
         data = {}
 
         for col, rules in columns_rules.items():
-            value = normalize_value(row_dict[col])
+            # Se a coluna é 'ativo', atribui True automaticamente
+            if col == "ativo":
+                value = True
+            else:
+                value = normalize_value(row_dict.get(col))  # evita KeyError
 
             if value is None:
                 data[col] = None

@@ -6,7 +6,7 @@ import { ToastContainer, toast } from 'react-toastify';
 export default function UploadPage() {
   const [file, setFile] = useState(null);
   const [fileName, setFileName] = useState("Nenhum arquivo selecionado");
-  const [tipo, setTipo] = useState("produtos","movimentacoes_saida", "movimentacoes_entrada");
+  const [tipo, setTipo] = useState("produtos");
   const [response, setResponse] = useState(null);
   const [loading, setLoading] = useState(false);
   const [fileInfo, setFileInfo] = useState(null);
@@ -126,6 +126,7 @@ export default function UploadPage() {
           <option value="produtos">Produto</option>
           <option value="movimentacoes_saida">Movimentação de saída</option>
           <option value="movimentacoes_entrada">Movimentação de entrada</option>
+          <option value="movimentacoes_internas">Movimentação interna</option>
         </select>
 
         <input
