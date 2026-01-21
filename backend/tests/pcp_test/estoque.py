@@ -20,16 +20,19 @@ def criar_estoque_inicial(produtos_df):
 def atualizar_estoque_compras(estoque, entradas_df, ano, mes):
     """
     Soma todas as compras realizadas no mês ao estoque
+    data_de_compra é do tipo date (sem horário)
     """
+
     compras_mes = entradas_df[
-        (entradas_df["data_de_compra"].dt.year == ano) &
-        (entradas_df["data_de_compra"].dt.month == mes)
+        (entradas_df["data_de_compra"].apply(lambda d: d.year) == ano) &
+        (entradas_df["data_de_compra"].apply(lambda d: d.month) == mes)
     ]
 
     for _, compra in compras_mes.iterrows():
-        estoque.loc[compra["id_produto"], "quantidade"] += compra["quantidade"]
+        estoque.loc[compra["produto_id"], "quantidade"] += compra["quantidade"]
 
     return estoque
+
 
 # =========================================================
 # VERIFICA DISPONIBILIDADE DE MP PARA OP
