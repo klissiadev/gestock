@@ -42,10 +42,30 @@ MOVIMENTACAO_ENTRADA_SCHEMA = {
     }
 }
 
+MOVIMENTACAO_INTERNA_SCHEMA = {
+    "table": "app_core.movimentacoes_internas",
+    "columns": {
+        "produto_id": {"type": "int", "required": True},
+        "ordem_de_producao": {"type": "str", "required": False},
+        "tipo": {"type": "str", "required": True}, 
+        "quantidade": {"type": "int", "required": True},
+        "origem": {"type": "str", "required": True},
+        "destino": {"type": "str", "required": True},
+        "data": {
+            "type": "date",
+            "required": True,
+            "format": "%Y-%m-%d"
+        },
+    }
+}
+
+
+
 IMPORT_SCHEMAS = {
     "produtos": PRODUTO_SCHEMA,
     "movimentacoes_entrada": MOVIMENTACAO_ENTRADA_SCHEMA,
     "movimentacoes_saida": MOVIMENTACAO_SAIDA_SCHEMA,
+    "movimentacoes_internas": MOVIMENTACAO_INTERNA_SCHEMA,
 }
 
 # =========================
@@ -110,6 +130,32 @@ class MovimentacaoSaidaCreate(MovimentacaoSaidaBase):
 class MovimentacaoSaidaOut(MovimentacaoSaidaBase):
     id: int
     created_at: datetime
+
+# -------------------------
+# MOVIMENTAÇÃO de saida
+# -------------------------
+
+class TipoMovimentacaoInterna(str, Enum):
+    CONSUMO = "CONSUMO"
+    PRODUCAO = "PRODUCAO"
+
+class MovimentacaoInternaBase(BaseModel):
+    produto_id: int
+    ordem_de_producao: Optional[str] = None
+    tipo: TipoMovimentacaoInterna
+    quantidade: int
+    origem: str
+    destino: str
+    data: date
+
+
+class MovimentacaoInternaCreate(MovimentacaoInternaBase):
+    pass
+
+class MovimentacaoInternaOut(MovimentacaoInternaBase):
+    id: int
+    created_at: datetime
+
 
 # -------------------------
 # LOG DE IMPORTAÇÃO
