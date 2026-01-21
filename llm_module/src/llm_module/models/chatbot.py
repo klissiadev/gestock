@@ -23,18 +23,22 @@ from llm_module.tools.sql_tools import (
     buscar_produtos_abaixo_estoque,
 )
 
-logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
+logger.setLevel(logging.WARNING)
 load_dotenv()
 
 class Config:
     """Centraliza as configurações do ambiente."""
     SYSTEM_PROMPT_LOCATION = os.getenv("SYSTEM_PROMPT_LOCATION")
     MAX_INPUT_SIZE = int(os.getenv("MAX_INPUT_LENGTH", "4000"))
+    
+    # Adicione ?sslmode=require ao final da URL
     DB_URI = (
         f"postgres://{os.getenv('DB_LLM_USER')}:{os.getenv('DB_LLM_PASSWORD')}"
         f"@{os.getenv('DB_HOST')}:{os.getenv('DB_PORT')}/{os.getenv('DB_NAME')}"
+        f"?sslmode=require&channel_binding=require"
     )
+
     
 class ChatBotService:
     def __init__(self):
@@ -155,7 +159,7 @@ class ChatBotService:
     async def _save_log(self, session_id: str, user_input: str, bot_output: str):
         """Armazena a interacao em texto puro num banco de dados"""
         query = """
-            INSERT INTO conversation_logs (session_id, user_message, bot_response)
+            INSERT INTO app_ai.conversation_logs (session_id, user_message, bot_response)
             VALUES (%s, %s, %s)
         """
         try:
@@ -164,6 +168,36 @@ class ChatBotService:
         except Exception as e:
             logger.error(f"Falha ao salvar log legível: {e}")
 
+    async def stream_message(self, user_input: str, session_id: str = "guest"):
+        if not self.agent:
+            raise RuntimeError("Agente não inicializado.")
+
+        self._validate_input(user_input)
+        
+        full_response = []
+        
+        # O astream retorna um gerador assíncrono de eventos
+        async for chunk in self.agent.astream(
+            {"messages": [HumanMessage(content=user_input)]},
+            {"configurable": {"thread_id": session_id}},
+            stream_mode="messages" # Foca apenas nos chunks de mensagens
+        ):
+            # No LangGraph, o chunk geralmente vem como uma tupla (mensagem, metadados)
+            # ou diretamente o conteúdo dependendo da versão
+            content = chunk[0].content if isinstance(chunk, tuple) else chunk.content
+            
+            if content:
+                full_response.append(content)
+                yield content # Envia o pedaço de texto para o cliente imediatamente
+
+        # --- Logging após o streaming terminar ---
+        complete_text = "".join(full_response)
+        task = asyncio.create_task(
+            self._save_log(session_id, user_input, complete_text)
+        )
+        self._background_tasks.add(task)
+        task.add_done_callback(self._background_tasks.discard)
+
 """
 Bloco de testes, um exemplo de como chamar a Minerva
 """
@@ -171,8 +205,13 @@ async def main():
     chatbot = ChatBotService()
     await chatbot.init()
     try:
-        response = await chatbot.send_message("Olá, Minerva! Quais produtos vencem hoje?", session_id="user_123")
-        print(f"Minerva: {response}")
+        print("Minerva: ", end="", flush=True)
+        
+        # Como stream_message tem 'yield', usamos 'async for'
+        async for chunk in chatbot.stream_message("Olá, Minerva! Eu sou o Pedro", session_id="user_123"):
+            print(chunk, end="", flush=True)
+            
+        print() # Apenas para pular linha ao final da resposta
     finally:
         await chatbot.close()
         
