@@ -1,5 +1,5 @@
 export function NotificationItem({ notification, onClick }) {
-  const { title, message, read, createdAt } = notification;
+  const { title, message, read, created_at } = notification;
 
   return (
     <div
@@ -40,7 +40,7 @@ export function NotificationItem({ notification, onClick }) {
       </p>
 
       <small style={{ color: "#888" }}>
-        {new Date(createdAt).toLocaleString()}
+        {new Date(created_at).toLocaleString()}
       </small>
     </div>
   );
