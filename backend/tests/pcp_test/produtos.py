@@ -43,7 +43,7 @@ def criar_produtos():
     produtos = []
     data_base = date.today()
 
-    for idx, (nome, tipo) in enumerate(zip(nomes_produtos, tipos_produto), start=0):
+    for idx, (nome, tipo) in enumerate(zip(nomes_produtos, tipos_produto), start=1):
 
         produto = {
             "id": idx,

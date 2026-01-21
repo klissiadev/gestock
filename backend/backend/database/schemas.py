@@ -17,6 +17,7 @@ PRODUTO_SCHEMA = {
         "estoque_minimo": {"type": "int", "required": True},
         "data_validade": {"type": "date", "required": False, "format": "%Y-%m-%d"},
         "ativo": {"type": "bool", "required": False},
+        "tipo": {"type": "str", "required": True, "allowed": ["MP", "SA", "PA"]},
     }
 }
 
@@ -75,12 +76,19 @@ IMPORT_SCHEMAS = {
 # -------------------------
 # PRODUTO
 # -------------------------
+
+class ProdutoTipo(str, Enum):
+    MP = "MP"
+    SA = "SA"
+    PA = "PA"
+
 class ProdutoBase(BaseModel):
     nome: str
     descricao: Optional[str] = None
     estoque_minimo: int
     data_validade: Optional[date] = None
     ativo: bool = True
+    tipo: ProdutoTipo
 
 class ProdutoCreate(ProdutoBase):
     pass

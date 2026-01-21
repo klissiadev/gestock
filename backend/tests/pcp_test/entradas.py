@@ -24,7 +24,7 @@ def gerar_entradas_mp(demanda_df, produtos_df, bom, estoque):
 
     mp_ids = produtos_df[produtos_df["tipo"] == "MP"]["id"].tolist()
     compras = []
-    id_counter = 0
+    id_counter = 1
     ESTOQUE_MINIMO_MP = 20  # estoque mínimo para cada MP
 
     for _, demanda in demanda_df.iterrows():
