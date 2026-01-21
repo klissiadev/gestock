@@ -29,3 +29,11 @@ def registrar_saida(dados: dict, service: MovimentacaoService = Depends(get_serv
 @router.get("/saida")
 def listar_saidas(service: MovimentacaoService = Depends(get_service)):
     return service.listar_saidas()
+
+# -------- MOVIMENTAÇÃO INTERNA --------
+@router.post("/interna")
+def registrar_movimentacao_interna(
+    dados: dict,
+    service: MovimentacaoService = Depends(get_service)
+):
+    return service.registrar_movimentacao_interna(dados)

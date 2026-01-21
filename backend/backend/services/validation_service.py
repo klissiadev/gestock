@@ -40,4 +40,33 @@ def validate_row(row, schema):
             except:
                 errors.append(f"{col} inválido (formato esperado {date_format})")
 
+    # =========================
+    # VALIDAÇÕES DE NEGÓCIO
+    # =========================
+    if schema["table"] == "app_core.movimentacoes_internas":
+        errors.extend(validate_movimentacao_interna(row))
+
+    return errors
+
+def validate_movimentacao_interna(row):
+    errors = []
+
+    # quantidade > 0
+    qtd = row.get("quantidade")
+    if qtd is not None and qtd <= 0:
+        errors.append("quantidade deve ser maior que zero")
+
+    # origem ≠ destino
+    origem = row.get("origem")
+    destino = row.get("destino")
+    if origem and destino and origem == destino:
+        errors.append("origem e destino não podem ser iguais")
+
+    # tipo válido
+    # tipo válido
+    tipo = row.get("tipo")
+    if tipo not in ("CONSUMO", "PRODUCAO"):
+        errors.append("tipo de movimentação inválido (esperado CONSUMO ou PRODUCAO)")
+
+
     return errors
