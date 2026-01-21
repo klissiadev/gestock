@@ -50,7 +50,7 @@ def normalize_event(evento: dict) -> Optional[NotificationCreate]:
                 severity=NotificationSeverity.CRITICAL,
                 title="Estoque abaixo do mínimo",
                 message=(
-                    f"O produto {reference['id']} possui apenas "
+                    f"O produto {reference['nome']} possui apenas "
                     f"{data.get('currentStock')} unidades em estoque."
                 ),
             )
@@ -61,7 +61,7 @@ def normalize_event(evento: dict) -> Optional[NotificationCreate]:
                 severity=NotificationSeverity.WARNING,
                 title="Estoque próximo do mínimo",
                 message=(
-                    f"O produto {reference['id']} está próximo do limite mínimo de {data.get('minimumStock')} unidades"
+                    f"O produto {reference['nome']} está próximo do limite mínimo de {data.get('minimumStock')} unidades"
                 ),
             )
 
@@ -87,7 +87,7 @@ def normalize_event(evento: dict) -> Optional[NotificationCreate]:
                 **base,
                 severity=NotificationSeverity.CRITICAL,
                 title="Produto vencido",
-                message=f"O produto {reference['id']} está vencido há {(-1)*days_until(data.get('expirationDate'))} dias."
+                message=f"O produto {reference['nome']} está vencido há {(-1)*days_until(data.get('expirationDate'))} dias."
             )
         
         if state == "NEAR_EXPIRATION":
@@ -95,11 +95,11 @@ def normalize_event(evento: dict) -> Optional[NotificationCreate]:
                 **base,
                 severity=NotificationSeverity.WARNING,
                 title="Produto próximo do vencimento",
-                message=f"O produto {reference['id']} vencerá em {(-1)*days_until(data.get('expirationDate'))} dias."
+                message=f"O produto {reference['nome']} vencerá em {(-1)*days_until(data.get('expirationDate'))} dias."
             )
 
     # ======================
-    # VALIDITY
+    # ERROR
     # ======================
     if event_type == "ERROR" and state == "ERROR":
         return NotificationCreate(
@@ -117,7 +117,7 @@ def normalize_event(evento: dict) -> Optional[NotificationCreate]:
             **base,
             severity=NotificationSeverity.INFO,
             title="Sugestão de demanda",
-            message=f"Melhor momento para repor o produto {reference['id']}, veja porque..."
+            message=f"Melhor momento para repor o produto {reference['nome']}, veja porque..."
         )
 
     # ======================
