@@ -2,6 +2,13 @@ from datetime import datetime
 import pandas as pd
 from estoque import verificar_mp_disponivel, consumir_mp
 
+
+'''
+demanda_df: demanda mensal de produtos acabados
+bom: estrutura dos produtos
+estoque: estoque atual da matéria prima
+'''
+
 def gerar_movimentacoes_internas(demanda_df, bom, estoque):
     """
     Gera movimentações internas de produção de SA e PA.
@@ -20,8 +27,8 @@ def gerar_movimentacoes_internas(demanda_df, bom, estoque):
     # ===============================
     # PARÂMETROS DE REALISMO
     # ===============================
-    FATOR_ESTOQUE_PA = 1.05      # produz 5% a mais de PA
-    LOTE_MIN_SA = 20             # lote mínimo de SA
+    FATOR_ESTOQUE_PA = 1.10      # produz 10% a mais de PA
+    LOTE_MIN_SA = 200             # lote mínimo de SA
 
     for _, demanda in demanda_df.iterrows():
         id_pa = demanda["id_produto"]
@@ -33,7 +40,8 @@ def gerar_movimentacoes_internas(demanda_df, bom, estoque):
         qtd_pa_produzida = int(qtd_pa_demanda * FATOR_ESTOQUE_PA)
 
         op = f"OP-{op_counter}"
-        data_op = datetime(ano, mes, 10)
+        data_op = datetime(ano, mes, 10).date()
+
 
         # ===============================
         # CALCULAR NECESSIDADE TOTAL DE MP
@@ -109,6 +117,8 @@ def gerar_movimentacoes_internas(demanda_df, bom, estoque):
             qtd_sa_necessaria = qtd_pa_produzida * qtd_sa
             qtd_sa_produzida = max(qtd_sa_necessaria, LOTE_MIN_SA)
 
+            estoque.loc[id_sa, "quantidade"] += qtd_sa_produzida
+
             movimentacoes.append({
                 "id": id_counter,
                 "id_produto": id_sa,
@@ -124,6 +134,9 @@ def gerar_movimentacoes_internas(demanda_df, bom, estoque):
         # ===============================
         # PRODUÇÃO DE PA (COM ESTOQUE)
         # ===============================
+
+        estoque.loc[id_pa, "quantidade"] += qtd_pa_produzida
+
         movimentacoes.append({
             "id": id_counter,
             "id_produto": id_pa,

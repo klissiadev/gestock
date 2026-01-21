@@ -98,6 +98,9 @@ def main():
     # =========================
     # PROCESSAMENTO MENSAL
     # =========================
+
+    id_saida_global = 0
+
     for mes in range(1, 13):
         print("\n" + "="*120)
         print(f"📆 PROCESSANDO MÊS {mes:02d}/{ANO_PLANEJAMENTO}")
@@ -116,7 +119,7 @@ def main():
         ops_status.append(ops_df)
 
         # 3️⃣ Saídas (vendas de PA)
-        saida_mes, estoque_trabalho = gerar_movimentacoes_saida(demanda_mes, estoque_trabalho)
+        saida_mes, estoque_trabalho, id_saida_global = gerar_movimentacoes_saida(demanda_mes, estoque_trabalho, id_saida_global)
         if not saida_mes.empty:
             saidas.append(saida_mes)
 

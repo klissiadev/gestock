@@ -24,15 +24,16 @@ def gerar_entradas_mp(demanda_df, produtos_df, bom, estoque):
 
     mp_ids = produtos_df[produtos_df["tipo"] == "MP"]["id"].tolist()
     compras = []
-    id_counter = 1
-    ESTOQUE_MINIMO_MP = 200  # estoque mínimo para cada MP
+    id_counter = 0
+    ESTOQUE_MINIMO_MP = 20  # estoque mínimo para cada MP
 
     for _, demanda in demanda_df.iterrows():
         id_pa = demanda["id_produto"]
         quantidade_pa = demanda["quantidade"]
         ano = demanda["ano"]
         mes = demanda["mes"]
-        data_compra = datetime(ano, mes, 1)
+        data_compra = datetime(ano, mes, 1).date()
+
 
         if id_pa not in bom:
             continue
@@ -66,7 +67,7 @@ def gerar_entradas_mp(demanda_df, produtos_df, bom, estoque):
                 # Registrar compra
                 compras.append({
                     "id": id_counter,
-                    "id_produto": id_mp,
+                    "produto_id": id_mp,
                     "quantidade": quantidade_compra,
                     "data_de_compra": data_compra,
                     "preco_de_compra": round(random.uniform(5, 50), 2),
@@ -79,3 +80,14 @@ def gerar_entradas_mp(demanda_df, produtos_df, bom, estoque):
 
     return pd.DataFrame(compras)
 
+
+'''
+Tabela de entrada possui:
+- id
+- produto_id
+- quantidade 
+- data_de_compra
+- preco_de_compra
+- fornecedor
+
+'''

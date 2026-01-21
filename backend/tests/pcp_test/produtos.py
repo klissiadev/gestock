@@ -1,5 +1,5 @@
 import random
-from datetime import datetime, timedelta
+from datetime import date, timedelta
 import pandas as pd
 
 
@@ -41,7 +41,7 @@ nomes_produtos = [
 
 def criar_produtos():
     produtos = []
-    data_base = datetime.now()
+    data_base = date.today()
 
     for idx, (nome, tipo) in enumerate(zip(nomes_produtos, tipos_produto), start=0):
 
@@ -86,59 +86,15 @@ def gerar_data_validade(tipo, data_base):
     else:  # PA
         dias = random.randint(90, 180)
 
-    return (data_base + timedelta(days=dias)).strftime("%Y-%m-%d")
-
-def imprimir_produtos_tabela(produtos):
-    print("\n" + "=" * 140)
-    print("📦 TABELA DE PRODUTOS")
-    print("=" * 140)
-
-    print(f"{'ID':<4} {'TIPO':<4} {'EST.MIN':<8} {'VALIDADE':<12} {'NOME':<30} {'DESCRIÇÃO'}")
-    print("-" * 140)
-
-    tipo_atual = None
-    contadores = {"MP": 0, "SA": 0, "PA": 0}
-
-    for p in produtos:
-        # Separador visual por tipo
-        if p["tipo"] != tipo_atual:
-            print("-" * 140)
-            print(f">>> TIPO: {p['tipo']}")
-            print("-" * 140)
-            tipo_atual = p["tipo"]
-
-        contadores[p["tipo"]] += 1
-
-        print(
-            f"{p['id']:<4} "
-            f"{p['tipo']:<4} "
-            f"{p['estoque_minimo']:<8} "
-            f"{p['data_validade']:<12} "
-            f"{p['nome']:<30} "
-            f"{p['descricao']}"
-        )
-
-    print("\n" + "=" * 140)
-    print("📊 RESUMO")
-    print("=" * 140)
-    print(f"Matéria-prima (MP):       {contadores['MP']} itens")
-    print(f"Semiacabados (SA):       {contadores['SA']} itens")
-    print(f"Produtos acabados (PA):  {contadores['PA']} itens")
-    print(f"TOTAL GERAL:             {sum(contadores.values())} itens")
-    print("=" * 140)
+    return data_base + timedelta(days=dias)
 
 def criar_produtos_dataframe():
     produtos = criar_produtos()          # lista de dicionários
-    imprimir_produtos_tabela(produtos)   # mantém o print atual
-
     df = pd.DataFrame(produtos)           # converte para DataFrame
-    df["data_validade"] = pd.to_datetime(df["data_validade"])
+    df["data_validade"] = pd.to_datetime(df["data_validade"]).dt.date
 
     return df
 
-# =========================================================
-# EXEMPLO DE USO
-# =========================================================
 if __name__ == "__main__":
     df_produtos = criar_produtos_dataframe()
 
@@ -157,8 +113,8 @@ Gera a tabela de produtos que possui:
 - Nome
 - tipo
 - descrição
-- estoque minimo
-- data validade
+- estoque_minimo
+- data_validade
 
 '''
 
