@@ -1,6 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-// import { fetchUnreadNotifications } from "../features/notifications/services/notificationApi";
-import { fetchUnreadNotifications } from "../features/notifications/services/notificationApi.mock";
+import { fetchUnreadNotifications } from "../features/notifications/services/notificationApi";
 
 export function useNotifications({
   limit = 5,

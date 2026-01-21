@@ -72,6 +72,8 @@ class NotificationService:
         if not evento:
             raise HTTPException(status_code=404, detail="Evento não encontrado")
 
+        self._enrich_reference(evento)
+
         notificacao = normalize_event(evento)
 
         if not notificacao:
@@ -165,3 +167,12 @@ class NotificationService:
             raise HTTPException(status_code=404, detail="Notificação não encontrada")
 
         return {"message": "Notificação marcada como lida"}
+
+    def _enrich_reference(self, evento: dict):
+        ref = evento.get("reference", {})
+        ref_type = ref.get("type")
+
+        if ref_type == "PRODUTO":
+            ref["nome"] = self.produto_service.get_nome_produto(ref["id"])
+
+        # futuros tipos aqui

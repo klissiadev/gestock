@@ -70,3 +70,5 @@ export async function markAsRead(notificationId) {
     return false;
   }
 }
+
+
