@@ -1,4 +1,4 @@
-#routers/event_router.py
+#backend\backend\routers\event_router.py
 from fastapi import APIRouter, Depends
 from backend.database.base import get_connection
 from backend.services.event_service import EventService
