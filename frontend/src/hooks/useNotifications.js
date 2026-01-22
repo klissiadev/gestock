@@ -1,63 +1,82 @@
-import { useEffect, useState, useCallback, useMemo } from "react";
-import {
-  fetchNotifications,
-  markAsRead,
-} from "../features/notifications/services/notificationApi";
+import { useEffect, useRef, useState } from "react";
+import { fetchUnreadNotifications } from "../features/notifications/services/notificationApi";
 
-export function useNotifications() {
+export function useNotifications({
+  limit = 5,
+  pollingInterval = 30000, // 30s
+} = {}) {
   const [notifications, setNotifications] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
+  const [hasMore, setHasMore] = useState(true);
   const [error, setError] = useState(null);
 
-  // fetch inicial
+  const pollingRef = useRef(null);
 
-  const loadNotifications = useCallback(async () => {
+  // Cursor = created_at da última notificação
+  const cursor =
+    notifications.length > 0
+      ? notifications[notifications.length - 1].created_at
+      : null;
+
+
+  async function loadInitial() {
     try {
       setLoading(true);
-      const data = await fetchNotifications();
+      const data = await fetchUnreadNotifications(limit);
       setNotifications(data);
+      setHasMore(data.length === limit);
     } catch (err) {
-      console.error("Erro ao buscar notificações:", err);
-      setError(err);
+      setError(err.message);
     } finally {
       setLoading(false);
     }
-  }, []);
+  }
+
+  // paginação
+  async function loadMore() {
+    if (!hasMore || loading) return;
+
+    try {
+      setLoading(true);
+      const data = await fetchUnreadNotifications(limit, cursor);
+      setNotifications((prev) => [...prev, ...data]);
+      setHasMore(data.length === limit);
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  // novas notificações
+  async function pollNew() {
+    try {
+      const data = await fetchUnreadNotifications(limit);
+
+      if (data.length === 0) return;
+
+      setNotifications((prev) => {
+        const existingIds = new Set(prev.map((n) => n.id));
+        const fresh = data.filter((n) => !existingIds.has(n.id));
+        return fresh.length ? [...fresh, ...prev] : prev;
+      });
+    } catch {
+      // polling não deve quebrar a UI
+    }
+  }
 
   useEffect(() => {
-    loadNotifications();
-  }, [loadNotifications]);
-
-  const markNotificationAsRead = useCallback(async (id) => {
-    try {
-      await markAsRead(id);
-
-      setNotifications((prev) =>
-        prev.map((n) =>
-          n.id === id
-            ? { ...n, read_at: new Date().toISOString() }
-            : n
-        )
-      );
-    } catch (err) {
-      console.error("Erro ao marcar notificação como lida:", err);
-    }
+    loadInitial();
+    pollingRef.current = setInterval(pollNew, pollingInterval);
+    return () => clearInterval(pollingRef.current);
   }, []);
-
-  const unread = useMemo(
-    () => notifications.filter((n) => !n.read_at),
-    [notifications]
-  );
-
-  const unreadCount = unread.length;
 
   return {
     notifications,
-    unread,
-    unreadCount,
     loading,
     error,
-    reload: loadNotifications,
-    markAsRead: markNotificationAsRead,
+    hasMore,
+    loadMore,
+    reload: loadInitial,
   };
 }
