@@ -55,7 +55,7 @@ def upload_file(tipo: str, file: UploadFile, db=Depends(get_db)):
     log = log_service.criar_log({
         "nome_arquivo": file.filename,
         "qntd_registros": total_processados,
-        "status": "SUCESSO" if not result.get("errors") else "PARCIAL",
+        "status": "SUCESSO" if not result.get("errors") else "ERRO",
         "msg_erro": None if not result.get("errors") else "Importação com erros",
         "usuario_id": 1
     })

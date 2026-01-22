@@ -1,8 +1,8 @@
 from fastapi import HTTPException
 from backend.database.repository import Repository
 
-from backend.database.schemas import IMPORT_SCHEMAS
-from backend.services.validation_service import validate_row
+from backend.database.schemas import IMPORT_SCHEMAS 
+from backend.services.validation_service import validate_row 
 
 
 class MovimentacaoService:
