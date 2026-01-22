@@ -3,6 +3,7 @@ from backend.database.repository import Repository
 
 class LogImportacaoService:
     TABLE_NAME = "app_logs.importacoes"
+    SCHEMA = "app_logs"
 
     def __init__(self, conn):
         self.repo = Repository(conn)
@@ -24,10 +25,11 @@ class LogImportacaoService:
             self.repo.commit()
 
             log = self.repo.fetch_one(
-                self.TABLE_NAME,
-                "id",
-                new_id
-            )
+                table="importacoes",
+                key_or_conditions="id",
+                value=new_id,
+                schema=self.SCHEMA
+                )
 
             return log
 
