@@ -186,13 +186,22 @@ class Repository:
     def fetch_one(
         self,
         table: str,
-        key_or_conditions: Union[str, Dict[str, Any]],
-        value: Any = None
+        key_or_conditions,
+        value=None,
+        schema: str = "app_core"
     ) -> Optional[Dict]:
         try:
             table_q = self._quote_identifier(table)
             where_clause, values = self._build_where_clause(key_or_conditions, value)
-            sql = f"SELECT * FROM app_core.{table_q}{where_clause} LIMIT 1"
+            schema_q = self._quote_identifier(schema)
+            table_q = self._quote_identifier(table)
+
+            sql = f"""
+                SELECT *
+                FROM {schema_q}.{table_q}
+                {where_clause}
+                LIMIT 1
+            """
             self.cursor.execute(sql, values)
             row = self.cursor.fetchone()
             return dict(row) if row else None
