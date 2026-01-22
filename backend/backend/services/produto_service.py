@@ -1,7 +1,6 @@
 from fastapi import HTTPException
 from backend.database.repository import Repository
 
-
 class ProdutoService:
 
     def __init__(self, conn):
@@ -18,3 +17,11 @@ class ProdutoService:
         cursor = self.repo.cursor
         cursor.execute("SELECT * FROM produtos")
         return cursor.fetchall()
+    
+    def get_nome_produto(self, produto_id: int) -> str | None:
+        result = self.repo.fetch_all(
+            table="produtos",
+            columns=["nome"],
+            conditions={"id": produto_id}
+        )
+        return result[0]["nome"] if result else None

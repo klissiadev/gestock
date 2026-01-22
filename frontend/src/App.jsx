@@ -1,11 +1,11 @@
 import { BrowserRouter } from "react-router-dom";
 import AppRoutes from "./routes/AppRoutes";
-import NotificationToastTester from "./features/notifications/components/NotificationItem";
+import NotificationToast from "./features/notifications/components/NotificationToast";
 
 function App() {
   return (
     <BrowserRouter>
-      <NotificationToastTester />
+      <NotificationToast />
       <AppRoutes />
     </BrowserRouter>
   )
