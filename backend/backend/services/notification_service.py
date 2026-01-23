@@ -61,7 +61,7 @@ class NotificationService:
 
         return True
     
-    def processar_evento(self, event_id: int):
+    '''def processar_evento(self, event_id: int):
 
         evento = self.repo.fetch_one(
             "notificacoes_eventos",
@@ -91,25 +91,17 @@ class NotificationService:
         )
 
         self.conn.commit()
-        return created
+        return created'''
 
 
 
     def criar_notificacao(self, notificacao: NotificationCreate):
         data = notificacao.dict()
-
         data["reference"] = Json(data["reference"])
 
-        ok = self.repo.insert(
-            "app_core.notificacoes",
-            data
-        )
-
-        if not ok:
-            raise HTTPException(status_code=400, detail="Erro ao registrar notificacao.")
-
-        self.repo.commit()
-        return {"message": "Notificacao registrada com sucesso"}
+        self.repo.insert("app_core.notificacoes", data)
+        self.conn.commit()
+        return {"message": "Notificação criada"}
     
 
     def listar_notificacoes(
@@ -168,7 +160,7 @@ class NotificationService:
 
         return {"message": "Notificação marcada como lida"}
 
-    def _enrich_reference(self, evento: dict):
+    def enrich_reference(self, evento: dict):
         ref = evento.get("reference", {})
         ref_type = ref.get("type")
 
