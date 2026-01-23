@@ -1,6 +1,5 @@
 import { useState } from "react";
 import { uploadFile, handleFileSelect } from "../../../api/uploadApi";
-import { criarEventoNotificacao } from "@/api/eventApi";
 import { handleMailTrigger } from "../../../api/emailApi";
 import { ToastContainer, toast } from 'react-toastify';
 
@@ -23,28 +22,6 @@ export default function UploadPage() {
     try {
       const result = await uploadFile(file, tipo);
       setResponse(result);
-
-      // Se o backend retornar erro, não cria evento
-      if (result?.err) {
-        return;
-      }
-
-      const importId = result.import_id || result.id;
-
-      await criarEventoNotificacao({
-        type: "SUCCESS",
-        context: {
-          data: {
-          },
-          state: "IMPORT_SUCCESS",
-        },
-        reference: {
-          id: importId,
-          type: "IMPORT",
-        },
-        user_id: 1, // MUDAR AQUI!!!!!
-      });
-
     } catch (err) {
       console.error(err);
       toast.error("Falha ao processar a importação");
