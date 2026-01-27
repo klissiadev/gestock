@@ -31,19 +31,19 @@ class PostgresClient:
                     row[k] = v.isoformat()
         return rows
 
-    def fetch_all(self, query: str, params: tuple = ()):
+    def fetch_all(self, query: str):
         """
-        Executa uma query de SELECT e retorna todos os registros.
+        Executa uma query SQL completa (esperada SELECT) e retorna todos os registros normalizados para JSON.
         """
-        with self.conn.cursor(row_factory=psycopg.rows.dict_row) as cur:
-            cur.execute(query, params)
-            # Processo de normalizacao aqui
-            result = cur.fetchall()
-            return self._normalize_date(result)
+        try:
+            if not query.strip().lower().startswith("select"):
+                raise ValueError("Somente queries SELECT são permitidas.")
 
-    def close(self):
-        """
-        Fecha a conexão com o banco.
-        """
-        self.conn.close()
+            with self.conn.cursor(row_factory=psycopg.rows.dict_row) as cur:
+                cur.execute(query)
+                result = cur.fetchall()
+                return self._normalize_date(result) # Normaliza datas para JSON
+        except Exception as e:
+            print(f"Erro na execução da query: {e}")
+            return []
 
