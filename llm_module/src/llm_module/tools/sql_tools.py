@@ -1,20 +1,7 @@
-"""
-Docstring for llm_module.tools.sql_tools
-
-Aqui você encontra todas as tools relacionadas a SQL que a LLM pode utilizar
-para cumprir o seu trabalho.
-
-Por enquanto ela pode:
-- listar_produtos(limite)
-- buscar_produto_por_nome(nome)
-- produtos_vencendo(dias)
-- produtos_vencimento_proximo()
-- contagem_produtos()
-"""
-
 from llm_module.utils.postgres_client import PostgresClient
 from langchain.tools import tool
-import os
+from datetime import date
+import unicodedata
 
 # Instância única do cliente de banco (ok para uso atual)
 database = PostgresClient()
@@ -28,66 +15,243 @@ def _wrap_rows(rows: list[dict]) -> dict:
         "items": rows,
         "empty": len(rows) == 0
     }
+    
+def _normalizar_variacoes(termo: str) -> list[str]:
+    def strip_accents(s):
+        return "".join(
+            c for c in unicodedata.normalize("NFKD", s.lower())
+            if not unicodedata.combining(c)
+        )
+
+    base = strip_accents(termo)
+    variacoes = {base}
+
+    if base.endswith("oes"):
+        variacoes.add(base[:-3] + "ao")
+    elif base.endswith("ais"):
+        variacoes.add(base[:-3] + "al")
+    elif base.endswith("eis"):
+        variacoes.add(base[:-3] + "el")
+    elif base.endswith("ois"):
+        variacoes.add(base[:-3] + "ol")
+    elif base.endswith("s") and len(base) > 3:
+        variacoes.add(base[:-1])
+
+    return sorted(variacoes)
 
 
 @tool
-def tool_listar_produtos(limite: int | None = None) -> dict:
-    """ Lista os produtos no banco de dados. - limite: opcional (máx definido por MAX_QUERY_LIMIT, padrão 500) """
-    max_limit = int(os.getenv("MAX_QUERY_LIMIT", "500"))
+def tool_buscar_produto(termo: str) -> dict:
+    """
+    Busca produtos no sistema a partir de um termo livre do usuário.
+    A normalização e variações são tratadas internamente.
+    Retorna o produto com os campos: nome_produto, descricao, estoque_atual, estoque_minimo, ativo, data_validade
+    """
+    
+    where_ilike = " OR ".join(
+        f"nome_produto ILIKE '%{v}%'"
+        for v in _normalizar_variacoes(termo)
+    )
 
-    if limite is None:
-        limite = max_limit
+    query = f"""
+        SELECT
+            nome_produto,
+            descricao,
+            estoque_atual,
+            estoque_minimo,
+            ativo,
+            data_validade
+        FROM app_core.v_produtos
+        WHERE {where_ilike}
+        ORDER BY nome_produto;
+    """
+
+    return _wrap_rows(database.fetch_all(query=query))
+
+
+@tool
+def tool_buscar_movimentacao(termo: str, tipo: str = None) -> dict:
+    """
+    Busca movimentações (entrada e saída) a partir de um termo livre do usuário.
+    A normalização e variações são tratadas internamente.
+    Valor Padrao de tipo: None -> busca tanto entradas quanto saídas
+    Retorna o produto com os campos: nome_produto, quantidade, data_movimentacao, entidade, tipo_movimentacao, adicionado_em
+    """
+    
+    # Condição para o termo
+    where_clauses = []
+    if termo:
+        where_ilike = " OR ".join(
+            f"nome_produto ILIKE '%{v}%'"
+            for v in _normalizar_variacoes(termo)
+        )
+        where_clauses.append(f"({where_ilike})")
+    
+    # Condição para o tipo de movimentação
+    if tipo in ("entrada", "saida"):
+        where_clauses.append(f"tipo_movimentacao = '{tipo}'")
+    
+    # Junta as condições com AND, ou deixa vazio
+    where_sql = ""
+    if where_clauses:
+        where_sql = "WHERE " + " AND ".join(where_clauses)
+    
+    query = f"""
+        SELECT
+            nome_produto,
+            quantidade,
+            data_movimentacao,
+            entidade,
+            tipo_movimentacao,
+            adicionado_em
+        FROM app_core.v_movimentacao
+        {where_sql}
+        ORDER BY data_movimentacao DESC;
+    """
+
+    rows = database.fetch_all(query=query)
+    return _wrap_rows(rows)
+
+
+
+@tool
+def tool_listar_produtos(apenas_ativos: bool = True) -> dict:
+    """
+    Lista produtos do sistema. Pode filtrar apenas os ativos.
+    Retorna o produto com os campos: nome_produto, descricao, estoque_atual
+    """
+
+    filtro = "WHERE ativo = true" if apenas_ativos else ""
+
+    query = f"""
+        SELECT
+            nome_produto,
+            descricao,
+            estoque_atual
+        FROM app_core.v_produtos
+        {filtro}
+        ORDER BY nome_produto;
+    """
+
+    return _wrap_rows(database.fetch_all(query=query))
+
+
+@tool
+def tool_listar_movimentacoes(tipo: str = None) -> dict:
+    """
+    Lista movimentações do sistema. 
+    É possivel filtrar por tipo: 
+    'entrada': apenas movimentaçoes de entrada; 
+    'saida': apenas movimentações de saída;
+    None: Movimentações de ambos os tipos.
+    Retorna o produto com os campos: nome_produto, quantidade, tipo_movimentacao, data_movimentacao
+    """
+
+    filtro = ""
+    if tipo in ("entrada", "saida"):
+        filtro = f"WHERE tipo_movimentacao = '{tipo}'"
+
+    query = f"""
+        SELECT
+            nome_produto,
+            quantidade,
+            tipo_movimentacao,
+            data_movimentacao
+        FROM app_core.v_movimentacao
+        {filtro}
+        ORDER BY data_movimentacao DESC;
+    """
+
+    return _wrap_rows(database.fetch_all(query=query))
+
+
+@tool
+def tool_calcular_validade(data_validade: str) -> str:
+    """
+    Calcula o status de validade de um produto.
+    """
+
+    hoje = date.today()
+    validade = date.fromisoformat(data_validade)
+    dias = (validade - hoje).days
+
+    if dias < 0:
+        return f"Produto vencido há {-dias} dias."
+    elif dias == 0:
+        return "Produto vence hoje."
+    elif dias <= 30:
+        return f"Produto vence em {dias} dias."
     else:
-        limite = min(limite, max_limit)
-
-    query = """
-        SELECT nome, descricao, estoque_minimo, data_validade
-        FROM app_core.v_produtos
-        ORDER BY nome
-        LIMIT %s
-    """
-
-    rows = database.fetch_all(query, (limite,))
-    return _wrap_rows(rows)
+        return f"Produto válido. Faltam {dias} dias para o vencimento."
 
 
 @tool
-def tool_produtos_vencendo(dias: int) -> dict:
-    """ Retorna produtos que vencem dentro de um número de dias informado. """
-    query = """
-        SELECT nome, descricao, estoque_minimo, data_validade
-        FROM app_core.v_produtos
-        WHERE data_validade IS NOT NULL
-          AND data_validade <= CURRENT_DATE + (%s * INTERVAL '1 day')
-        ORDER BY data_validade
+def buscar_produtos_a_vencer(data: str = None, termo: str = ""):
     """
+    Busca produtos no sistema que tenham uma data de validade menor do que a variável 'data' 
+    e permite uso de termos de pesquisa, sendo isso opcional.
+    'data' deve estar no padrão YYYY-MM-DD; valor padrão: data atual.
+    Retorna os campos: nome_produto, descricao, estoque_atual, estoque_minimo, ativo, data_validade
+    """
+    # Se data não for informada, usa a data de hoje
+    if data is None:
+        data = date.today().isoformat()
 
-    rows = database.fetch_all(query, (dias,))
+    # Monta cláusula de termos, se fornecido
+    where_ilike = ""
+    if termo.strip():
+        termos = " OR ".join(f"nome_produto ILIKE '%{v}%'" for v in _normalizar_variacoes(termo))
+        where_ilike = f" AND ({termos})"
+
+    query = f"""
+    SELECT
+        nome_produto,
+        descricao,
+        estoque_atual,
+        estoque_minimo,
+        ativo,
+        data_validade
+    FROM app_core.v_produtos
+    WHERE data_validade < '{data}' {where_ilike}
+    ORDER BY data_validade, nome_produto;
+    """
+    
+    rows = database.fetch_all(query=query)
     return _wrap_rows(rows)
 
 
-@tool
-def tool_produtos_vencimento_proximo() -> dict:
-    """ Retorna produtos com data de validade nos próximos 30 dias. """
-    query = """
-        SELECT *
-        FROM app_core.v_produtos_vencimento_prox
-        ORDER BY data_validade ASC
-    """
 
-    rows = database.fetch_all(query)
+@tool
+def buscar_produtos_abaixo_estoque(termo: str = ""):
+    """
+    Busca produtos no sistema que estejam abaixo do estoque
+    e permite uso de termos de pesquisa, sendo isso opcional.
+    Retorna os campos: nome_produto, descricao, estoque_atual, estoque_minimo, ativo, data_validade
+    """
+    where_term = ""
+    if termo:
+        termos = " OR ".join(f"nome_produto ILIKE '%{v}%'" for v in _normalizar_variacoes(termo))
+        where_term = f" AND ({termos})"
+
+    query = f"""
+    SELECT
+        nome_produto,
+        descricao,
+        estoque_atual,
+        estoque_minimo,
+        ativo,
+        data_validade
+    FROM app_core.v_produtos
+    WHERE estoque_atual <= estoque_minimo {where_term}
+    ORDER BY nome_produto;
+    """
+    
+    rows = database.fetch_all(query=query)
     return _wrap_rows(rows)
 
-@tool
-def tool_contagem_produtos() -> dict:
-    """ Retorna a quantidade total de produtos cadastrados. """
-    query = "SELECT total FROM app_core.v_contagem_produtos"
-    rows = database.fetch_all(query)
 
-    total = rows[0]["total"] if rows else 0
 
-    return {
-        "total": total,
-        "items": [],
-        "empty": total == 0
-    }
+
+    
+    
+    
