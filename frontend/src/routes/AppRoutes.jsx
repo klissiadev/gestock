@@ -9,6 +9,7 @@ import HomePage from '../features/home/HomePage';
 import ForecastPage from '../features/forecast/ForecastPage';
 import ReportsPage from '../features/reports/ReportsPage';
 import RequestsPage from '../features/requests/RequestsPage';
+import StockPage from '../features/stock/StockPage';
 
 const AppRoutes = () => {
   return (
@@ -22,6 +23,7 @@ const AppRoutes = () => {
         <Route path='/forecast' element={<ForecastPage/>}/>
         <Route path='/reports' element={<ReportsPage/>}/>
         <Route path='/requests' element={<RequestsPage/>}/>
+        <Route path='/debug' element={<StockPage />} />
       </Route>
     </Routes>
   )
