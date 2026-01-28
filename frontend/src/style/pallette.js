@@ -18,7 +18,12 @@ export const palette = {
     },
 
     iconButton: {
-      main: '#EBE8E8',
+      main: "#ffffff",
+      hover: "#eeeded",
+      active: "#b4b4b4",
+      selected: "#ffffff",
+      disabled: "#9CA3AF",
     },
+
 };
 
