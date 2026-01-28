@@ -3,7 +3,7 @@ import { createTheme } from '@mui/material/styles';
 import { palette } from './pallette';
 import MuiIconButton from './components/iconButton';
 import MuiDrawer from './components/drawer';
-import MuiListItemButton from './components/listItemButton';
+import MuiButton from './components/button';
 
 export const theme = createTheme({
     // Colocar aqui os componentes
@@ -12,7 +12,7 @@ export const theme = createTheme({
     components: {
         MuiDrawer,
         MuiIconButton,
-        MuiListItemButton,
+        MuiButton,
     },
 });
 
