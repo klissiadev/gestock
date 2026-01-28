@@ -4,6 +4,7 @@ import StockSheets from '../features/stock/pages/StockSheets'
 import UploadPage from '../features/upload/pages/UploadPage'
 import NotificationPage from '../features/notifications/NotificationPage'
 import HomePage from '../features/home/HomePage'
+import StockPage from '../features/stock/StockPage'
 
 
 const AppRoutes = () => {
@@ -13,6 +14,7 @@ const AppRoutes = () => {
         <Route path='/upload' element={<UploadPage />}/>
         <Route path='/sheets' element={<StockSheets />}/>
         <Route path='/notifications' element={<NotificationPage/>}/>
+        <Route path='/debug' element={<StockPage />} />
     </Routes>
   )
 }
