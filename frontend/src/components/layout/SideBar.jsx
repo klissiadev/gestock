@@ -1,4 +1,4 @@
-import { Drawer, List, Box, IconButton } from "@mui/material";
+import { Drawer, List, Box, IconButton, Divider, Tooltip} from "@mui/material";
 import AppIcon from "../ui/AppIcon";
 
 import HomeSvg from "../../assets/icon/iconHome.svg?react";
@@ -6,16 +6,16 @@ import ChatSvg from "../../assets/icon/iconChat.svg?react";
 import InvetorySvg from "../../assets/icon/iconInventory.svg?react";
 import ShoppingSvg from "../../assets/icon/iconShop.svg?react";
 import ChartSvg from "../../assets/icon/iconBars.svg?react";
-import RecordSvg from "../../assets/icon/iconRecord.svg?react";
+import ReportsSvg from "../../assets/icon/iconRecord.svg?react";
 import LogOutSvg from "../../assets/icon/iconOut.svg?react";
 
 const menuItems = [
   { id: "home", icon: HomeSvg },
   { id: "ai", icon: ChatSvg },
-  { id: "box", icon: InvetorySvg },
-  { id: "cart", icon: ShoppingSvg },
-  { id: "chart", icon: ChartSvg },
-  { id: "record", icon: RecordSvg },
+  { id: "sheets", icon: InvetorySvg },
+  { id: "requests", icon: ShoppingSvg },
+  { id: "forecast", icon: ChartSvg },
+  { id: "reports", icon: ReportsSvg },
 ];
 
 export default function SideBar({ active, onChange }) {
@@ -31,11 +31,13 @@ export default function SideBar({ active, onChange }) {
     >
       
       {/* Logo */}
-      <Box display="flex" justifyContent="center" mb={3}>
+      <Box display="flex" justifyContent="center">
         <IconButton>
           <img src="/logo.svg" width={28} />
         </IconButton>
       </Box>
+
+      <Divider sx={{ mt: 3, mb: 8, borderWidth: 1.3}} />
 
       {/* Menu */}
       <List
@@ -48,19 +50,21 @@ export default function SideBar({ active, onChange }) {
         }}
       >
         {menuItems.map((item) => (
-          <IconButton
-            key={item.id}
-            onClick={() => onChange(item.id)}
-            className={active === item.id ? "Mui-selected" : ""}
-            sx={{
-              width: 36,
-              height: 36,
-              borderRadius: '8px',
-              padding:0
-            }}
-          >
-            <AppIcon component={item.icon} />
-          </IconButton>
+          <Tooltip title={item.id} >
+            <IconButton
+              key={item.id}
+              onClick={() => onChange(item.id)}
+              className={active === item.id ? "Mui-selected" : ""}
+              sx={{
+                width: 40,
+                height: 40,
+                borderRadius: '8px',
+                padding:0
+              }}
+            >
+              <AppIcon component={item.icon} />
+            </IconButton>
+          </Tooltip>
         ))}
       </List>
 

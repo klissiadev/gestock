@@ -21,7 +21,7 @@ export const palette = {
       main: "#ffffff",
       hover: "#eeeded",
       active: "#b4b4b4",
-      selected: "#ffffff",
+      selected: "#d5d5d5",
       disabled: "#9CA3AF",
     },
 
