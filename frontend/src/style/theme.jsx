@@ -1,11 +1,19 @@
 import { createTheme } from '@mui/material/styles';
 
 import { palette } from './pallette';
+import MuiIconButton from './components/iconButton';
+import MuiDrawer from './components/drawer';
+import MuiListItemButton from './components/listItemButton';
 
 export const theme = createTheme({
     // Colocar aqui os componentes
-    palette
-
+    palette,
+        
+    components: {
+        MuiDrawer,
+        MuiIconButton,
+        MuiListItemButton,
+    },
 });
 
 // Tutorial
