@@ -15,6 +15,7 @@ export const palette = {
 
     table: {
       main: '#DBDBDB',
+      hover: '#C8C8C8',
     },
 
     iconButton: {
