@@ -3,7 +3,6 @@ const MuiDrawer = {
   styleOverrides: {
     root: ({ theme }) => ({
       "& .MuiDrawer-paper": {
-        width: 66,
         padding: "6px 6px",
         height: "calc(100vh - 32px)",
         margin: 16,

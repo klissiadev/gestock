@@ -1,3 +1,4 @@
+// src\style\components\iconButton.js
 const MuiIconButton = {
   defaultProps: {
     disableRipple: true,
@@ -5,8 +6,8 @@ const MuiIconButton = {
 
   styleOverrides: {
     root: ({ theme }) => ({
-      width: 48,
-      height: 48,
+      width: 40,
+      height: 40,
       padding: 0, // IMPORTANTE
       borderRadius: 4, // agora aparece
       color: theme.palette.iconButton.main,

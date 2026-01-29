@@ -7,7 +7,7 @@ const MuiButton = {
   styleOverrides: {
     root: ({ theme }) => ({
       width: 190,
-      height: 48,
+      height: 40,
       backgroundColor: theme.palette.iconButton.main,
       gap:8,  
       display: "flex",
