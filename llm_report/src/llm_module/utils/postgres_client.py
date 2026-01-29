@@ -10,6 +10,11 @@ class PostgresClient:
         Inicializa a conexão síncrona com o Postgres usando psycopg.
         """
         load_dotenv()
+        print("DB_HOST:", os.getenv("DB_HOST"))
+        print("DB_PORT:", os.getenv("DB_PORT"))
+        print("DB_NAME:", os.getenv("DB_NAME"))
+        print("DB_LLM_USER:", os.getenv("DB_LLM_USER"))
+        print("DB_LLM_PASSWORD:", os.getenv("DB_LLM_PASSWORD"))
 
         self.conninfo = (
             f"host={os.getenv('DB_HOST')} "
