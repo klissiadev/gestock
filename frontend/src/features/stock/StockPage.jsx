@@ -84,7 +84,7 @@ const StockPage = () => {
     >
 
       <Stack
-        direction="row"
+        direction="column"
         spacing={2}
         sx={{
           display: 'flex',
@@ -93,7 +93,6 @@ const StockPage = () => {
           width: "100%",
         }}>
         <SearchBar />
-        <OrderSelector />
         <OrderSelector />
         <OrderButton />
       </Stack>

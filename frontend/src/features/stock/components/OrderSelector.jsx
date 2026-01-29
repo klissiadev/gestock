@@ -1,5 +1,5 @@
-import { useState } from 'react'
-import { Select, FormControl, MenuItem } from '@mui/material'
+import { useState } from 'react';
+import { Select, FormControl, MenuItem } from '@mui/material';
 
 const orderSelector = {
     borderStyle: 'solid',
