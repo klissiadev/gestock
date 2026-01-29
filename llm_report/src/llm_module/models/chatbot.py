@@ -22,6 +22,7 @@ from llm_module.tools.sql_tools import (
     buscar_produtos_a_vencer,
     buscar_produtos_abaixo_estoque,
 )
+from llm_module.tools.llm_report_tool import gerar_relatorio
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.WARNING)
@@ -49,7 +50,7 @@ class ChatBotService:
             buscar_produtos_a_vencer, tool_buscar_movimentacao, 
             tool_buscar_produto, tool_listar_produtos, 
             tool_calcular_validade, tool_listar_movimentacoes, 
-            buscar_produtos_abaixo_estoque
+            buscar_produtos_abaixo_estoque, gerar_relatorio
         ]
         
         self.agent = None
