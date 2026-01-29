@@ -1,14 +1,12 @@
 // typography.js
-import "@fontsource/inter/400.css";
-import "@fontsource/inter/500.css";
-import "@fontsource/inter/600.css";
-import "@fontsource/inter/700.css";
+import "@fontsource/inter";
+import "@fontsource/roboto";
 
 
 export const typography = {
-  fontFamily: 'Inter, sans-serif',
+  fontFamily: 'Inter, roboto',
 
-  fontWeightLight: 400,
+  fontWeightLight: 100,
   fontWeightRegular: 500,
   fontWeightMedium: 600,
   fontWeightBold: 700,
