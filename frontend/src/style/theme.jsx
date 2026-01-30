@@ -12,6 +12,7 @@ import { MuiTableRow } from './components/tableRow';
 import { MuiTableCell } from './components/tableCell';
 import { MuiTableHead } from './components/tableHead';
 import { MuiTableContainer } from './components/tableContainer';
+import MuiInput from './components/input';
 
 export const theme = createTheme({
     // Colocar aqui os componentes
@@ -29,6 +30,20 @@ export const theme = createTheme({
         MuiTableCell,
         MuiTableHead,
         MuiTableContainer,
+        MuiInput,
+        MuiInputBase: {
+            styleOverrides: {
+                input: {
+                "&:focus-visible": {
+                    borderColor: "primary.main",
+                    
+                },
+                "&:focus": {
+                    borderColor: "primary.main",
+                },
+                },
+            },
+        },
     },
 });
 
