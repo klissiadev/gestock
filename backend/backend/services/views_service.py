@@ -67,7 +67,7 @@ class view_service:
         all_products = self.repo.fetch_all(
                 table="Produto",
                 conditions=condicoes_db,
-                columns=["cod_produto", "nome", "descricao", "categoria", "valor_unitario", "estoque_atual", "estoque_minimo", "data_validade"],
+                columns=["nome", "descricao", "estoque_minimo", "data_validade", "ativo"],
                 order_by=order,
                 direction=direcao,
                 search_term=search_t,
