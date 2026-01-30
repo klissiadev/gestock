@@ -20,74 +20,67 @@ const ChatInput = ({
         px: 1,
         borderRadius: "12px",
         border: "1px solid",
-        borderColor: "black",
-        display: "flex",
-        alignItems: "flex-end",
-        gap: 1,
+        borderColor: "common.gray",
         backgroundColor: "background.paper",
-        width: "100%",
+        width: "60%",
         transition: "border-color 0.2s",
         "&:focus-within": {
-          borderColor: "primary.main",
+          borderColor: "black",
         },
       }}
     >
-      <TextField
-        fullWidth
-        multiline
-        maxRows={4}
-        variant="standard"
-        value={value}
-        onChange={(e) => onChange(e.target.value)}
-        placeholder="Pergunte alguma coisa..."
-        disabled={disabled}
-        InputProps={{
-          disableUnderline: true,
-        }}
-        onKeyDown={(e) => {
-          if (e.key === "Enter" && !e.shiftKey) {
-            e.preventDefault();
-            onSend();
-          }
-        }}
+      <Box
         sx={{
-          px: 0.5,
-          "& .MuiInputBase-input": {
-            color: "text.primary",
-            fontWeight: 400,     
-            fontSize: "0.95rem",
-            lineHeight: 1.5,
-          },
-          "& .MuiInputBase-input::placeholder": {
-            color: "text.secondary",
-            opacity: 1,
-            fontWeight: 400,
-          },
-        }}
-      />
-
-      <IconButton
-        onClick={onSend}
-        disabled={disabled}
-        sx={{
-          bgcolor: "primary.main",
-          color: "primary.contrastText",
-          "&:hover": {
-            bgcolor: "primary.dark",
-          },
-          width: 36,
-          height: 36,
-          flexShrink: 0, // Prevent shrinking
+          display: "flex",
+          alignItems: "flex-end",
+          gap: 1,
         }}
       >
-        {loading ? (
-          <CircularProgress size={18} color="inherit" />
-        ) : (
-          <SendIcon width={16} height={16} />
-        )}
-      </IconButton>
+        {/* INPUT CRESCE PARA CIMA */}
+        <Box
+          sx={{
+            flex: 1,
+            display: "flex",
+            flexDirection: "column-reverse",
+          }}
+        >
+          <TextField
+            fullWidth
+            multiline
+            minRows={1}
+            maxRows={3}
+            variant="standard"
+            value={value}
+            onChange={(e) => onChange(e.target.value)}
+            placeholder="Pergunte alguma coisa..."
+            disabled={disabled}
+            InputProps={{ disableUnderline: true }}
+            onKeyDown={(e) => {
+              if (e.key === "Enter" && !e.shiftKey) {
+                e.preventDefault();
+                onSend();
+              }
+            }}
+          />
+        </Box>
+
+        <IconButton
+          onClick={onSend}
+          disabled={disabled}
+          sx={{
+            width: 36,
+            height: 36,
+            flexShrink: 0,
+          }}
+        >
+          {loading ? (
+            <CircularProgress size={18} />
+          ) : (
+            <SendIcon width={16} height={16} />
+          )}
+        </IconButton>
+      </Box>
     </Box>
   );
 };
-
 export default ChatInput;

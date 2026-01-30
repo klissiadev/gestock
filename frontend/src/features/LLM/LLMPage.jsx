@@ -13,6 +13,27 @@ import ChatInput from "./components/ChatInput";
 import FAQSuggestions from "./components/FAQSuggestions";
 import InitialChatLayout from "./components/InitialChatLayout";
 
+const MOCK_MESSAGES = [
+  {
+    role: "assistant",
+    content: "Olá! Tudo bem? 😊\n\nComo posso ajudar hoje?",
+  },
+  {
+    role: "user",
+    content: "Quero testar o layout do chat.",
+  },
+  {
+    role: "assistant",
+    content:
+      "Perfeito! 🚀\n\nAqui você consegue validar:\n- Alinhamento\n- Quebra de linha\n- Scroll\n- Estilo das mensagens",
+  },
+  {
+    role: "user",
+    content: "Ótimo, era isso mesmo!",
+  },
+];
+
+
 
 const LLMPage = () => {
   const [sessions, setSessions] = useState([]);
@@ -25,6 +46,12 @@ const LLMPage = () => {
   useEffect(() => {
     loadSessions();
   }, []);
+
+  /*useEffect(() => {
+    // testee 
+    setSelectedSession("mock-session");
+    setMessages(MOCK_MESSAGES);
+  }, []);*/ 
 
   const loadSessions = async () => {
     setLoadingSessions(true);
@@ -85,7 +112,7 @@ const LLMPage = () => {
   };
 
   return (
-    <Box sx={{px: 4, py: 1, width: "100%", display: "flex", alignItems: "center", flexDirection: "column"}}>
+    <Box sx={{px: 4, py: 1, width: "100%", display: "flex", alignItems: "center", flexDirection: "column", height: "100%"}}>
 
       <ChatHeader
         sessions={sessions}
@@ -97,21 +124,33 @@ const LLMPage = () => {
         onCreateSession={handleCreateSession}
       />
 
-
       <Box
         sx={{
           display: "flex",
           flexDirection: "column",
-          width: "60%",
+          width: "100%",
+          flex: 1,
+          overflow: "hidden",
+          alignItems: "center",
         }}
       >
-        <Box sx={{ flex: 1, overflowY: "auto" }}>
+        {/* MENSAGENS */}
+        <Box
+          sx={{
+            flex: 1,
+            overflowY: "hidden",
+            width: "100%",  
+            alignItems: "center",
+          }}
+        >
           {messages.length === 0 ? (
             <InitialChatLayout />
           ) : (
             <ChatContainer messages={messages} />
           )}
         </Box>
+
+        {/* INPUT */}
         <ChatInput
           value={input}
           onChange={setInput}
@@ -121,7 +160,6 @@ const LLMPage = () => {
           hasMessages={messages.length > 0}
         />
       </Box>
-
 
       {messages.length === 0 ? (
         <FAQSuggestions

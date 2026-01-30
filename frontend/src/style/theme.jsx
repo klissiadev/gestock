@@ -7,6 +7,7 @@ import MuiDrawer from './components/drawer';
 import MuiButton from './components/button';
 import MuiListItemButton from './components/listItemButton';
 import MuiListItemIcon from './components/listItemIcon';
+import MuiInput from './components/input';
 
 export const theme = createTheme({
     // Colocar aqui os componentes
@@ -18,7 +19,21 @@ export const theme = createTheme({
         MuiIconButton,
         MuiButton,
         MuiListItemButton,
-        MuiListItemIcon
+        MuiListItemIcon,
+        MuiInput,
+        MuiInputBase: {
+            styleOverrides: {
+                input: {
+                "&:focus-visible": {
+                    borderColor: "primary.main",
+                    
+                },
+                "&:focus": {
+                    borderColor: "primary.main",
+                },
+                },
+            },
+        },
     },
 });
 
