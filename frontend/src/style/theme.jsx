@@ -7,6 +7,11 @@ import MuiDrawer from './components/drawer';
 import MuiButton from './components/button';
 import MuiListItemButton from './components/listItemButton';
 import MuiListItemIcon from './components/listItemIcon';
+import { MuiTable } from './components/table';
+import { MuiTableRow } from './components/tableRow';
+import { MuiTableCell } from './components/tableCell';
+import { MuiTableHead } from './components/tableHead';
+import { MuiTableContainer } from './components/tableContainer';
 
 export const theme = createTheme({
     // Colocar aqui os componentes
@@ -18,7 +23,12 @@ export const theme = createTheme({
         MuiIconButton,
         MuiButton,
         MuiListItemButton,
-        MuiListItemIcon
+        MuiListItemIcon,
+        MuiTable,
+        MuiTableRow,
+        MuiTableCell,
+        MuiTableHead,
+        MuiTableContainer,
     },
 });
 

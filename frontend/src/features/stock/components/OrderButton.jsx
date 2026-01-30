@@ -1,32 +1,34 @@
-import { useState } from 'react';
-import { FormControl, IconButton } from '@mui/material';
-import ArrowUpwardRoundedIcon from '@mui/icons-material/ArrowUpwardRounded';
-import ArrowDownwardRoundedIcon from '@mui/icons-material/ArrowDownwardRounded';
-import { theme } from '../../../style/theme';
-
-const OrderButton = () => {
-    const [isAsc, setAsc] = useState(true)
+import { useState } from "react";
+import { Box, FormControl, IconButton } from "@mui/material";
+import ArrowUpwardRoundedIcon from "@mui/icons-material/ArrowUpwardRounded";
+import ArrowDownwardRoundedIcon from "@mui/icons-material/ArrowDownwardRounded";
 
 
 
-    return (
-        <FormControl fullWidth>
-            <IconButton size='large'
-                sx={{
-                    padding: 3, color: (theme) => theme.palette.common.black, borderStyle: 'solid',
-                    borderWidth: '1px',
-                }}
-                onClick={() => setAsc(!isAsc)}>
-                {
-                    isAsc === true ? (
-                        <ArrowUpwardRoundedIcon fontSize='inherit' />
-                    ) : (
-                        <ArrowDownwardRoundedIcon fontSize='inherit' />
-                    )
-                }
-            </IconButton>
-        </FormControl>
-    )
-}
+const OrderButton = ({ radius = 2}) => {
+  const [isAsc, setAsc] = useState(true);
 
-export default OrderButton
+  return (
+    <FormControl fullWidth>
+      <IconButton
+        size="large"
+        sx={{
+          padding: 3,
+          color: theme => theme.palette.common.black,
+          borderStyle: "solid",
+          borderWidth: "1px",
+          borderRadius: radius
+        }}
+        onClick={() => setAsc(!isAsc)}
+      >
+        {isAsc ? (
+          <ArrowUpwardRoundedIcon fontSize="inherit" />
+        ) : (
+          <ArrowDownwardRoundedIcon fontSize="inherit" />
+        )}
+      </IconButton>
+    </FormControl>
+  );
+};
+
+export default OrderButton;
