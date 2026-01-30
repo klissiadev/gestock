@@ -4,7 +4,7 @@ import AppLayout from "../components/layout/AppLayout";
 import StockSheets from '../features/stock/pages/StockSheets';
 import UploadPage from '../features/upload/pages/UploadPage';
 import NotificationPage from '../features/notifications/NotificationPage';
-import LLMPage from '../features/llm/pages/LLMPage';
+import LLMPage from '../features/LLM/LLMPage';
 import HomePage from '../features/home/HomePage';
 import ForecastPage from '../features/forecast/ForecastPage';
 import ReportsPage from '../features/reports/ReportsPage';

@@ -7,12 +7,13 @@ export default function PageContainer({ children }) {
             height: "calc(108vh - 158px)",
             bgcolor: 'background.paper',
             borderRadius: 3,
-            p: 3,
+            p: 1 ,
             ml: 2.5,
             mt: 2.5,
             overflow:"auto",
             display: "flex",
             flex: 1,
+            width: "calc(100% - 20px)"
         }}
     >
       {children}
