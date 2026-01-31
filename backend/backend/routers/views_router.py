@@ -1,12 +1,14 @@
 from fastapi import APIRouter, Depends
+from typing import List
 from backend.services.views_service import view_service
 from backend.database.base import get_db
 from backend.models.product_filters import product_filters
 from backend.models.moviment_filters import moviment_filters
+from backend.models.product_item import ProductSchema
 
 router = APIRouter(prefix="/views", tags=["visualizar"])
 
-@router.post("/product")
+@router.post("/product", response_model=List[ProductSchema])
 async def exibir_tabela_produto(filter: product_filters, db = Depends(get_db)):
         direcao = "ASC" if filter.isAsc else "DESC"
 
