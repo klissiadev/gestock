@@ -21,7 +21,7 @@ class view_service:
     # métodos auxiliares
     def _get_total_entrada(self, produto_id: int) -> int:
         result = self.repo.fetch_one(
-            table="entrada",
+            table="app_core.movimentacoes_entrada",
             columns=["COALESCE(SUM(quantidade), 0) AS total"],
             conditions={"produto_id": produto_id}
         )
@@ -29,7 +29,7 @@ class view_service:
 
     def _get_total_saida(self, produto_id: int) -> int:
         result = self.repo.fetch_one(
-            table="saida",
+            table="app_core.movimentacoes_saida",
             columns=["COALESCE(SUM(quantidade), 0) AS total"],
             conditions={"produto_id": produto_id}
         )
@@ -37,7 +37,7 @@ class view_service:
 
     def _get_total_movimentacao(self, produto_id: int) -> dict:
         result = self.repo.fetch_one(
-            table="movimentacoes_internas",
+            table="app_core.movimentacoes_internas",
             columns=[
                 "COALESCE(SUM(CASE WHEN tipo = 'producao' THEN quantidade END), 0) AS producao",
                 "COALESCE(SUM(CASE WHEN tipo = 'consumo' THEN quantidade END), 0) AS consumo"
@@ -89,11 +89,8 @@ class view_service:
         if order_by not in COLUNAS_VALIDAS:
             order_by = "nome"
         
-        print("ORDER BY:", order_by)
         order_by = order_by or "nome"
         search_term = search_term.strip() if search_term else None
-
-
 
         conditions = {} 
         if categoria:
@@ -103,7 +100,7 @@ class view_service:
             search_term = None
 
         produtos = self.repo.fetch_all(
-            table="produtos", 
+            table="app_core.produtos", 
             columns=[ 
                 "id",
                 "nome",
@@ -119,7 +116,7 @@ class view_service:
             search_cols=["nome", "descricao"] 
         )
 
-    
+        
         resultado = [] 
 
         for produto in produtos: 
@@ -130,8 +127,6 @@ class view_service:
                 produto["estoque_minimo"]
             )
 
-
-        
             if apenas_baixo_estoque and not baixo_estoque:
                 continue
             if apenas_vencidos and not vencido:

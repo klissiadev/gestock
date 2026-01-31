@@ -22,6 +22,10 @@ class Repository:
         - "Tabela".coluna AS alias
         - "Tabela"
         """
+        # Se funcao
+        if "(" in identifier and ")" in identifier:
+            return identifier
+
         # Usuario.nome AS nome_usuario
         if " AS " in identifier.upper():
             left, alias = identifier.split(" AS ", 1)
@@ -186,19 +190,59 @@ class Repository:
     def fetch_one(
         self,
         table: str,
-        key_or_conditions: Union[str, Dict[str, Any]],
-        value: Any = None
+        type_join: str = None,
+        join_tables: List[Tuple[str, str]] = None,
+        conditions: Union[Dict[str, Any], str, None] = None,
+        value: Any = None,
+        order_by: str = None,
+        direction: str = None,
+        columns: List[str] = None,
+        search_term: str = None,
+        search_cols: List[str] = None
     ) -> Optional[Dict]:
         try:
+            # 1. Monta SELECT
             table_q = self._quote_identifier(table)
-            where_clause, values = self._build_where_clause(key_or_conditions, value)
-            sql = f"SELECT * FROM app_core.{table_q}{where_clause} LIMIT 1"
-            self.cursor.execute(sql, values)
-            row = self.cursor.fetchone()
-            return dict(row) if row else None
+            col_q = ", ".join(self._quote_identifier(c) for c in columns) if columns else "*"
+            
+            # 2. Monta o JOIN
+            join_sql = ""
+            if type_join and join_tables:
+                for join_table, join_condition in join_tables:
+                    join_table_q = self._quote_identifier(join_table)
+                    join_sql += f" {type_join} {join_table_q} ON {join_condition}"
+    
+            # 3. Filtros exatos e Busca (Reutilizando sua lógica do fetch_all)
+            where_parts, query_values = self._build_conditions(conditions, value)
+            search_part, search_values = self._build_search_clause(search_term, search_cols)
+    
+            if search_part:
+                where_parts.append(search_part)    
+                query_values.extend(search_values)  
+            
+            where_sql = (" WHERE " + " AND ".join(where_parts)) if where_parts else ""
+    
+            # 4. Monta ORDER BY
+            order_sql = ""
+            if order_by:
+                # Garante que a direção seja válida para evitar SQL Injection manual
+                dir_sql = direction if direction in ["ASC", "DESC"] else "ASC"
+                order_q = ", ".join(self._quote_identifier(c.strip()) for c in order_by.split(","))
+                order_sql = f" ORDER BY {order_q} {dir_sql}"
+    
+            # 5. Executa com LIMIT 1
+            # O LIMIT 1 é o que diferencia o fetch_one
+            sql = f"SELECT {col_q} FROM {table_q}{join_sql}{where_sql}{order_sql} LIMIT 1"
+            print(f"One: {sql}")
 
+            self.cursor.execute(sql, query_values)
+            row = self.cursor.fetchone()
+            
+            return dict(row) if row else None
+    
         except Exception as e:
-            raise HTTPException(status_code=500, detail=f"Erro ao buscar: {str(e)}")
+            # Lembre-se que agora o seu app.py captura isso e loga o traceback!
+            raise HTTPException(status_code=500, detail=f"Erro ao buscar registro único: {str(e)}")
 
     def fetch_all(
         self,
