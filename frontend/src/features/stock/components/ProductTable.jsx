@@ -3,8 +3,8 @@ import { handlePTable } from '../../../api/viewApi';
 
 const ProductTable = () => {
     // Todos os Estados (considerando todos os filtros e ordenações)
-    const [table, setTable] = useState(null);
-    const [orderBy, setOrderBy] = useState("id");
+    const [table, setTable] = useState([]);
+    const [orderBy, setOrderBy] = useState("nome_produto");
     const [isAsc, setIsAsc] = useState(true);
     const [digitado, setDigitado] = useState('');
     const [searchTerm, setSearchTerm] = useState("");
@@ -28,7 +28,7 @@ const ProductTable = () => {
             try {
                 // Busca os dados filtrados do backend
                 const dados = await handlePTable(orderBy, isAsc, searchTerm, categoria, isBaixoEstoque, isVencidos);
-                setTable(dados);
+                setTable(dados || []);
                 setCurrentPage(1); // Reseta para a primeira página ao carregar novos dados
 
                 // Primeira vez que carrega -> salva as opcoes de categoria pela primeira vez pra nao perder as informações
@@ -67,8 +67,9 @@ const ProductTable = () => {
     // Sistema de paginacao
     const indexOfLastItem = currentPage * itemsPerPage;
     const indexOfFirstItem = indexOfLastItem - itemsPerPage;
-    const currentItems = table.slice(indexOfFirstItem, indexOfLastItem);
-    const totalPages = Math.ceil(table.length / itemsPerPage);
+    const safeTable = Array.isArray(table) ? table : [];
+    const currentItems = safeTable.slice(indexOfFirstItem, indexOfLastItem);
+    const totalPages = Math.ceil(safeTable.length / itemsPerPage);
 
     // Definicao das colunas da tabela 
     const colunas = table.length > 0 ? Object.keys(table[0]) : [];
