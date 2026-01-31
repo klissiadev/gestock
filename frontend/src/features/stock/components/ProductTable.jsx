@@ -4,7 +4,7 @@ import { handlePTable } from '../../../api/viewApi';
 const ProductTable = () => {
     // Todos os Estados (considerando todos os filtros e ordenações)
     const [table, setTable] = useState(null);
-    const [orderBy, setOrderBy] = useState("cod_produto");
+    const [orderBy, setOrderBy] = useState("id");
     const [isAsc, setIsAsc] = useState(true);
     const [digitado, setDigitado] = useState('');
     const [searchTerm, setSearchTerm] = useState("");
