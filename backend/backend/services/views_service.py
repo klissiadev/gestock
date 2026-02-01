@@ -50,6 +50,7 @@ class view_service:
             conditions["baixo_estoque"] = True
         if apenas_vencidos:
             conditions["vencido"] = True
+        
 
         if not search_term:
             search_term = None

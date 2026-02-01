@@ -1,7 +1,6 @@
-import React from 'react'
-import {Routes, Route } from "react-router-dom";
+import { Routes, Route } from "react-router-dom";
 import AppLayout from "../components/layout/AppLayout";
-import StockSheets from '../features/stock/pages/StockSheets';
+import TabelaProduto from '../features/stock/pages/TabelaProduto';
 import UploadPage from '../features/upload/pages/UploadPage';
 import NotificationPage from '../features/notifications/NotificationPage';
 import LLMPage from '../features/LLM/LLMPage';
@@ -9,7 +8,7 @@ import HomePage from '../features/home/HomePage';
 import ForecastPage from '../features/forecast/ForecastPage';
 import ReportsPage from '../features/reports/ReportsPage';
 import RequestsPage from '../features/requests/RequestsPage';
-import StockPage from '../features/stock/StockPage';
+import StockPage from '../features/stock/StockPageDebug';
 
 const AppRoutes = () => {
   return (
@@ -17,7 +16,7 @@ const AppRoutes = () => {
       <Route element={<AppLayout />}>
         <Route path='/' element={<HomePage/>}/>
         <Route path='/upload' element={<UploadPage />}/>
-        <Route path='/sheets' element={<StockSheets />}/>
+        <Route path='/sheets' element={<TabelaProduto />}/>
         <Route path='/notifications' element={<NotificationPage/>}/>
         <Route path='/ai' element={<LLMPage/>}/>
         <Route path='/forecast' element={<ForecastPage/>}/>

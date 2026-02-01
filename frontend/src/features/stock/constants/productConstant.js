@@ -11,3 +11,13 @@ export const PRODUCT_HEADER_NAMES = {
     data_validade: "Validade",
     ativo: "Ativo?"
 };
+
+// Filtros originais
+export const INITIAL_FILTERS = {
+    searchTerm: "",
+    orderBy: "id",
+    isAsc: true,
+    categoria: "",
+    isBaixoEstoque: false,
+    isVencidos: false
+}
