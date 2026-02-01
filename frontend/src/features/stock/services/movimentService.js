@@ -1,7 +1,7 @@
-export async function fetchMovimentacoes(orderBy, isAsc, search) {
+export async function fetchMovimentacoes(filters) {
     try {
         console.log("Requisitando dados da tabela de movimentacoes com os parametros:");
-        console.log({ orderBy, isAsc, search });
+        console.log(filters);
         const response = await fetch(
             `http://localhost:8000/views/moviment`,
             {
@@ -9,11 +9,7 @@ export async function fetchMovimentacoes(orderBy, isAsc, search) {
                 headers:{
                     "Content-Type": "application/json",
                 },
-                body: JSON.stringify({
-                    "orderBy": orderBy,
-                    "isAsc": isAsc,
-                    "search": search,
-                })
+                body: JSON.stringify(filters)
             }
         );
         
@@ -25,6 +21,6 @@ export async function fetchMovimentacoes(orderBy, isAsc, search) {
         return dados;
 
     } catch {
-        return { error: "Nao foi possivel ler a tabela de movimentacoes" };
+        return { error: "Nao foi possivel ler a tabela de movimentações" };
     }
 };
