@@ -1,7 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
-import { INITIAL_FILTERS } from '../constants/productConstant';
+import { INITIAL_FILTERS, PRODUCT_HEADER_NAMES } from '../constants/productConstant';
 import { fetchProdutos } from '../services/produtctService';
-import { PRODUCT_HEADER_NAMES } from '../constants/productConstant';
 
 export const useProductTable = () => {
     // Estados

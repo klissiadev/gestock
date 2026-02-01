@@ -1,15 +1,21 @@
 import { Divider, Stack } from "@mui/material";
-import TableToolBar from "./components/TableToolBar";
+import TransactionToolBar from "./components/TransactionToolBar";
 import TableModel from "./components/tableModel";
-import { useProductTable } from "./hooks/useProductTable";
 import LoadingComponent from "./components/LoadingComponent";
 import ErrorState from "./components/ErrorState";
+import { useMovimentTable } from "./hooks/useMovimentTable";
 
 const StockPage = () => {
-  const { rows, columns, loading, filters, handleFilterChange, resetFilters, error } =
-    useProductTable();
-
-  console.log(error);
+  const {
+    rows,
+    columns,
+    loading,
+    error,
+    filters,
+    handleFilterChange,
+    resetFilters,
+  } = useMovimentTable();
+  console.log(filters);
 
   return (
     <Stack
@@ -21,8 +27,8 @@ const StockPage = () => {
         padding: 1,
       }}
     >
-      <TableToolBar
-        titulo={"Estoque"}
+      <TransactionToolBar
+        titulo={"Movimentacao"}
         filters={filters}
         onFilterChange={handleFilterChange}
       />
@@ -32,15 +38,13 @@ const StockPage = () => {
       {loading ? (
         <LoadingComponent columns={columns} />
       ) : error ? (
-        <ErrorState 
-          message={error} 
-          onRetry={() => handleFilterChange('searchTerm', filters.searchTerm)}
+        <ErrorState
+          message={error}
+          onRetry={() => handleFilterChange("searchTerm", filters.searchTerm)}
         />
       ) : (
         <TableModel rows={rows} columns={columns} />
       )}
-
-
     </Stack>
   );
 };

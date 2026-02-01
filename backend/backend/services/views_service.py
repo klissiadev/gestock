@@ -29,7 +29,7 @@ class view_service:
         search_term: str | None,
         tipo: str | None,
         apenas_baixo_estoque: bool | None,
-        apenas_vencidos: bool  | None
+        apenas_vencidos: bool | None
     ):
         COLUNAS_VALIDAS = [
             "id", "nome", "tipo", "descricao", "estoque_atual",
@@ -38,24 +38,20 @@ class view_service:
         ]
 
         if order_by not in COLUNAS_VALIDAS:
-            order_by = "nome"
-        
-        order_by = order_by or "nome"
-        search_term = search_term.strip() if search_term else None
+            order_by = "id"
 
-        conditions = {} 
-        if tipo:
-            conditions["tipo"] = tipo
-        if apenas_baixo_estoque:
-            conditions["baixo_estoque"] = True
-        if apenas_vencidos:
-            conditions["vencido"] = True
-        
+        search_term = search_term.strip() if search_term and search_term.strip() else None
+        tipo = tipo.strip() if tipo and tipo.strip() else None
 
-        if not search_term:
-            search_term = None
+        conditions = {
+            k: v for k, v in {
+                "tipo": tipo,
+                "baixo_estoque": True if apenas_baixo_estoque else None,
+                "vencido": True if apenas_vencidos else None
+            }.items() if v is not None
+        }
 
-        produtos = self.repo.fetch_all(
+        return self.repo.fetch_all(
             table="app_core.vw_product", 
             columns=COLUNAS_VALIDAS,
             conditions=conditions, 
@@ -64,82 +60,30 @@ class view_service:
             search_term=search_term, 
             search_cols=["nome", "descricao"] 
         )
-
-        return produtos
     
-    def see_movimentacao_table(self, direcao: str, order_by: str, search_term: str | None):
+    def see_transaction_table(self, direcao: str, order_by: str, search_term: str | None):
+        COLUNAS_VIEW = [
+            "unique_id", "produto_nome", "quantidade", "data_evento",
+            "valor_unitario", "parceiro_origem", "local_destino",
+            "tipo_movimento", "created_at"
+        ]
+
+        if order_by not in COLUNAS_VIEW:
+            order_by = "unique_id" 
+
+        search_term = search_term.strip() if search_term else None
+
+        BUSCA_EM = ["produto_nome", "parceiro_origem", "local_destino", "tipo_movimento"]
+
         return self.repo.fetch_all(
-            table="movimentacoes_internas",
-            columns=[
-                "id",
-                "produto_id",
-                "ordem_de_producao",
-                "tipo",
-                "quantidade",
-                "origem",
-                "destino",
-                "data"
-            ],
+            table="app_core.mv_movimentacao",
+            columns=COLUNAS_VIEW,
             order_by=order_by,
             direction=direcao,
             search_term=search_term,
-            search_cols=["ordem_de_producao", "origem", "destino"]
+            search_cols=BUSCA_EM
         )
     
-
-def testes():
-    import psycopg2
-    from psycopg2.extras import RealDictCursor
-    import os
-    from dotenv import load_dotenv
-    from backend.models.product_item import ProductSchema # Importe seu modelo
-    
-    load_dotenv()
-
-    conn = psycopg2.connect(
-            host=os.getenv("PG_HOST", "localhost"),
-            port=os.getenv("PG_PORT", "5432"),
-            dbname=os.getenv("PG_DATABASE", "meubanco"),
-            user=os.getenv("PG_USER", "postgres"),
-            password=os.getenv("PG_PASSWORD", "postgres"),
-            cursor_factory=RealDictCursor,
-            connect_timeout=5)
-    
-    try:
-        view = view_service(conn) 
-        
-        print("--- Executando busca na View ---")
-        resultados_brutos = view.see_product_table(
-            direcao="ASC", 
-            order_by="nome", 
-            tipo=None, 
-            search_term=None, 
-            apenas_baixo_estoque=True, 
-            apenas_vencidos=None
-        )
-
-        print(f"Total de registros encontrados: {len(resultados_brutos)}")
-
-        # 2. Testando a validação do Pydantic (Simulando o que o FastAPI faz)
-        print("\n--- Validando com Pydantic ---")
-        for item in resultados_brutos[:2]: # Testa apenas os 2 primeiros
-            # Converte o dicionário bruto em um objeto Pydantic
-            produto_validado = ProductSchema(**item)
-            
-            # O .model_dump_json() simula exatamente o que o React vai receber
-            # Note como a data vira string automaticamente aqui!
-            print(f"Produto: {produto_validado.nome}")
-            print(f"JSON de saída: {produto_validado.model_dump_json()}")
-            print("-" * 20)
-
-    except Exception as e:
-        import traceback
-        traceback.print_exc()
-    finally:
-        conn.close()
-
-if __name__ == "__main__":
-    testes()
 
 '''
 Estrutura atual das tabelas:
