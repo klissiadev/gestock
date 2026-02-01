@@ -1,10 +1,10 @@
 import React from "react";
-import { Box, Typography, Stack } from '@mui/material';
+import { Box, Typography, Stack } from "@mui/material";
 import SearchBar from "./SearchBar";
 import OrderSelector from "./OrderSelector";
 import OrderButton from "./orderButton";
 
-const TableToolBar = () => {
+const TableToolBar = ({ titulo, filters, onFilterChange }) => {
   return (
     <div>
       {/* Barra de personalizacao */}
@@ -23,26 +23,47 @@ const TableToolBar = () => {
               fontWeight: (theme) => theme.typography.fontWeightLight,
             }}
           >
-            Estoque
+            {titulo}
           </Typography>
         </Box>
 
         <Box sx={{ flex: 4, display: "flex", justifyContent: "center" }}>
           <Stack
             direction="row"
-            spacing={2} // Espaço entre os elementos internos (Busca e Selects)
+            spacing={2}
             alignItems="center"
             sx={{ width: "100%", justifyContent: "center" }}
           >
-            <SearchBar />
-            {/* SearchBar ocupando espaço disponível, mas com limite */}
+            <SearchBar value={filters.searchTerm} onChange={onFilterChange} />
             <Stack
               direction="row"
               gap={1}
               sx={{ flexGrow: 1, maxWidth: 600, justifyContent: "center" }}
             >
-              <OrderSelector />
-              <OrderSelector />
+              {/* Seletor de Categoria (Tipo) */}
+              <OrderSelector
+                name="categoria"
+                value={filters.categoria}
+                onChange={onFilterChange}
+                placeholder="Todas as Categorias"
+                options={[
+                  { value: "MP", label: "Matéria Prima" },
+                  { value: "SA", label: "Semi Acabado" },
+                  { value: "PA", label: "Produto Acabado" },
+                ]}
+              />
+              {/* Seletor de Ordenação */}
+              <OrderSelector
+                name="orderBy"
+                value={filters.orderBy}
+                onChange={onFilterChange}
+                placeholder="Ordenar por..."
+                options={[
+                  { value: "nome", label: "Nome" },
+                  { value: "estoque_atual", label: "Quantidade" },
+                  { value: "data_validade", label: "Vencimento" },
+                ]}
+              />
             </Stack>
           </Stack>
         </Box>

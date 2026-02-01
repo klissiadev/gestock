@@ -1,10 +1,5 @@
-export async function fetchProdutos(orderBy, isAsc, search, categoria, isBaixoEstoque, isVencido) {
+export async function fetchProdutos(orderBy, isAsc, search, tipo, isBaixoEstoque, isVencido) {
     try {
-        // TO DO: verificar se o usuario esta logado
-        // Solucao: Enviar o token pelo metodo HTTP no header
-        //console.log("Requisitando dados da tabela de produtos com os parametros:");
-        //console.log({ orderBy, isAsc, search, categoria, isBaixoEstoque, isVencido });
-
         const response = await fetch(
             `http://localhost:8000/views/product`,
             {
@@ -16,7 +11,7 @@ export async function fetchProdutos(orderBy, isAsc, search, categoria, isBaixoEs
                     "orderBy": orderBy,
                     "isAsc": isAsc,
                     "search": search,
-                    "categoria": categoria,
+                    "tipo": tipo,
                     "isBaixoEstoque": isBaixoEstoque,
                     "isVencido": isVencido
                 })
@@ -27,6 +22,7 @@ export async function fetchProdutos(orderBy, isAsc, search, categoria, isBaixoEs
             throw new Error(`Erro na API: ${response.status}`);
         }
         const dados = await response.json();
+        console.log(dados)
         return dados;
     } catch {
         return { error: "Nao foi possivel ler a tabela de produtos" };

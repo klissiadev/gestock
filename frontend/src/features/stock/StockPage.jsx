@@ -1,24 +1,36 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { products } from "./mocks/productTable.mock";
 import { PRODUCT_HEADER_NAMES } from "./constants/productConstant";
 import { Divider, Stack } from "@mui/material";
 import TableToolBar from "./components/TableToolBar";
 import TableModel from "./components/tableModel";
+import { fetchProdutos } from "./services/produtctService";
+import { useState } from "react";
 
 const StockPage = () => {
-  // Gerador de colunas (um dicionario com os campos: field e headerName)
-  const columns = Object.keys(products[0]).map((key) => ({
+  // Gerador de colunas mockados (um dicionario com os campos: field e headerName)
+  const columns = Object.keys(PRODUCT_HEADER_NAMES).map((key) => ({
     field: key,
-    // Por enquanto: PRODUCT_HEADER_NAMES, mas devo encontrar uma forma de
-    headerName:
-      PRODUCT_HEADER_NAMES[key.toUpperCase()] ||
-      key.replace("_", " ").toLowerCase(),
+    headerName: PRODUCT_HEADER_NAMES[key],
   }));
 
   const rows = products.map((p) => ({
     id: p.nome_produto,
     ...p,
   }));
+
+  const [filters, setFilters] = useState({
+    searchTerm: "",
+    orderBy: "",
+    isAsc: true,
+    categoria: "",
+    isBaixoEstoque: false,
+    isVencidos: false
+  });
+
+  const handleFilterChange = (key, value) => {
+    setFilters(prev => ({ ...prev, [key]: value }));
+  };
 
   return (
     <Stack
@@ -30,7 +42,7 @@ const StockPage = () => {
         padding: 1,
       }}
     >
-      <TableToolBar />
+      <TableToolBar titulo={"Estoque"} filters={filters} onFilterChange={handleFilterChange}/>
       <Divider variant="middle" />
       <TableModel rows={rows} columns={columns} />
     </Stack>
