@@ -29,7 +29,9 @@ const menuItem = {
   },
 };
 
-const OrderSelector = ({ value, onChange, name, options, placeholder }) => {
+const OrderSelector = ({ value, onChange, name, options, placeholder, startingPoint = "" }) => {
+
+
   return (
     <FormControl fullWidth>
       <Select
@@ -38,7 +40,7 @@ const OrderSelector = ({ value, onChange, name, options, placeholder }) => {
         onChange={(e) => onChange(name, e.target.value)}
         sx={orderSelector}
       >
-        <MenuItem sx={menuItem} value="">
+        <MenuItem sx={menuItem} value={startingPoint}>
           {placeholder}
         </MenuItem>
         {options.map((opt) => (

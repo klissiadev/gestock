@@ -5,9 +5,7 @@ import ArrowDownwardRoundedIcon from "@mui/icons-material/ArrowDownwardRounded";
 
 
 
-const OrderButton = ({ radius = 2}) => {
-  const [isAsc, setAsc] = useState(true);
-
+const OrderButton = ({ radius = 2, filter, onFilterChange }) => {
   return (
     <FormControl fullWidth>
       <IconButton
@@ -19,9 +17,9 @@ const OrderButton = ({ radius = 2}) => {
           borderWidth: "1px",
           borderRadius: radius
         }}
-        onClick={() => setAsc(!isAsc)}
+        onClick={() => onFilterChange("isAsc", !filter)}
       >
-        {isAsc ? (
+        {filter ? (
           <ArrowUpwardRoundedIcon fontSize="inherit" />
         ) : (
           <ArrowDownwardRoundedIcon fontSize="inherit" />

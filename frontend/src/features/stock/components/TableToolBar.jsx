@@ -47,9 +47,9 @@ const TableToolBar = ({ titulo, filters, onFilterChange }) => {
                 onChange={onFilterChange}
                 placeholder="Todas as Categorias"
                 options={[
-                  { value: "MP", label: "Matéria Prima" },
-                  { value: "SA", label: "Semi Acabado" },
-                  { value: "PA", label: "Produto Acabado" },
+                  { value: "Matéria Prima", label: "Matéria Prima" },
+                  { value: "Semi Acabado", label: "Semi Acabado" },
+                  { value: "Produto Acabado", label: "Produto Acabado" },
                 ]}
               />
               {/* Seletor de Ordenação */}
@@ -58,6 +58,7 @@ const TableToolBar = ({ titulo, filters, onFilterChange }) => {
                 value={filters.orderBy}
                 onChange={onFilterChange}
                 placeholder="Ordenar por..."
+                startingPoint="id"
                 options={[
                   { value: "nome", label: "Nome" },
                   { value: "estoque_atual", label: "Quantidade" },
@@ -70,7 +71,7 @@ const TableToolBar = ({ titulo, filters, onFilterChange }) => {
 
         <Box sx={{ flex: 1, display: "flex", justifyContent: "flex-end" }}>
           <Box sx={{ alignContent: "end" }}>
-            <OrderButton radius={10} />
+            <OrderButton radius={10} filter={filters.isAsc} onFilterChange={onFilterChange}/>
           </Box>
         </Box>
       </Stack>

@@ -27,5 +27,11 @@ export const palette = {
       disabled: "#9CA3AF",
     },
 
+    errors: {
+      background: "#fffafb",
+      border: "#ffa7a7",
+      icon: "#f44336",
+    }
+
 };
 

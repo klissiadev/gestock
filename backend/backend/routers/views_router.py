@@ -13,11 +13,11 @@ async def exibir_tabela_produto(filter: product_filters, db = Depends(get_db)):
         direcao = "ASC" if filter.isAsc else "DESC"
 
         COLUNAS_ORDENAVEIS = {
-            "id", "nome", "tipo", "descricao", "estoque_minimo", "data_validade"
+            "id", "nome", "tipo", "descricao", "estoque_minimo", "data_validade", "estoque_atual"
         }
 
         order_by = filter.orderBy if filter.orderBy in COLUNAS_ORDENAVEIS else "nome"
-        search_term = filter.search
+        search_term = filter.searchTerm
         category = filter.categoria.strip() if filter.categoria else None
 
         view = view_service(db)

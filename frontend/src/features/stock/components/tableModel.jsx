@@ -29,7 +29,7 @@ const TableModel = ({ rows, columns }) => {
               <TableRow key={row.id}>
                 {columns.map((col) => (
                   <TableCell key={col.field}>
-                    {col.field === "ativo" ? (
+                    {typeof row[col.field] === "boolean" ? (
                       <Checkbox checked={row[col.field]} disabled />
                     ) : (
                       row[col.field]
