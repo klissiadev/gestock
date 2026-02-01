@@ -1,8 +1,9 @@
 import { InputBase, FormControl, Stack, Box } from "@mui/material";
 import SearchOutlinedIcon from "@mui/icons-material/SearchOutlined";
 import ArrowCircleUpRoundedIcon from "@mui/icons-material/ArrowCircleUpRounded";
+import { useState, useEffect } from "react";
 
-export const SearchBar = () => {
+export const SearchBar = ({ value, onChange }) => {
   const searchBarStyle = {
     borderStyle: "solid",
     borderWidth: "2px",
@@ -26,14 +27,25 @@ export const SearchBar = () => {
     color: (theme) => theme.palette.common.black,
   };
 
+  const [displayValue, setDisplayValue] = useState(value);
+  useEffect(() => {
+    const handler = setTimeout(() => {
+      onChange("searchTerm", displayValue);
+    }, 500);
+
+    return () => clearTimeout(handler);
+  }, [displayValue]);
+
   return (
     <FormControl fullWidth sx={searchBarStyle}>
       <Stack direction={"row"} sx={searchBarStack}>
         <SearchOutlinedIcon />
 
         <InputBase
-          id="search"
+          value={displayValue}
+          onChange={(e) => setDisplayValue(e.target.value)}
           placeholder="Procure produto ..."
+
           sx={{
             flex: 1,
             "::placeholder": {

@@ -17,12 +17,9 @@ export async function fetchMovimentacoes(orderBy, isAsc, search) {
             }
         );
         
-
         if (!response.ok) {
             throw new Error(`Erro na API: ${response.status}`);
         }
-
-        
 
         const dados = await response.json();
         return dados;
