@@ -39,12 +39,33 @@ export default function AppLayout() {
             />
             
             {/* Conteúdo da página */}
-            <Box flex={1} p={2} >
-                <Header />
-                <PageContainer>
+            <Box
+                sx={{
+                    flex: 1,
+                    display: "flex",
+                    flexDirection: "column",
+                    minHeight: 0,
+                    p: 2,
+                }}
+                >
+                {/* HEADER FIXO */}
+                <Box sx={{ flexShrink: 0 }}>
+                    <Header />
+                </Box>
+
+                {/* CONTEÚDO QUE SOBRA */}
+                <Box
+                    sx={{
+                    flex: 1,
+                    minHeight: 0,
+                    display: "flex",
+                    }}
+                >
+                    <PageContainer>
                     <Outlet />
-                </PageContainer>
-            </Box>
+                    </PageContainer>
+                </Box>
+                </Box>
         </Box>
     );
 }

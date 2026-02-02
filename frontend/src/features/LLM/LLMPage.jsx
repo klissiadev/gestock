@@ -85,15 +85,19 @@ const LLMPage = () => {
   const handleSend = async () => {
     if (!input.trim() || !selectedSession) return;
 
+    const messageToSend = input; // congela aqui
+
     setLoading(true);
-    setMessages((prev) => [
-      ...prev,
-      { role: "user", content: input },
-    ]);
     setInput("");
 
+    setMessages((prev) => [
+      ...prev,
+      { role: "user", content: messageToSend },
+    ]);
+
     try {
-      const result = await sendMessageToLLM(input, selectedSession);
+      const result = await sendMessageToLLM(messageToSend, selectedSession);
+
       setMessages((prev) => [
         ...prev,
         { role: "assistant", content: result.answer },
@@ -111,66 +115,103 @@ const LLMPage = () => {
     }
   };
 
-  return (
-    <Box sx={{px: 4, py: 1, width: "100%", display: "flex", alignItems: "center", flexDirection: "column", height: "100%"}}>
 
+  return (
+    <Box
+      sx={{
+        height: "80vh",
+        overflow: "hidden",
+        display: "flex",
+        flexDirection: "column",
+        width: "100%",
+        p: 1,
+      }}
+    >
       <ChatHeader
         sessions={sessions}
         selectedSession={selectedSession}
         onSelectSession={(id) => {
-        setSelectedSession(id);
-        setMessages([]);
+          setSelectedSession(id);
+          setMessages([]);
         }}
         onCreateSession={handleCreateSession}
       />
 
+      {/* CORPO DO CHAT */}
       <Box
         sx={{
+          flex: 1,
+          minHeight: 0,
           display: "flex",
           flexDirection: "column",
-          width: "100%",
-          flex: 1,
-          overflow: "hidden",
-          alignItems: "center",
         }}
       >
-        {/* MENSAGENS */}
+      {/* ÁREA DAS MENSAGENS */}
+      <Box
+        sx={{
+          flex: 1,
+          minHeight: 0,
+          display: "flex",
+          justifyContent: "center",
+          
+        }}
+      >
+        {/* SLOT COM ALTURA FIXA E SCROLL */}
         <Box
           sx={{
-            flex: 1,
-            overflowY: "hidden",
-            width: "100%",  
-            alignItems: "center",
+            width: "100%",
+            maxWidth: 900,
+            height: "100%",
+            overflowY: "auto",
+            display: "flex",
+            flexDirection: "column",
           }}
         >
           {messages.length === 0 ? (
-            <InitialChatLayout />
+            <Box
+              sx={{
+                margin: "auto",
+                width: "100%",
+                display: "flex",
+                flexDirection: "column",
+                alignItems: "center",
+                gap: 2,
+              }}
+            >
+              <InitialChatLayout />
+              <ChatInput
+                value={input}
+                onChange={setInput}
+                onSend={handleSend}
+                disabled={!selectedSession || loading}
+                loading={loading}
+              />
+              <FAQSuggestions
+                onSelectSuggestion={(text) => setInput(text)}
+              />
+            </Box>
           ) : (
-            <ChatContainer messages={messages} />
+            <>
+              <ChatContainer messages={messages} />
+
+              <Box sx={{ mt: "auto", }}>
+                <ChatInput
+                  value={input}
+                  onChange={setInput}
+                  onSend={handleSend}
+                  disabled={!selectedSession || loading}
+                  loading={loading}
+                />
+              </Box>
+            </>
           )}
         </Box>
-
-        {/* INPUT */}
-        <ChatInput
-          value={input}
-          onChange={setInput}
-          onSend={handleSend}
-          disabled={!selectedSession || loading}
-          loading={loading}
-          hasMessages={messages.length > 0}
-        />
       </Box>
+  </Box>
+  </Box>
+);
 
-      {messages.length === 0 ? (
-        <FAQSuggestions
-          onSelectSuggestion={(text) => {
-          setInput(text);
-          }}
-        />
-      ) : null}
 
-    </Box>
-  );
 };
 
 export default LLMPage;

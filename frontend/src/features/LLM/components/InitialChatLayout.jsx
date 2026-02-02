@@ -15,7 +15,7 @@ const InitialChatLayout = () => {
         textAlign: "center",
         gap: 1,
         position: "relative",
-        mt: 6,
+        mb: 6,
       }}
     >
       {/* Ícone */}
