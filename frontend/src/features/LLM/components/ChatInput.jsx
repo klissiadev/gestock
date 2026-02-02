@@ -16,17 +16,17 @@ const ChatInput = ({
   return (
     <Box
       sx={{
-        mt: 2,
         px: 1,
         borderRadius: "12px",
         border: "1px solid",
         borderColor: "common.gray",
         backgroundColor: "background.paper",
-        width: "60%",
+        width: "100%",
         transition: "border-color 0.2s",
         "&:focus-within": {
           borderColor: "black",
         },
+        mt: 2,
       }}
     >
       <Box

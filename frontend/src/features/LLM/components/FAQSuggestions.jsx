@@ -10,7 +10,7 @@ const suggestions = [
 
 const FAQSuggestions = ({ onSelectSuggestion }) => {
   return (
-    <Box sx={{ mt: 3 , width:'60%'}}>
+    <Box sx={{ mt: 3 , width:'100%'}}>
       <Box display="flex" alignItems="center" gap={1} mb={2}>
         <LampSvg style={{ width: 16, height: 16}} />  
         <Typography

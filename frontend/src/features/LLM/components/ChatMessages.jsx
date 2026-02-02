@@ -6,9 +6,6 @@ import {
   Tooltip,
 } from "@mui/material";
 
-import ContentCopyIcon from "@mui/icons-material/ContentCopy";
-import ReplayIcon from "@mui/icons-material/Replay";
-
 import CopySvg from "../../../assets/icon/iconCopy.svg?react";
 import RefrashSvg from "../../../assets/icon/iconRefrash.svg?react";
 import PerfilSvg from "../../../assets/icon/iconPerfil.svg?react";
@@ -26,12 +23,6 @@ const ChatMessages = ({ messages }) => {
         flexDirection: "column",
         width: "100%",
         gap: 2,
-        mb: 12,
-        px: {
-          sm: 4,
-          md: 14,
-          lg: 24,  
-        },
       }}
     >
       {messages.map((msg, idx) => {
