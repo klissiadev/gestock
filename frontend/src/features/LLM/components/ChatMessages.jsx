@@ -1,5 +1,4 @@
 import {
-  Typography,
   Box,
   IconButton,
   Avatar,
@@ -9,6 +8,8 @@ import {
 import CopySvg from "../../../assets/icon/iconCopy.svg?react";
 import RefrashSvg from "../../../assets/icon/iconRefrash.svg?react";
 import PerfilSvg from "../../../assets/icon/iconPerfil.svg?react";
+
+import ChatMarkdown from "./ChatMarkdown";
 
 
 const ChatMessages = ({ messages }) => {
@@ -63,15 +64,7 @@ const ChatMessages = ({ messages }) => {
                   alignItems: "flex-end",
                 }}
               >
-                <Typography
-                  sx={{
-                    fontSize: "0.95rem",
-                    lineHeight: 1.6,
-                    fontWeight: 300,
-                  }}
-                >
-                  {msg.content}
-                </Typography>
+                <ChatMarkdown content={msg.content} />
               </Box>
               
               {/* Avatar Usuário */}
