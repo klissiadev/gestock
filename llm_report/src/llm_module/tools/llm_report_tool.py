@@ -1,7 +1,9 @@
 from langchain.tools import tool
-from llm_report.src.llm_module.reports.report_service import ReportService
+from reports.report_service import ReportService
+from reports.report_repository import ReportRepository
 
-report_service = ReportService()
+repository = ReportRepository()
+report_service = ReportService(repository)
 
 @tool
 def gerar_relatorio(tipo: str, params: dict | None = None) -> dict:
