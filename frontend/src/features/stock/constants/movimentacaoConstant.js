@@ -14,6 +14,6 @@ export const MOVIMENTACAO_HEADER_NAMES = {
 // Filtros originais
 export const INITIAL_FILTERS = {
     searchTerm: "",
-    orderBy: "id",
+    orderBy: "unique_id",
     isAsc: true
 }
