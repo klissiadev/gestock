@@ -4,6 +4,7 @@ import TableModel from "../components/tableModel";
 import { useProductTable } from "../hooks/useProductTable";
 import LoadingComponent from "../components/LoadingComponent";
 import ErrorState from "../components/ErrorState";
+import {stack_principal} from '../styles/style';
 
 const TabelaProduto = () => {
   const { rows, columns, loading, error, filters, handleFilterChange, resetFilters } =
@@ -15,11 +16,7 @@ const TabelaProduto = () => {
     <Stack
       direction="column"
       spacing={2}
-      sx={{
-        backgroundColor: (theme) => theme.palette.common.white,
-        width: "100%",
-        padding: 1,
-      }}
+      sx={stack_principal}
     >
       <TableToolBar
         titulo={"Estoque"}

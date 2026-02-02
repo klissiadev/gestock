@@ -73,7 +73,7 @@ class view_service:
 
         search_term = search_term.strip() if search_term else None
 
-        BUSCA_EM = ["produto_nome", "parceiro_origem", "local_destino", "tipo_movimento"]
+        BUSCA_EM = ["produto_nome", "tipo_movimento"]
 
         return self.repo.fetch_all(
             table="app_core.mv_movimentacao",
