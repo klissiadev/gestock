@@ -34,5 +34,5 @@ async def exibir_tabela_movimentacao(filter: transaction_filters, db = Depends(g
     return view.see_transaction_table(
         direcao=direcao, 
         order_by=filter.orderBy, 
-        search_term=filter.search
+        search_term=filter.searchTerm
     )

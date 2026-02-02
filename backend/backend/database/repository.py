@@ -113,12 +113,13 @@ class Repository:
         """
         Monta a query para buscar um 'term' em uma lista de colunas determinadas
         Retorna uma tupla (sql_string, lista_valores).
+        Ativei uma extensão no BD chamado 'unaccent' -> ela remove acentos. Ajuda na busca
         """
         # Se vazio
         if not term or not cols:
             return None, []
         
-        clauses = [f"{self._quote_identifier(c)} ILIKE %s" for c in cols]
+        clauses = [f"unaccent({self._quote_identifier(c)}) ILIKE %s" for c in cols]
 
         if not clauses:
             return None, []
