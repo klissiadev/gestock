@@ -1,5 +1,6 @@
 from enum import Enum
 from typing import Any, Dict, List
+from datetime import datetime
 
 from reports.report_repository import ReportRepository
 
@@ -23,26 +24,31 @@ class ReportService:
     def __init__(self, repository: ReportRepository):
         self.repository = repository
 
-    def generate(self, report_type: ReportType, params: Dict[str, Any] | None = None) -> Dict[str, Any]:
+    def generate(self, report_type: str, params: Dict[str, Any] | None = None) -> Dict[str, Any]:
+        try:
+            report_enum = ReportType(report_type)
+        except ValueError:
+            raise ValueError(f"Tipo de relatório inválido: {report_type}")
+
         params = params or {}
 
-        if report_type == ReportType.ESTOQUE_BAIXO:
+        if report_enum == ReportType.ESTOQUE_BAIXO:
             data = self._estoque_baixo(params)
             title = "Produtos com estoque abaixo do mínimo"
 
-        elif report_type == ReportType.PRODUTOS_SEM_GIRO:
+        elif report_enum == ReportType.PRODUTOS_SEM_GIRO:
             data = self._produtos_sem_giro(params)
             title = "Produtos sem giro"
 
-        elif report_type == ReportType.MOVIMENTACAO_PERIODO:
+        elif report_enum == ReportType.MOVIMENTACAO_PERIODO:
             data = self._movimentacao_periodo(params)
             title = "Movimentações no período"
 
-        elif report_type == ReportType.ENTRADAS_SAIDAS:
+        elif report_enum == ReportType.ENTRADAS_SAIDAS:
             data = self._entradas_saidas(params)
             title = "Resumo de entradas e saídas"
 
-        elif report_type == ReportType.VALIDADE_PROXIMA:
+        elif report_enum == ReportType.VALIDADE_PROXIMA:
             data = self._validade_proxima(params)
             title = "Produtos com validade próxima"
 
@@ -50,11 +56,15 @@ class ReportService:
             raise ValueError(f"Tipo de relatório não suportado: {report_type}")
 
         return {
-            "report_type": report_type.value,
+            "kind": "report",
+            "report_type": report_enum.value,
             "title": title,
+            "generated_at": datetime.utcnow().isoformat(),
             "params": params,
+            "total_items": len(data) if isinstance(data, list) else None,
             "data": data,
         }
+
 
     # -------------------------
     # Relatórios individuais
