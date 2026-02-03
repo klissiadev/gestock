@@ -7,8 +7,8 @@ export default function ChatMarkdown({ content }) {
   return (
     <Box
       sx={{
-        "& ul": { paddingLeft: 3, marginTop: 1 },
-        "& li": { marginBottom: 1 },
+        "& ul": { paddingLeft: 3 },
+        "& li": { margin:0 },
         "& p": { margin: 0 },
         "& strong": { fontWeight: 700 },
       }}
@@ -19,7 +19,7 @@ export default function ChatMarkdown({ content }) {
         rehypePlugins={[rehypeRaw]}
         components={{
           p: ({ children }) => (
-            <Typography variant="body2" sx={{ mb: 1 }}>
+            <Typography variant="body2" >
               {children}
             </Typography>
           ),
