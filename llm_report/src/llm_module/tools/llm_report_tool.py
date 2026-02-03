@@ -1,37 +1,46 @@
 from langchain.tools import tool
+
 from reports.report_service import ReportService
 from reports.report_repository import ReportRepository
+from llm_module.agents.report_agent import ReportAgent
 
 repository = ReportRepository()
 report_service = ReportService(repository)
+report_agent = ReportAgent()
+
 
 @tool
-def gerar_relatorio(tipo: str, params: dict | None = None) -> dict:
+async def gerar_relatorio(tipo: str, params: dict | None = None) -> dict:
     """
-    Gera relatórios de estoque e movimentações.
-
-    Tipos suportados:
-    - estoque_baixo
-    - validade_proxima
-    - produtos_sem_giro
-    - movimentacao_periodo
-    - entradas_saidas
-
-    params: dicionário com parâmetros específicos de cada relatório.
-    Ex:
-      {"dias": 30}
-      {"data_inicio": "2025-01-01", "data_fim": "2025-01-31"}
+    Gera relatórios oficiais do sistema.
     """
-    if params is None:
-        params = {}
+    params = params or {}
 
     try:
-        return report_service.generate(tipo=tipo, params=params)
+        report_data = report_service.generate(
+            report_type=tipo,
+            params=params
+        )
+
+        texto = await report_agent.gerar({
+            "tipo": report_data["report_type"],
+            "parametros": report_data["params"],
+            "dados": report_data
+        })
+
+        return {
+            "kind": "report",
+            "title": report_data["title"],
+            "content": texto,
+            "generated_at": report_data["generated_at"]
+        }
+
     except ValueError as e:
         return {
             "status": "error",
             "message": str(e)
         }
+
     except Exception as e:
         return {
             "status": "error",
