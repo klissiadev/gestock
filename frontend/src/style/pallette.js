@@ -8,6 +8,7 @@ export const palette = {
 
     button: {
       main: '#C8C8C8',
+      icon: '#A2A2A2'
     },
 
     background: {
