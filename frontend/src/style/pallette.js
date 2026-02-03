@@ -31,6 +31,11 @@ export const palette = {
       background: "#fffafb",
       border: "#ffa7a7",
       icon: "#f44336",
+    },
+
+    uploadBox: {
+      main: "#DBDBDB",
+      button: "#676767",
     }
 
 };
