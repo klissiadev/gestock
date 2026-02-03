@@ -3,6 +3,8 @@ import { Box, Typography, Stack } from "@mui/material";
 import SearchBar from "./SearchBar";
 import OrderSelector from "./OrderSelector";
 import OrderButton from "./orderButton";
+import ExpandableIconButton from "../../../components/ui/ExpandableIconButton.jsx";
+import ChatSvg from "../../../assets/icon/iconChat.svg?react";
 
 const TableToolBar = ({ titulo, filters, onFilterChange }) => {
   return (
@@ -70,9 +72,14 @@ const TableToolBar = ({ titulo, filters, onFilterChange }) => {
         </Box>
 
         <Box sx={{ flex: 1, display: "flex", justifyContent: "flex-end" }}>
-          <Box sx={{ alignContent: "end" }}>
+          <Stack spacing={1} direction="row">
             <OrderButton radius={10} filter={filters.isAsc} onFilterChange={onFilterChange}/>
-          </Box>
+            <ExpandableIconButton
+              icon={<ChatSvg width={20} height={20} />} 
+              origin="sheets"
+              initialMessage="Olá Minerva, me ajude com o estoque."
+            />
+          </Stack>
         </Box>
       </Stack>
     </div>
