@@ -7,32 +7,24 @@ class AnalyticsService:
         self.repo = repo
 
     # =====================================================
-    # KPIs (indicadores chaves de desempenho)  GERAIS DE ESTOQUE
+    # KPIs GERAIS DE ESTOQUE
     # =====================================================
 
     def get_stock_kpis(self):
-        """
-        KPIs principais para cards do dashboard
-        retorna:
-        - estoque total atual
-        - quantidade de produtos a abaixo do estoque
-        - quantidade de produtos vencidos
-
-        """
         estoque_total = self.repo.fetch_one("""
             SELECT COALESCE(SUM(estoque_atual), 0) AS total
-            FROM app_core.v_produtos
+            FROM app_core.vw_product
         """)
 
         baixo_estoque = self.repo.fetch_one("""
             SELECT COUNT(*) AS count
-            FROM app_core.v_produtos
+            FROM app_core.vw_product
             WHERE estoque_atual <= estoque_minimo
         """)
 
         vencidos = self.repo.fetch_one("""
             SELECT COUNT(*) AS count
-            FROM app_core.v_produtos
+            FROM app_core.vw_product
             WHERE data_validade IS NOT NULL
               AND data_validade < CURRENT_DATE
         """)
@@ -44,20 +36,16 @@ class AnalyticsService:
         }
 
     # =====================================================
-    # ESTOQUE POR TIPO (MP, SA, PA)
+    # ESTOQUE POR TIPO
     # =====================================================
 
     def get_stock_by_type(self):
-        """
-        Retorna a quantidade de estoque por cada tipo de produto
-        """
         return self.repo.fetch_all("""
-            SELECT p.tipo,
-                   SUM(v.estoque_atual) AS estoque_total
-            FROM app_core.v_produtos v
-            JOIN produtos p ON p.id = v.produto_id
-            GROUP BY p.tipo
-            ORDER BY p.tipo
+            SELECT tipo,
+                   SUM(estoque_atual) AS estoque_total
+            FROM app_core.vw_product
+            GROUP BY tipo
+            ORDER BY tipo
         """)
 
     # =====================================================
@@ -65,20 +53,23 @@ class AnalyticsService:
     # =====================================================
 
     def get_critical_products(self):
-        """
-        Produtos abaixo do mínimo com alta saída
-        """
         return self.repo.fetch_all("""
-            SELECT p.id,
-                   p.nome,
-                   v.estoque_atual,
-                   p.estoque_minimo,
-                   COALESCE(SUM(s.quantidade), 0) AS total_saidas
-            FROM app_core.v_produtos p
-            JOIN view_produto_estoque v ON v.produto_id = p.id
-            LEFT JOIN saida s ON s.produto_id = p.id
-            GROUP BY p.id, p.nome, v.estoque_atual, p.estoque_minimo
-            HAVING v.estoque_atual <= p.estoque_minimo
+            SELECT
+                p.id,
+                p.nome,
+                p.estoque_atual,
+                p.estoque_minimo,
+                COALESCE(SUM(m.quantidade), 0) AS total_saidas
+            FROM app_core.vw_product p
+            LEFT JOIN app_core.mv_movimentacao m
+                   ON m.produto_nome = p.nome
+                  AND m.tipo_movimento = 'SAIDA'
+            WHERE p.estoque_atual <= p.estoque_minimo
+            GROUP BY
+                p.id,
+                p.nome,
+                p.estoque_atual,
+                p.estoque_minimo
             ORDER BY total_saidas DESC
         """)
 
@@ -87,48 +78,32 @@ class AnalyticsService:
     # =====================================================
 
     def get_movimentacao_por_periodo(self, start: date, end: date):
-        """
-        Série temporal de entradas e saídas
-        """
         return self.repo.fetch_all("""
-            SELECT data, SUM(entradas) AS entradas, SUM(saidas) AS saidas
-            FROM (
-                SELECT data_de_compra AS data,
-                       SUM(quantidade) AS entradas,
-                       0 AS saidas
-                FROM entrada
-                WHERE data_de_compra BETWEEN %s AND %s
-                GROUP BY data_de_compra
-
-                UNION ALL
-
-                SELECT data_de_venda AS data,
-                       0 AS entradas,
-                       SUM(quantidade) AS saidas
-                FROM saida
-                WHERE data_de_venda BETWEEN %s AND %s
-                GROUP BY data_de_venda
-            ) t
-            GROUP BY data
+            SELECT
+                DATE(data_evento) AS data,
+                SUM(CASE WHEN tipo_movimento = 'ENTRADA' THEN quantidade ELSE 0 END) AS entradas,
+                SUM(CASE WHEN tipo_movimento = 'SAIDA' THEN quantidade ELSE 0 END) AS saidas
+            FROM app_core.mv_movimentacao
+            WHERE data_evento BETWEEN %s AND %s
+            GROUP BY DATE(data_evento)
             ORDER BY data
-        """, (start, end, start, end))
+        """, (start, end))
 
     # =====================================================
     # KPIs FINANCEIROS
     # =====================================================
 
     def get_financial_kpis(self):
-        """
-        Indicadores financeiros básicos
-        """
         compras = self.repo.fetch_one("""
-            SELECT COALESCE(SUM(quantidade * preco_de_compra), 0) AS total
-            FROM entrada
+            SELECT COALESCE(SUM(quantidade * valor_unitario), 0) AS total
+            FROM app_core.mv_movimentacao
+            WHERE tipo_movimento = 'ENTRADA'
         """)
 
         vendas = self.repo.fetch_one("""
-            SELECT COALESCE(SUM(quantidade * preco_de_venda), 0) AS total
-            FROM saida
+            SELECT COALESCE(SUM(quantidade * valor_unitario), 0) AS total
+            FROM app_core.mv_movimentacao
+            WHERE tipo_movimento = 'SAIDA'
         """)
 
         return {
@@ -143,12 +118,13 @@ class AnalyticsService:
 
     def get_top_selling_products(self, limit: int = 5):
         return self.repo.fetch_all("""
-            SELECT p.nome,
-                   SUM(s.quantidade) AS total_vendido,
-                   SUM(s.quantidade * s.preco_de_venda) AS faturamento
-            FROM saida s
-            JOIN produtos p ON p.id = s.produto_id
-            GROUP BY p.nome
+            SELECT
+                produto_nome AS nome,
+                SUM(quantidade) AS total_vendido,
+                SUM(quantidade * valor_unitario) AS faturamento
+            FROM app_core.mv_movimentacao
+            WHERE tipo_movimento = 'SAIDA'
+            GROUP BY produto_nome
             ORDER BY total_vendido DESC
             LIMIT %s
         """, (limit,))
@@ -162,25 +138,24 @@ class AnalyticsService:
 
         return self.repo.fetch_all("""
             SELECT id, nome, data_validade
-            FROM produtos
+            FROM app_core.vw_product
             WHERE data_validade IS NOT NULL
               AND data_validade BETWEEN CURRENT_DATE AND %s
             ORDER BY data_validade
         """, (limite,))
 
     # =====================================================
-    # PRODUÇÃO E CONSUMO (MOVIMENTAÇÕES INTERNAS)
+    # PRODUÇÃO / CONSUMO (MOVIMENTAÇÃO INTERNA)
     # =====================================================
 
     def get_production_summary(self):
-        """
-        Resumo de consumo e produção
-        """
         return self.repo.fetch_all("""
-            SELECT tipo,
-                   SUM(quantidade) AS total
-            FROM movimentacoes_internas
-            GROUP BY tipo
+            SELECT
+                tipo_movimento,
+                SUM(quantidade) AS total
+            FROM app_core.mv_movimentacao
+            WHERE tipo_movimento = 'INTERNA'
+            GROUP BY tipo_movimento
         """)
 
     # =====================================================
@@ -188,18 +163,16 @@ class AnalyticsService:
     # =====================================================
 
     def get_stock_turnover(self, start: date, end: date):
-        """
-        Giro = saídas / estoque médio
-        """
         saidas = self.repo.fetch_one("""
             SELECT COALESCE(SUM(quantidade), 0) AS total
-            FROM saida
-            WHERE data_de_venda BETWEEN %s AND %s
+            FROM app_core.mv_movimentacao
+            WHERE tipo_movimento = 'SAIDA'
+              AND data_evento BETWEEN %s AND %s
         """, (start, end))
 
         estoque_medio = self.repo.fetch_one("""
             SELECT AVG(estoque_atual) AS medio
-            FROM view_produto_estoque
+            FROM app_core.vw_product
         """)
 
         giro = 0
