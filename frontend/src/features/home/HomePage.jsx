@@ -1,4 +1,7 @@
 import { Box } from "@mui/material";
+import ExpandableIconButton from "../../components/ui/ExpandableIconButton.jsx";
+import ChatSvg from "../../assets/icon/iconChat.svg?react";
+
 
 export default function HomePage() {
 
@@ -7,6 +10,10 @@ export default function HomePage() {
       {/* Conteúdo da página */}
       <Box flex={1} p={3}>
         <h1>Home Page</h1>
+        <ExpandableIconButton
+          icon={<ChatSvg width={20} height={20} />}
+          label="Minerva"
+        />
       </Box>
     </Box>
   );
