@@ -87,3 +87,12 @@ export const button_model = {
     textTransform: "none",
     borderRadius: 3
 }
+
+export const paper_box = {
+    backgroundColor: theme => theme.palette.uploadBox.main,
+    maxWidth: 500,
+    mx: "auto",
+    p: 4,
+    borderRadius: 3,
+    boxShadow: 3,
+}

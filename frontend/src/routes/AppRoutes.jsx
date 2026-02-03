@@ -9,6 +9,7 @@ import ForecastPage from '../features/forecast/ForecastPage';
 import ReportsPage from '../features/reports/ReportsPage';
 import RequestsPage from '../features/requests/RequestsPage';
 import UploadPageDebug from "../features/upload/UploadPageDebug";
+import AlertDialogSlide from "../features/upload/components/SucessBox";
 
 const AppRoutes = () => {
   return (
@@ -23,6 +24,7 @@ const AppRoutes = () => {
         <Route path='/reports' element={<ReportsPage/>}/>
         <Route path='/requests' element={<RequestsPage/>}/>
         <Route path='/debug' element={<UploadPageDebug />} />
+        <Route path='/debug2' element={<AlertDialogSlide />} />
       </Route>
     </Routes>
   )

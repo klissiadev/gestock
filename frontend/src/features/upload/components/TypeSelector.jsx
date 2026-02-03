@@ -9,7 +9,7 @@ const TypeSelector = ({ value, onChange, name, options}) => {
                 value={value}
                 size='small'
                 displayEmpty
-                onChange={(e) => onChange(name, e.target.value)}
+                onChange={(e) => onChange(e.target.value)}
                 sx={typeSelector}
             >
                 {options.map((opt) => (

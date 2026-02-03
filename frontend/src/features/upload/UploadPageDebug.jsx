@@ -2,6 +2,7 @@
 import { Stack, Divider, Typography } from "@mui/material";
 import { stack_principal } from "./styles/style";
 import UploadDialog from "./pages/UploadDialog";
+import { useFileUpload } from "./hooks/useFileManager";
 
 const UploadPageDebug = () => {
   return (
@@ -25,7 +26,8 @@ const UploadPageDebug = () => {
       <Divider variant="middle" />
 
       {/* Quadrado de upload */}
-      <UploadDialog />
+      <UploadDialog/>
+
     </Stack>
   );
 };
