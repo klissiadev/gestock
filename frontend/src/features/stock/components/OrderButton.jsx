@@ -7,7 +7,7 @@ import ArrowDownwardRoundedIcon from "@mui/icons-material/ArrowDownwardRounded";
 
 const OrderButton = ({ radius = 2, filter, onFilterChange }) => {
   return (
-    <FormControl fullWidth>
+    <FormControl>
       <IconButton
         size="large"
         sx={{
