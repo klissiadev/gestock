@@ -5,9 +5,11 @@ import CssBaseline from '@mui/material/CssBaseline';
 import { theme } from './style/theme'
 import "./style/index.css";
 import App from "./App";
+import { ChatSessionProvider } from "./ChatSessionContext";
 
 import { ToastContainer, Zoom } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+
 
 createRoot(document.getElementById("root")).render(
   <StrictMode>
@@ -26,7 +28,9 @@ createRoot(document.getElementById("root")).render(
         theme="light"
         transition={Zoom}
       />
-      <App />
+      <ChatSessionProvider>
+        <App />
+      </ChatSessionProvider>
     </ThemeProvider>
   </StrictMode>
 );

@@ -1,18 +1,30 @@
 import { Box, Typography } from "@mui/material";
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 
 export default function ExpandableIconButton({
   icon,
   label = "Minerva",
-  onClick,
+  origin,
+  initialMessage,
 }) {
   const [hover, setHover] = useState(false);
+  const navigate = useNavigate();
+
+  const handleClick = () => {
+    navigate("/ai", {
+      state: {
+        chatOrigin: origin,
+        initialMessage,
+      },
+    });
+  };
 
   return (
     <Box
       onMouseEnter={() => setHover(true)}
       onMouseLeave={() => setHover(false)}
-      onClick={onClick}
+      onClick={handleClick}
       sx={(theme) => ({
         height: 48,
         width: hover ? 160 : 48,
@@ -22,13 +34,13 @@ export default function ExpandableIconButton({
         alignItems: "center",
         cursor: "pointer",
         overflow: "hidden",
-        transition: "width 250ms cubic-bezier(0.4, 0, 0.2, 1), background-color 150ms",
+        transition:
+          "width 250ms cubic-bezier(0.4, 0, 0.2, 1), background-color 150ms",
         "&:hover": {
           backgroundColor: theme.palette.iconButton.hover,
         },
       })}
     >
-      {/* Ícone */}
       <Box
         sx={(theme) => ({
           minWidth: 48,
@@ -36,14 +48,13 @@ export default function ExpandableIconButton({
           display: "flex",
           justifyContent: "center",
           alignItems: "center",
-          backgroundColor: theme.palette.iconButton.active,
           borderRadius: "12px",
+          backgroundColor: theme.palette.iconButton.active,
         })}
       >
         {icon}
       </Box>
 
-      {/* Label que "entra" */}
       <Typography
         sx={{
           whiteSpace: "nowrap",

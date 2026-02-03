@@ -1,5 +1,8 @@
 import { useEffect, useState } from "react";
 import { Box} from "@mui/material";
+import { useLocation } from "react-router-dom";
+import { useChatSession } from "../../ChatSessionContext";
+import { useRef } from "react";
 
 import {
   fetchSessions,
@@ -12,6 +15,8 @@ import ChatContainer from "./components/ChatContainer";
 import ChatInput from "./components/ChatInput";
 import FAQSuggestions from "./components/FAQSuggestions";
 import InitialChatLayout from "./components/InitialChatLayout";
+
+
 
 const MOCK_MESSAGES = [
   {
@@ -42,10 +47,43 @@ const LLMPage = () => {
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
   const [loadingSessions, setLoadingSessions] = useState(false);
+  const location = useLocation();
+  const { getSession, setSession } = useChatSession();
+  const initRef = useRef(false);
 
   useEffect(() => {
     loadSessions();
   }, []);
+
+  useEffect(() => {
+    if (initRef.current) return;  
+    initRef.current = true;
+
+    const init = async () => {
+      const { chatOrigin, initialMessage } = location.state || {};
+      if (!chatOrigin) return;
+
+      let sessionId = getSession(chatOrigin);
+
+      if (!sessionId) {
+        const result = await createSession();
+        sessionId =
+          typeof result === "string" ? result : result.session_id;
+
+        setSession(chatOrigin, sessionId);
+      }
+
+      setSelectedSession(sessionId);
+
+      if (initialMessage) {
+        await sendInitialMessage(initialMessage, sessionId);
+      }
+    };
+
+    init();
+  }, []);
+
+
 
   /*useEffect(() => {
     // testee 
@@ -114,6 +152,18 @@ const LLMPage = () => {
       setLoading(false);
     }
   };
+
+  const sendInitialMessage = async (text, sessionId) => {
+    setMessages([{ role: "user", content: text }]);
+
+    const result = await sendMessageToLLM(text, sessionId);
+
+    setMessages((prev) => [
+      ...prev,
+      { role: "assistant", content: result.answer },
+    ]);
+  };
+
 
 
   return (
