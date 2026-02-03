@@ -11,8 +11,9 @@ export default function HomePage() {
       <Box flex={1} p={3}>
         <h1>Home Page</h1>
         <ExpandableIconButton
-          icon={<ChatSvg width={20} height={20} />}
-          label="Minerva"
+          icon={<ChatSvg width={20} height={20} />} 
+          origin="home"
+          initialMessage="Olá Minerva, me ajude na tela inicial."
         />
       </Box>
     </Box>
