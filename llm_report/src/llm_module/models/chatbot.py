@@ -12,6 +12,8 @@ from langgraph.checkpoint.postgres.aio import AsyncPostgresSaver
 from psycopg_pool import AsyncConnectionPool
 from psycopg.rows import dict_row
 from langchain_core.messages import SystemMessage, HumanMessage
+from llm_module.services.report_orchestrator import ReportOrchestratorService
+from langchain.tools import tool
 
 from llm_module.tools.sql_tools import (
     tool_buscar_produto,
@@ -22,6 +24,7 @@ from llm_module.tools.sql_tools import (
     buscar_produtos_a_vencer,
     buscar_produtos_abaixo_estoque,
 )
+from llm_module.services.report_orchestrator import ReportOrchestratorService
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.WARNING)
@@ -45,11 +48,20 @@ class ChatBotService:
         self.main_model = ChatOllama(model="qwen2.5:7B", temperature=0.0)
         self.summary_model = ChatOllama(model="gemma3:270m", temperature=0.0)
         
+        self.report_orchestrator = ReportOrchestratorService()
+        
+        @tool
+        async def gerar_relatorio(tipo: str, parametros: dict | None = None) -> str:
+            return await self.report_orchestrator.gerar_relatorio(
+                report_type=tipo,
+                params=parametros
+            )
+        
         self.tools = [
             buscar_produtos_a_vencer, tool_buscar_movimentacao, 
             tool_buscar_produto, tool_listar_produtos, 
             tool_calcular_validade, tool_listar_movimentacoes, 
-            buscar_produtos_abaixo_estoque
+            buscar_produtos_abaixo_estoque, gerar_relatorio,
         ]
         
         self.agent = None

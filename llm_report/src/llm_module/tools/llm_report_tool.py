@@ -13,6 +13,13 @@ report_agent = ReportAgent()
 async def gerar_relatorio(tipo: str, params: dict | None = None) -> dict:
     """
     Gera relatórios oficiais do sistema.
+
+    Tipos válidos:
+    - estoque_baixo
+    - produtos_sem_giro
+    - movimentacao_periodo
+    - entradas_saidas
+    - validade_proxima
     """
     params = params or {}
 
