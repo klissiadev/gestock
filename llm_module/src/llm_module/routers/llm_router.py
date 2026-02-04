@@ -2,53 +2,89 @@ from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel
 
 from llm_module.services.llm_service import LLMService
-from llm_module.services.llm_sessions import (
-    list_sessions,
-    create_session,
-    session_exists
-)
+from llm_module.services.llm_sessions import LLMSessionService
+from fastapi.responses import StreamingResponse
 
 router = APIRouter(tags=["LLM"])
-service = LLMService()
+llm_service = LLMService()
+session_service = LLMSessionService(llm_service)
+
 
 class ChatRequest(BaseModel):
     message: str
     session_id: str | None = None
 
 
+# -------------------------
+# CHAT
+# -------------------------
 @router.post("/chat")
 async def chat_llm(payload: ChatRequest):
-    answer = await service.send_message(
+
+    if payload.session_id:
+        exists = await session_service.session_exists(payload.session_id)
+
+        if not exists:
+            raise HTTPException(status_code=404, detail="Sessão não encontrada")
+
+    response = await llm_service.send_message(
         message=payload.message,
         session_id=payload.session_id,
     )
+
     return {
-        "answer": answer,
+        "response": response,
         "session_id": payload.session_id,
     }
 
-# Sessões (TESTE)
 
+# -------------------------
+# LISTAR SESSÕES
+# -------------------------
 @router.get("/sessions")
-def get_sessions():
-    return list_sessions()
+async def get_sessions():
+    return await session_service.list_sessions()
 
+
+# -------------------------
+# CRIAR SESSÃO
+# -------------------------
 @router.post("/sessions")
 def new_session():
-    session_id = create_session()
+    session_id = session_service.create_session()
     return {"session_id": session_id}
 
-# Chat (EXISTENTE)
 
-@router.post("/chat")
-async def chat_llm(payload: ChatRequest):
-    # se veio session_id, valida
-    if payload.session_id and not session_exists(payload.session_id):
+# -------------------------
+# MENSAGENS DA SESSÃO
+# ------------------------
+@router.get("/sessions/{session_id}/messages")
+async def get_session_messages(
+    session_id: str,
+    limit: int = 100,
+    offset: int = 0
+):
+
+    exists = await session_service.session_exists(session_id)
+
+    if not exists:
         raise HTTPException(status_code=404, detail="Sessão não encontrada")
 
-    response = await service.send_message(
-        message=payload.message,
-        session_id=payload.session_id,
-        user_id=payload.user_id,
+    return await session_service.get_session_messages(
+        session_id=session_id,
+        limit=limit,
+        offset=offset
     )
-    return {"response": response}
+
+
+@router.post("/chat/stream")
+async def chat_llm_stream(payload: ChatRequest):
+
+    async def generator():
+        async for chunk in llm_service.stream_message(
+            message=payload.message,
+            session_id=payload.session_id,
+        ):
+            yield chunk
+
+    return StreamingResponse(generator(), media_type="text/plain")
