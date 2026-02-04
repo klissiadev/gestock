@@ -10,15 +10,51 @@ from backend.models.transaction_filters import transaction_filters
 from backend.models.product_item import ProductSchema
 from backend.models.transaction_schema import TransactionSchema
 from datetime import datetime
+from openpyxl.styles import Font, Alignment, PatternFill
+from openpyxl.utils import get_column_letter
 
 router = APIRouter(prefix="/views", tags=["visualizar"])
 
-def _criar_excel(df: pd.DataFrame):
+def _criar_excel(df: pd.DataFrame, titulo_relatorio="RELATÓRIO DE ESTOQUE"):
     output = io.BytesIO()
     # Usamos o engine openpyxl para gerar arquivos .xlsx
     with pd.ExcelWriter(output, engine='openpyxl') as writer:
-        df.to_excel(writer, index=False, sheet_name='Relatório')
-    
+        df.to_excel(writer, index=False, sheet_name='Dados', startrow=2)
+        workbook = writer.book
+        worksheet = writer.sheets['Dados']
+        num_colunas = len(df.columns)
+        
+        worksheet.merge_cells(start_row=1, start_column=1, end_row=1, end_column=num_colunas)
+        celula_titulo = worksheet.cell(row=1, column=1)
+        celula_titulo.value = titulo_relatorio
+        
+        celula_titulo.font = Font(name='Arial', size=16, bold=True, color="FFFFFF")
+        celula_titulo.alignment = Alignment(horizontal='center', vertical='center')
+        celula_titulo.fill = PatternFill(start_color="2F5597", end_color="2F5597", fill_type="solid")
+        
+        # Ajustar a altura da linha do título
+        worksheet.row_dimensions[1].height = 30
+        header_fill = PatternFill(start_color="D9E1F2", end_color="D9E1F2", fill_type="solid")
+        header_font = Font(bold=True)
+        
+        for col_num in range(1, num_colunas + 1):
+            cell = worksheet.cell(row=3, column=col_num)
+            cell.fill = header_fill
+            cell.font = header_font
+            cell.alignment = Alignment(horizontal='center', vertical='center')
+        
+        alinhamento_corpo = Alignment(wrap_text=True, vertical='center', horizontal='left')
+        
+        for row in worksheet.iter_rows(min_row=4):
+            for cell in row:
+                cell.alignment = alinhamento_corpo
+
+        # --- 5. AJUSTE DE LARGURA DAS COLUNAS ---
+        for i in range(1, num_colunas + 1):
+            column_letter = get_column_letter(i)
+            # Definimos uma largura fixa que funcione bem com a quebra de linha
+            worksheet.column_dimensions[column_letter].width = 20
+        
     # Volta o ponteiro do arquivo para o início para que o FastAPI consiga ler
     output.seek(0)
     return output.getvalue()
@@ -95,12 +131,12 @@ async def download_tabela_produtos(filter: product_filters, db=Depends(get_db)):
     view = view_service(db)
 
     dado_bruto = view.see_product_table(
-        direcao=direcao,
-        order_by=filter.orderBy,
-        search_term=filter.searchTerm,
-        tipo=filter.categoria,
-        apenas_baixo_estoque=filter.isBaixoEstoque,
-        apenas_vencidos=filter.isVencido
+        direcao="ASC",
+        order_by="id",
+        search_term="",
+        tipo="",
+        apenas_baixo_estoque=False,
+        apenas_vencidos=False
     )
     
     dado_formatado = [ProductSchema.model_validate(item).model_dump() for item in dado_bruto]
@@ -111,6 +147,7 @@ async def download_tabela_produtos(filter: product_filters, db=Depends(get_db)):
     df = df[coluna_presentes]
     
     df = df.rename(columns=MOVIMENTACAO_HEADERS)
+    print(df.head())
     
     excel_content = _criar_excel(df)
     filename = f"estoque_{datetime.now().strftime('%d_%m_%Y')}.xlsx"
