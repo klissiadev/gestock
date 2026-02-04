@@ -1,13 +1,27 @@
-import { createContext, useContext, useRef } from "react";
+import { createContext, useContext, useEffect, useState } from "react";
 
 const ChatSessionContext = createContext();
 
 export function ChatSessionProvider({ children }) {
-  const sessionsByOrigin = useRef({});
+  const [sessionsByOrigin, setSessionsByOrigin] = useState(() => {
+    const saved = localStorage.getItem("chatSessionsByOrigin");
+    return saved ? JSON.parse(saved) : {};
+  });
 
-  const getSession = (origin) => sessionsByOrigin.current[origin];
+  useEffect(() => {
+    localStorage.setItem(
+      "chatSessionsByOrigin",
+      JSON.stringify(sessionsByOrigin)
+    );
+  }, [sessionsByOrigin]);
+
+  const getSession = (origin) => sessionsByOrigin[origin];
+
   const setSession = (origin, sessionId) => {
-    sessionsByOrigin.current[origin] = sessionId;
+    setSessionsByOrigin((prev) => ({
+      ...prev,
+      [origin]: sessionId,
+    }));
   };
 
   return (

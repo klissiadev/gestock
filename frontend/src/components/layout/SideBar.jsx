@@ -20,6 +20,7 @@ import ShoppingSvg from "../../assets/icon/iconShop.svg?react";
 import ChartSvg from "../../assets/icon/iconBars.svg?react";
 import ReportsSvg from "../../assets/icon/iconRecord.svg?react";
 import LogOutSvg from "../../assets/icon/iconOut.svg?react";
+import MovSvg from "../../assets/icon/iconMove.svg?react";
 
 import ChevronRightIcon from "@mui/icons-material/ChevronRight";
 import ChevronLeftIcon from "@mui/icons-material/ChevronLeft";
@@ -29,6 +30,7 @@ const menuItems = [
   { id: "home", icon: HomeSvg, title: "Home" },
   { id: "ai", icon: ChatSvg, title: "Chat"},
   { id: "sheets", icon: InvetorySvg, title: "Inventory" },
+  { id: "movements", icon: MovSvg, title: "Movements" },
   { id: "requests", icon: ShoppingSvg, title: "Request" },
   { id: "forecast", icon: ChartSvg, title: "Forecast"},
   { id: "reports", icon: ReportsSvg, title: "Reports" },
@@ -106,8 +108,9 @@ export default function SideBar({ active, onChange, expanded, onToggle }) {
           display: "flex",
           flexDirection: "column",
           alignItems: "center",
-          pb: 16,
-          gap: 0.5
+          pb: 20,
+          gap: 0.5,
+          mt: 5
         }}
       >
         {menuItems.map((item) => {
