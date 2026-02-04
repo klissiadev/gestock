@@ -1,13 +1,29 @@
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, Response
 from typing import List
+import io
+from fpdf import FPDF
+import pandas as pd
 from backend.services.views_service import view_service
 from backend.database.base import get_db
 from backend.models.product_filters import product_filters
 from backend.models.transaction_filters import transaction_filters
 from backend.models.product_item import ProductSchema
 from backend.models.transaction_schema import TransactionSchema
+from datetime import datetime
 
 router = APIRouter(prefix="/views", tags=["visualizar"])
+
+def _criar_excel(df: pd.DataFrame):
+    output = io.BytesIO()
+    # Usamos o engine openpyxl para gerar arquivos .xlsx
+    with pd.ExcelWriter(output, engine='openpyxl') as writer:
+        df.to_excel(writer, index=False, sheet_name='Relatório')
+    
+    # Volta o ponteiro do arquivo para o início para que o FastAPI consiga ler
+    output.seek(0)
+    return output.getvalue()
+    
+
 
 # Constantes
 MOVIMENTACAO_HEADERS = {
@@ -70,6 +86,8 @@ async def exibir_tabela_movimentacao(filter: transaction_filters, db = Depends(g
     
     return transaction_table
 
+
+
 @router.post("/download/product")
 async def download_tabela_produtos(filter: product_filters, db=Depends(get_db)):
     direcao = "ASC" if filter.isAsc else "DESC"
@@ -86,13 +104,24 @@ async def download_tabela_produtos(filter: product_filters, db=Depends(get_db)):
     )
     
     dado_formatado = [ProductSchema.model_validate(item).model_dump() for item in dado_bruto]
-    df = pd.DataFrame(formatted_data)
+    df = pd.DataFrame(dado_formatado)
     
     # Formatando as colunas
     coluna_presentes = [col for col in PRODUCT_HEADERS.keys() if col in df.columns]
     df = df[coluna_presentes]
     
     df = df.rename(columns=MOVIMENTACAO_HEADERS)
+    
+    excel_content = _criar_excel(df)
+    filename = f"estoque_{datetime.now().strftime('%d_%m_%Y')}.xlsx"
+    
+    return Response(
+        content=excel_content,
+        media_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+        headers={
+            "Content-Disposition": f"attachment; filename={filename}"
+        }
+    )
 
 
 

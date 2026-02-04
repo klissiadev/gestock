@@ -10,6 +10,7 @@ import ReportsPage from '../features/reports/ReportsPage';
 import RequestsPage from '../features/requests/RequestsPage';
 import UploadPageDebug from "../features/upload/UploadPageDebug";
 import AlertDialogSlide from "../features/upload/components/SucessBox";
+import TabelaMovimentacao from '../features/stock/pages/TabelaMovimentacao';
 
 const AppRoutes = () => {
   return (
