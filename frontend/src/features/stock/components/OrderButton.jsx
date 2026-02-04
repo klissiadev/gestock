@@ -9,9 +9,8 @@ const OrderButton = ({ radius = 2, filter, onFilterChange }) => {
   return (
     <FormControl>
       <IconButton
-        size="large"
+        size="medium"
         sx={{
-          padding: 3,
           color: theme => theme.palette.common.black,
           borderStyle: "solid",
           borderWidth: "1px",

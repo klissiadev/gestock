@@ -24,7 +24,6 @@ const TabelaProduto = () => {
         onFilterChange={handleFilterChange}
       />
 
-      <Divider variant="middle" />
 
       {loading ? (
         <LoadingComponent columns={columns} />
