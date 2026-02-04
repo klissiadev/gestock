@@ -8,6 +8,7 @@ import {
   fetchSessions,
   createSession,
   sendMessageToLLM,
+  fetchSessionMessages
 } from "../../api/LLMAPI";
 
 import ChatHeader from "./components/ChatHeader";
@@ -50,26 +51,24 @@ const LLMPage = () => {
   const location = useLocation();
   const { getSession, setSession } = useChatSession();
   const initRef = useRef(false);
+  const isBootstrappingRef = useRef(false);
+
 
   useEffect(() => {
     loadSessions();
   }, []);
 
   useEffect(() => {
-    if (initRef.current) return;  
-    initRef.current = true;
-
-    const init = async () => {
+    const initFromOrigin = async () => {
       const { chatOrigin, initialMessage } = location.state || {};
       if (!chatOrigin) return;
+
+      isBootstrappingRef.current = true;
 
       let sessionId = getSession(chatOrigin);
 
       if (!sessionId) {
-        const result = await createSession();
-        sessionId =
-          typeof result === "string" ? result : result.session_id;
-
+        sessionId = await createSession();
         setSession(chatOrigin, sessionId);
       }
 
@@ -78,11 +77,32 @@ const LLMPage = () => {
       if (initialMessage) {
         await sendInitialMessage(initialMessage, sessionId);
       }
+
+      isBootstrappingRef.current = false;
+
+      window.history.replaceState({}, document.title);
     };
 
-    init();
-  }, []);
+    initFromOrigin();
+  }, [location.state]);
 
+  useEffect(() => {
+    const loadMessages = async () => {
+      if (!selectedSession) return;
+      if (isBootstrappingRef.current) return;
+
+      const history = await fetchSessionMessages(selectedSession);
+
+      setMessages(
+        history.map((msg) => ({
+          role: msg.role,
+          content: msg.content,
+        }))
+      );
+    };
+
+    loadMessages();
+  }, [selectedSession]);
 
 
   /*useEffect(() => {
@@ -106,13 +126,11 @@ const LLMPage = () => {
   const handleCreateSession = async () => {
     setLoading(true);
     try {
-      const result = await createSession();
-      const sessionId =
-        typeof result === "string" ? result : result.session_id;
+      const sessionId = await createSession();
 
-      await loadSessions();
-      setSelectedSession(sessionId);
-      setMessages([]);
+      setSelectedSession(sessionId); // primeiro
+
+      await loadSessions(); // depois
     } catch (err) {
       console.error("Erro ao criar sessão:", err);
     } finally {
@@ -123,7 +141,7 @@ const LLMPage = () => {
   const handleSend = async () => {
     if (!input.trim() || !selectedSession) return;
 
-    const messageToSend = input; // congela aqui
+    const messageToSend = input; // c ongela aqui
 
     setLoading(true);
     setInput("");
@@ -136,9 +154,11 @@ const LLMPage = () => {
     try {
       const result = await sendMessageToLLM(messageToSend, selectedSession);
 
+      setSelectedSession(result.sessionId);
+
       setMessages((prev) => [
         ...prev,
-        { role: "assistant", content: result.answer },
+        { role: "assistant", content: result.message },
       ]);
     } catch {
       setMessages((prev) => [
@@ -158,10 +178,14 @@ const LLMPage = () => {
 
     const result = await sendMessageToLLM(text, sessionId);
 
+    setSelectedSession(result.sessionId);
+
     setMessages((prev) => [
       ...prev,
-      { role: "assistant", content: result.answer },
+      { role: "assistant", content: result.message },
     ]);
+
+    await loadSessions(); // 👈 importante
   };
 
 
@@ -182,7 +206,7 @@ const LLMPage = () => {
         selectedSession={selectedSession}
         onSelectSession={(id) => {
           setSelectedSession(id);
-          setMessages([]);
+          
         }}
         onCreateSession={handleCreateSession}
       />
