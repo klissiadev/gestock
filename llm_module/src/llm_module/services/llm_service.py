@@ -14,13 +14,12 @@ class LLMService:
                     await self.chatbot.init()
                     self._initialized = True
 
-    async def send_message(
-        self,
-        message: str,
-        session_id: str | None = None,
-    ) -> dict:
+    async def send_message(self, message: str, session_id: str | None):
 
         await self._ensure_init()
+
+        if not session_id:
+            raise ValueError("session_id obrigatório")
 
         resposta = await self.chatbot.send_message(
             user_input=message,
@@ -41,3 +40,20 @@ class LLMService:
             session_id=session_id,
         ):
             yield chunk
+
+    async def ensure_session(self, session_id: str | None) -> str:
+        """
+        Garante que sempre exista uma sessão válida.
+        - Cria se vier None
+        - Cria se não existir no banco
+        """
+
+        if not session_id:
+            return await self.create_session()
+
+        exists = await self.session_exists(session_id)
+
+        if not exists:
+            return await self.create_session()
+
+        return session_id

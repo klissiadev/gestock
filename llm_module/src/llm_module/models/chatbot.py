@@ -82,23 +82,22 @@ class ChatBotService:
         """Inicializa conexões assíncronas e o agente."""
         await self.memory_pool.open()
         
+        #tive que alterar a inicialização do chatbot, a main está fazendo o auxilio
         async with self.memory_pool.connection() as conn:
             await conn.execute("SELECT 1")
-        
-        # Setup de Memoria do agente
-        conn = await self.memory_pool.getconn() 
-        checkpointer = AsyncPostgresSaver(conn)
-        await checkpointer.setup()
-        
-        # Criacao do agente
-        self.agent = create_agent(
-            model=self.main_model,
-            middleware=self.middleware,
-            tools=self.tools,
-            system_prompt=SystemMessage(content=self._load_system_prompt()),
-            checkpointer=checkpointer,
-        )
-        return self
+            
+            # setup da memória do agente
+            checkpointer = AsyncPostgresSaver(conn)
+            await checkpointer.setup()
+
+            # criação do agente
+            self.agent = create_agent(
+                model=self.main_model,
+                middleware=self.middleware,
+                tools=self.tools,
+                system_prompt=SystemMessage(content=self._load_system_prompt()),
+                checkpointer=checkpointer,
+            )
     
     def _load_system_prompt(self) -> str:
         if not Config.SYSTEM_PROMPT_LOCATION:

@@ -21,20 +21,18 @@ class ChatRequest(BaseModel):
 @router.post("/chat")
 async def chat_llm(payload: ChatRequest):
 
-    if payload.session_id:
-        exists = await session_service.session_exists(payload.session_id)
-
-        if not exists:
-            raise HTTPException(status_code=404, detail="Sessão não encontrada")
+    session_id = await session_service.ensure_session(payload.session_id)
 
     response = await llm_service.send_message(
         message=payload.message,
-        session_id=payload.session_id,
+        session_id=session_id,
     )
+
+    await session_service.touch_session(session_id)
 
     return {
         "response": response,
-        "session_id": payload.session_id,
+        "session_id": session_id
     }
 
 
@@ -42,7 +40,7 @@ async def chat_llm(payload: ChatRequest):
 # LISTAR SESSÕES
 # -------------------------
 @router.get("/sessions")
-async def get_sessions():
+async def list_sessions():
     return await session_service.list_sessions()
 
 
@@ -50,8 +48,8 @@ async def get_sessions():
 # CRIAR SESSÃO
 # -------------------------
 @router.post("/sessions")
-def new_session():
-    session_id = session_service.create_session()
+async def new_session():
+    session_id = await session_service.create_session()
     return {"session_id": session_id}
 
 
@@ -59,16 +57,12 @@ def new_session():
 # MENSAGENS DA SESSÃO
 # ------------------------
 @router.get("/sessions/{session_id}/messages")
-async def get_session_messages(
-    session_id: str,
-    limit: int = 100,
-    offset: int = 0
-):
+async def get_session_messages(session_id: str, limit: int = 100, offset: int = 0):
 
     exists = await session_service.session_exists(session_id)
 
     if not exists:
-        raise HTTPException(status_code=404, detail="Sessão não encontrada")
+        return []
 
     return await session_service.get_session_messages(
         session_id=session_id,
@@ -80,11 +74,20 @@ async def get_session_messages(
 @router.post("/chat/stream")
 async def chat_llm_stream(payload: ChatRequest):
 
+    session_id = await session_service.ensure_session(payload.session_id)
+
     async def generator():
+
         async for chunk in llm_service.stream_message(
             message=payload.message,
-            session_id=payload.session_id,
+            session_id=session_id,
         ):
-            yield chunk
+            yield chunk.encode("utf-8") if isinstance(chunk, str) else chunk
 
-    return StreamingResponse(generator(), media_type="text/plain")
+        await session_service.touch_session(session_id)
+
+    return StreamingResponse(
+        generator(),
+        media_type="text/plain",
+        headers={"X-Session-Id": session_id}
+    )

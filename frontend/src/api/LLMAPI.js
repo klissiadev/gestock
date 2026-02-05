@@ -1,18 +1,13 @@
   const BASE_URL = "http://127.0.0.1:8000";
 
   export async function fetchSessions() {
-    const response = await fetch(`${BASE_URL}/llm/sessions`);
+    const response = await fetch("http://127.0.0.1:8000/llm/sessions");
 
     if (!response.ok) {
       throw new Error("Erro ao buscar sessões");
     }
 
-    const data = await response.json();
-
-    return data.map(session => ({
-      id: session.session_id,
-      lastMessage: session.last_message
-    }));
+    return await response.json();
   }
 
   export async function createSession() {
@@ -78,7 +73,7 @@
       })
     });
 
-    if (!response.ok) {
+    if (!response.ok || !response.body) {
       throw new Error("Erro ao enviar mensagem");
     }
 
@@ -90,7 +85,11 @@
 
       if (done) break;
 
-      const chunk = decoder.decode(value);
+      const chunk = decoder.decode(value, { stream: true });
       onChunk(chunk);
     }
+
+    // flush final
+    const finalChunk = decoder.decode();
+    if (finalChunk) onChunk(finalChunk);
   }
