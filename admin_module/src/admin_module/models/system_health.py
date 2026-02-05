@@ -12,8 +12,8 @@ class SystemHealth:
         
         load_dotenv()
         self.config = {
-            "db": {"url": os.getenv("DATABASE_URL"), "slow": 1.5, "timeout": 5},
-            "ollama": {"url": "http://localhost:11434/api/tags", "slow": 1, "timeout": 5},
+            "db": {"slow": 1.5, "timeout": 5},
+            "ollama": {"url": "http://127.0.0.1:11434/", "slow": 1, "timeout": 5},
             "smtp": {"host": "smtp.gmail.com", "port": 587, "slow": 2, "timeout": 8}
         }
         
@@ -29,7 +29,7 @@ class SystemHealth:
         """Verifica o status do banco de dados"""
         start = time.perf_counter()
         try:
-            with db_pool.connection() as conn:
+            with get_db_connection(timeout=2.0) as conn:
                 with conn.cursor() as cur:
                     cur.execute("SELECT 1")
                     latency = time.perf_counter() - start
@@ -73,3 +73,11 @@ class SystemHealth:
             
             return {service: future.result() for service, future in futures.items()}
         
+def testes():
+    sys = SystemHealth()
+    while True:
+        print(sys.get_all_statuses())
+        time.sleep(1)
+
+if __name__ == '__main__':
+    testes()

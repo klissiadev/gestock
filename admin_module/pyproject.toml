@@ -1,14 +1,26 @@
 [project]
 name = "admin-module"
 version = "0.1.0"
-description = "Add your description here"
+description = ""
+authors = [
+    {name = "Thais Carolina Braga de Magalhães",email = "tcbdma.snf24@uea.edu.br"}
+]
 readme = "README.md"
 requires-python = ">=3.11"
 dependencies = [
     "dotenv>=0.9.9",
+    "fastapi>=0.128.2",
     "gputil>=1.4.0",
     "psutil>=7.2.2",
+    "psycopg-pool>=3.3.0",
     "psycopg[binary]>=3.3.2",
     "requests>=2.32.5",
     "wmi>=1.5.1",
 ]
+
+[tool.poetry]
+packages = [{include = "admin_module", from = "src"}]
+
+[build-system]
+requires = ["poetry-core>=2.0.0,<3.0.0"]
+build-backend = "poetry.core.masonry.api"
