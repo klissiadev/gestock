@@ -20,3 +20,19 @@ class ProductSchema(BaseModel):
 
     class Config:
         from_attributes = True 
+
+class ExportProduct(BaseModel):
+    id: int
+    nome: str
+    tipo: str
+    descricao: Optional[str]
+    estoque_atual: int
+    estoque_minimo: int
+    data_validade: date
+
+    @field_serializer('data_validade')
+    def serialize_date(self, data_validade: date):
+        return data_validade.strftime('%d/%m/%Y')
+
+    class Config:
+        from_attributes = True 

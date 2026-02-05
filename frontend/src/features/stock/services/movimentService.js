@@ -1,7 +1,5 @@
 export async function fetchMovimentacoes(filters) {
     try {
-        console.log("Requisitando dados da tabela de movimentacoes com os parametros:");
-        console.log(filters);
         const response = await fetch(
             `http://localhost:8000/views/moviment`,
             {

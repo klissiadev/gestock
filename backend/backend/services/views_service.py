@@ -29,7 +29,8 @@ class view_service:
         search_term: str | None,
         tipo: str | None,
         apenas_baixo_estoque: bool | None,
-        apenas_vencidos: bool | None
+        apenas_vencidos: bool | None,
+        isExport: bool = False
     ):
         COLUNAS_VALIDAS = [
             "id", "nome", "tipo", "descricao", "estoque_atual",
@@ -50,6 +51,11 @@ class view_service:
                 "vencido": True if apenas_vencidos else None
             }.items() if v is not None
         }
+
+        if isExport:
+            COLUNAS_VALIDAS.remove("baixo_estoque")
+            COLUNAS_VALIDAS.remove("vencido")
+            COLUNAS_VALIDAS.remove("ativo")
 
         return self.repo.fetch_all(
             table="app_core.vw_product", 

@@ -6,6 +6,8 @@ const StockSheets = () => {
     const [productTable, setProductTable] = useState(true);
     const [movimentTable, setMovimentTable] = useState(false);
 
+
+
     // Handle das guias
     const handleProductTable = () => {
         setProductTable(true);
