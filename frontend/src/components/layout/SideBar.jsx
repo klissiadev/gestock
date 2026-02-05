@@ -116,6 +116,7 @@ export default function SideBar({ active, onChange, expanded, onToggle }) {
         {menuItems.map((item) => {
           const button = (
             <ListItemButton
+              key={item.id}
               selected={active === item.id}
               onClick={() => onChange(item.id)}
               sx={{
@@ -135,7 +136,6 @@ export default function SideBar({ active, onChange, expanded, onToggle }) {
                     whiteSpace: "nowrap",
                     maxWidth: expanded ? "100%" : 0,
                     transition: "opacity 0.2s",
-                    whiteSpace: "nowrap",
                   }}
                 />
               )}
@@ -143,9 +143,9 @@ export default function SideBar({ active, onChange, expanded, onToggle }) {
           );
 
           return expanded ? (
-            button
+            <Box key={item.id}>{button}</Box>
           ) : (
-            <Tooltip title={item.title} placement="right">
+            <Tooltip key={item.id}  title={item.title} placement="right">
               {button}
             </Tooltip>
           );

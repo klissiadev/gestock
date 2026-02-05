@@ -41,6 +41,8 @@ app = FastAPI(
 # =========================
 # MIDDLEWARES
 # =========================
+# Logging automático
+app.add_middleware(LoggingMiddleware)
 
 # CORS
 app.add_middleware(
@@ -56,8 +58,6 @@ app.add_middleware(
 )
 
 
-# Logging automático
-app.add_middleware(LoggingMiddleware)
 
 # =========================
 # EXCEPTION HANDLER GLOBAL
