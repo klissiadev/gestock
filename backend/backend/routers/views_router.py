@@ -1,17 +1,18 @@
 from fastapi import APIRouter, Depends, Response
 from typing import List
 import io
-from fpdf import FPDF
 import pandas as pd
 from backend.services.views_service import view_service
 from backend.database.base import get_db
 from backend.models.product_filters import product_filters
 from backend.models.transaction_filters import transaction_filters
-from backend.models.product_item import ProductSchema
+from backend.models.product_item import ProductSchema, ExportProduct
 from backend.models.transaction_schema import TransactionSchema
 from datetime import datetime
 from openpyxl.styles import Font, Alignment, PatternFill
 from openpyxl.utils import get_column_letter
+
+from backend.utils.export_helper import generate_excel_report
 
 router = APIRouter(prefix="/views", tags=["visualizar"])
 
@@ -20,7 +21,6 @@ def _criar_excel(df: pd.DataFrame, titulo_relatorio="RELATÓRIO DE ESTOQUE"):
     # Usamos o engine openpyxl para gerar arquivos .xlsx
     with pd.ExcelWriter(output, engine='openpyxl') as writer:
         df.to_excel(writer, index=False, sheet_name='Dados', startrow=2)
-        workbook = writer.book
         worksheet = writer.sheets['Dados']
         num_colunas = len(df.columns)
         
@@ -119,7 +119,8 @@ async def exibir_tabela_movimentacao(filter: transaction_filters, db = Depends(g
         order_by=filter.orderBy, 
         search_term=filter.searchTerm
     )
-    
+
+
     return transaction_table
 
 
@@ -131,25 +132,27 @@ async def download_tabela_produtos(filter: product_filters, db=Depends(get_db)):
     view = view_service(db)
 
     dado_bruto = view.see_product_table(
-        direcao="ASC",
-        order_by="id",
-        search_term="",
-        tipo="",
-        apenas_baixo_estoque=False,
-        apenas_vencidos=False
+        direcao=direcao,
+        order_by=filter.orderBy,
+        search_term=filter.searchTerm,
+        tipo=filter.categoria,
+        apenas_baixo_estoque=filter.isBaixoEstoque,
+        apenas_vencidos=filter.isVencido
     )
     
-    dado_formatado = [ProductSchema.model_validate(item).model_dump() for item in dado_bruto]
+    # Formatando
+    dado_formatado = [ExportProduct.model_validate(item).model_dump() for item in dado_bruto]
     df = pd.DataFrame(dado_formatado)
-    
-    # Formatando as colunas
     coluna_presentes = [col for col in PRODUCT_HEADERS.keys() if col in df.columns]
     df = df[coluna_presentes]
+    df = df.rename(columns=PRODUCT_HEADERS)
     
-    df = df.rename(columns=MOVIMENTACAO_HEADERS)
-    print(df.head())
-    
-    excel_content = _criar_excel(df)
+    excel_content = generate_excel_report(
+        df=df,
+        title="Relatório Geral de Produtos em Estoque",
+        sheet_name="Produtos"
+    )
+
     filename = f"estoque_{datetime.now().strftime('%d_%m_%Y')}.xlsx"
     
     return Response(
@@ -168,12 +171,31 @@ async def download_tabela_movimentacao(filter: transaction_filters, db=Depends(g
     
     view = view_service(db)
     
-    dados_puro = view.see_transaction_table(
+    dado_bruto = view.see_transaction_table(
         direcao=direcao, 
         order_by=filter.orderBy, 
         search_term=filter.searchTerm
     )
     
-    formatted_data = [TransactionSchema.model_validate(item).model_dump() for item in raw_data]
+    # Formatando
+    dado_formatado = [TransactionSchema.model_validate(item).model_dump() for item in dado_bruto]
+    df = pd.DataFrame(dado_formatado)
+    coluna_presentes = [col for col in MOVIMENTACAO_HEADERS.keys() if col in df.columns]
+    df = df[coluna_presentes]
+    df = df.rename(columns=MOVIMENTACAO_HEADERS)
     
-    return transaction_table
+    excel_content = generate_excel_report(
+        df=df,
+        title="Relatório Geral de Movimentação em Estoque",
+        sheet_name="Movimentações"
+    )
+
+    filename = f"movimentacoes_{datetime.now().strftime('%d_%m_%Y')}.xlsx"
+    
+    return Response(
+        content=excel_content,
+        media_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+        headers={
+            "Content-Disposition": f"attachment; filename={filename}"
+        }
+    )

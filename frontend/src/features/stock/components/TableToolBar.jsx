@@ -3,6 +3,7 @@ import { Box, Typography, Stack } from "@mui/material";
 import SearchBar from "./SearchBar";
 import OrderSelector from "./OrderSelector";
 import OrderButton from "./orderButton";
+import DownloadButton from "./DownloadButton";
 
 const TableToolBar = ({ titulo, filters, onFilterChange }) => {
   return (
@@ -71,7 +72,14 @@ const TableToolBar = ({ titulo, filters, onFilterChange }) => {
 
         <Box sx={{ flex: 1, display: "flex", justifyContent: "flex-end" }}>
           <Box sx={{ alignContent: "end" }}>
-            <OrderButton radius={10} filter={filters.isAsc} onFilterChange={onFilterChange}/>
+            <Stack direction={"row"} spacing={1}>
+              <DownloadButton filter={filters} whatTable={"products"} />
+              <OrderButton
+                radius={10}
+                filter={filters.isAsc}
+                onFilterChange={onFilterChange}
+              />
+            </Stack>
           </Box>
         </Box>
       </Stack>
