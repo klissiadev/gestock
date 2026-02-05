@@ -1,18 +1,39 @@
 from fastapi import APIRouter, Depends, Query
 from datetime import date
+
 from backend.database.base import get_connection
 from backend.database.repository import Repository
 from backend.services.analytics_view import AnalyticsService
 
-router = APIRouter()
+router = APIRouter(tags=["Analytics"])
+
+
+# =====================================================
+# DEPENDENCIES
+# =====================================================
+
+def get_repository():
+    conn = get_connection()
+    try:
+        yield Repository(conn)
+    finally:
+        conn.close()
+
+
+def get_analytics_service(
+    repo: Repository = Depends(get_repository)
+):
+    return AnalyticsService(repo)
+
 
 # =====================================================
 # KPIs GERAIS DE ESTOQUE
 # =====================================================
 
 @router.get("/stock-kpis")
-def get_stock_kpis(repo: Repository = Depends(get_connection)):
-    service = AnalyticsService(repo)
+def stock_kpis(
+    service: AnalyticsService = Depends(get_analytics_service)
+):
     return service.get_stock_kpis()
 
 
@@ -21,8 +42,9 @@ def get_stock_kpis(repo: Repository = Depends(get_connection)):
 # =====================================================
 
 @router.get("/stock-by-type")
-def get_stock_by_type(repo: Repository = Depends(get_connection)):
-    service = AnalyticsService(repo)
+def stock_by_type(
+    service: AnalyticsService = Depends(get_analytics_service)
+):
     return service.get_stock_by_type()
 
 
@@ -31,8 +53,9 @@ def get_stock_by_type(repo: Repository = Depends(get_connection)):
 # =====================================================
 
 @router.get("/critical-products")
-def get_critical_products(repo: Repository = Depends(get_connection)):
-    service = AnalyticsService(repo)
+def critical_products(
+    service: AnalyticsService = Depends(get_analytics_service)
+):
     return service.get_critical_products()
 
 
@@ -41,12 +64,11 @@ def get_critical_products(repo: Repository = Depends(get_connection)):
 # =====================================================
 
 @router.get("/movimentacao-periodo")
-def get_movimentacao_por_periodo(
-    start: date = Query(..., description="Data inicial (YYYY-MM-DD)"),
-    end: date = Query(..., description="Data final (YYYY-MM-DD)"),
-    repo: Repository = Depends(get_connection)
+def movimentacao_periodo(
+    start: date = Query(..., description="YYYY-MM-DD"),
+    end: date = Query(..., description="YYYY-MM-DD"),
+    service: AnalyticsService = Depends(get_analytics_service)
 ):
-    service = AnalyticsService(repo)
     return service.get_movimentacao_por_periodo(start, end)
 
 
@@ -55,8 +77,9 @@ def get_movimentacao_por_periodo(
 # =====================================================
 
 @router.get("/financial-kpis")
-def get_financial_kpis(repo: Repository = Depends(get_connection)):
-    service = AnalyticsService(repo)
+def financial_kpis(
+    service: AnalyticsService = Depends(get_analytics_service)
+):
     return service.get_financial_kpis()
 
 
@@ -65,11 +88,10 @@ def get_financial_kpis(repo: Repository = Depends(get_connection)):
 # =====================================================
 
 @router.get("/top-selling")
-def get_top_selling_products(
+def top_selling(
     limit: int = Query(5, ge=1, le=50),
-    repo: Repository = Depends(get_connection)
+    service: AnalyticsService = Depends(get_analytics_service)
 ):
-    service = AnalyticsService(repo)
     return service.get_top_selling_products(limit)
 
 
@@ -78,11 +100,10 @@ def get_top_selling_products(
 # =====================================================
 
 @router.get("/near-expiration")
-def get_products_near_expiration(
+def near_expiration(
     days: int = Query(30, ge=1, le=365),
-    repo: Repository = Depends(get_connection)
+    service: AnalyticsService = Depends(get_analytics_service)
 ):
-    service = AnalyticsService(repo)
     return service.get_products_near_expiration(days)
 
 
@@ -91,8 +112,9 @@ def get_products_near_expiration(
 # =====================================================
 
 @router.get("/production-summary")
-def get_production_summary(repo: Repository = Depends(get_connection)):
-    service = AnalyticsService(repo)
+def production_summary(
+    service: AnalyticsService = Depends(get_analytics_service)
+):
     return service.get_production_summary()
 
 
@@ -101,10 +123,9 @@ def get_production_summary(repo: Repository = Depends(get_connection)):
 # =====================================================
 
 @router.get("/stock-turnover")
-def get_stock_turnover(
-    start: date = Query(..., description="Data inicial (YYYY-MM-DD)"),
-    end: date = Query(..., description="Data final (YYYY-MM-DD)"),
-    repo: Repository = Depends(get_connection)
+def stock_turnover(
+    start: date = Query(...),
+    end: date = Query(...),
+    service: AnalyticsService = Depends(get_analytics_service)
 ):
-    service = AnalyticsService(repo)
     return service.get_stock_turnover(start, end)

@@ -11,23 +11,23 @@ class AnalyticsService:
     # =====================================================
 
     def get_stock_kpis(self):
-        estoque_total = self.repo.fetch_one("""
+        estoque_total = self.repo.execute_query("""
             SELECT COALESCE(SUM(estoque_atual), 0) AS total
             FROM app_core.vw_product
-        """)
+        """)[0]
 
-        baixo_estoque = self.repo.fetch_one("""
+        baixo_estoque = self.repo.execute_query("""
             SELECT COUNT(*) AS count
             FROM app_core.vw_product
             WHERE estoque_atual <= estoque_minimo
-        """)
+        """)[0]
 
-        vencidos = self.repo.fetch_one("""
+        vencidos = self.repo.execute_query("""
             SELECT COUNT(*) AS count
             FROM app_core.vw_product
             WHERE data_validade IS NOT NULL
-              AND data_validade < CURRENT_DATE
-        """)
+            AND data_validade < CURRENT_DATE
+        """)[0]
 
         return {
             "estoque_total": estoque_total["total"],
@@ -35,18 +35,20 @@ class AnalyticsService:
             "produtos_vencidos": vencidos["count"]
         }
 
+
     # =====================================================
     # ESTOQUE POR TIPO
     # =====================================================
 
     def get_stock_by_type(self):
-        return self.repo.fetch_all("""
+        return self.repo.execute_query("""
             SELECT tipo,
-                   SUM(estoque_atual) AS estoque_total
+                SUM(estoque_atual) AS estoque_total
             FROM app_core.vw_product
             GROUP BY tipo
             ORDER BY tipo
         """)
+
 
     # =====================================================
     # PRODUTOS CRÍTICOS
@@ -70,7 +72,7 @@ class AnalyticsService:
                 p.nome,
                 p.estoque_atual,
                 p.estoque_minimo
-            ORDER BY total_saidas DESC
+            ORDER BY total_saidas DESC  
         """)
 
     # =====================================================
@@ -78,7 +80,7 @@ class AnalyticsService:
     # =====================================================
 
     def get_movimentacao_por_periodo(self, start: date, end: date):
-        return self.repo.fetch_all("""
+        return self.repo.execute_query("""
             SELECT
                 DATE(data_evento) AS data,
                 SUM(CASE WHEN tipo_movimento = 'ENTRADA' THEN quantidade ELSE 0 END) AS entradas,
@@ -88,6 +90,7 @@ class AnalyticsService:
             GROUP BY DATE(data_evento)
             ORDER BY data
         """, (start, end))
+
 
     # =====================================================
     # KPIs FINANCEIROS
@@ -184,3 +187,4 @@ class AnalyticsService:
             "estoque_medio": estoque_medio["medio"],
             "giro_estoque": round(giro, 2)
         }
+
