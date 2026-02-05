@@ -72,7 +72,7 @@ const TableToolBar = ({ titulo, filters, onFilterChange }) => {
 
         <Box sx={{ flex: 1, display: "flex", justifyContent: "flex-end" }}>
           <Box sx={{ alignContent: "end" }}>
-            <Stack direction={"row"} spacing={1}>
+            <Stack direction={"row"} spacing={1} sx={{display: "flex", justifyContent: "center", alignItems: "center"}}>
               <DownloadButton filter={filters} whatTable={"products"} />
               <OrderButton
                 radius={10}

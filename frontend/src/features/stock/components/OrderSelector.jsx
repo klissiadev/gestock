@@ -33,7 +33,6 @@ const OrderSelector = ({ value, onChange, name, options, placeholder, startingPo
 
 
   return (
-    <FormControl fullWidth>
       <Select
         value={value}
         displayEmpty
@@ -49,7 +48,6 @@ const OrderSelector = ({ value, onChange, name, options, placeholder, startingPo
           </MenuItem>
         ))}
       </Select>
-    </FormControl>
   );
 };
 

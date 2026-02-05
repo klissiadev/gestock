@@ -12,11 +12,9 @@ const DownloadButton = ({ filter, whatTable }) => {
 
   const config = {
     products: {
-      label: "Baixar Produtos",
       action: downloadProduct,
     },
     transactions: {
-      label: "Baixar Transações",
       action: downloadTransactions,
     },
   };
@@ -36,12 +34,7 @@ const DownloadButton = ({ filter, whatTable }) => {
     }
   };
 
-  const teste = () => {
-    alert("Botao");
-  };
-
   return (
-    <FormControl fullWidth>
       <Button
         size="large"
         onClick={handleDownload}
@@ -51,6 +44,7 @@ const DownloadButton = ({ filter, whatTable }) => {
           color: (theme) => theme.palette.common.black,
           borderColor: (theme) => theme.palette.common.black,
           borderRadius: 2,
+          padding: 2,
           textTransform: "none",
           "&:hover": {
             borderColor: (theme) => theme.palette.common.black,
@@ -60,9 +54,8 @@ const DownloadButton = ({ filter, whatTable }) => {
           minWidth: "auto",
         }}
       >
-        {loading ? "Processando..." : currentConfig.label}
+        {loading ? "Processando..." : "Download"}
       </Button>
-    </FormControl>
   );
 };
 
