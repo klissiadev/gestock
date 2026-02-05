@@ -1,8 +1,6 @@
 import { useEffect, useState } from "react";
 import { Box} from "@mui/material";
 import { useLocation } from "react-router-dom";
-import { useChatSession } from "../../ChatSessionContext";
-import { useRef } from "react";
 
 import {
   fetchSessions,
@@ -49,47 +47,36 @@ const LLMPage = () => {
   const [loading, setLoading] = useState(false);
   const [loadingSessions, setLoadingSessions] = useState(false);
   const location = useLocation();
-  const { getSession, setSession } = useChatSession();
-  const initRef = useRef(false);
-  const isBootstrappingRef = useRef(false);
-
 
   useEffect(() => {
     loadSessions();
   }, []);
 
+
   useEffect(() => {
-    const initFromOrigin = async () => {
-      const { chatOrigin, initialMessage } = location.state || {};
-      if (!chatOrigin) return;
-
-      isBootstrappingRef.current = true;
-
-      let sessionId = getSession(chatOrigin);
-
-      if (!sessionId) {
-        sessionId = await createSession();
-        setSession(chatOrigin, sessionId);
-      }
+    const initFromNavigation = async () => {
+      const { sessionId } = location.state || {};
+      if (!sessionId) return;
 
       setSelectedSession(sessionId);
 
-      if (initialMessage) {
-        await sendInitialMessage(initialMessage, sessionId);
-      }
-
-      isBootstrappingRef.current = false;
-
-      window.history.replaceState({}, document.title);
+      // ESSENCIAL
+      await loadSessions();
     };
 
-    initFromOrigin();
+    initFromNavigation();
   }, [location.state]);
+
+
+  /*useEffect(() => {
+      // testee 
+      setSelectedSession("mock-session");
+      setMessages(MOCK_MESSAGES);
+    }, []);*/ 
 
   useEffect(() => {
     const loadMessages = async () => {
       if (!selectedSession) return;
-      if (isBootstrappingRef.current) return;
 
       const history = await fetchSessionMessages(selectedSession);
 
@@ -104,12 +91,7 @@ const LLMPage = () => {
     loadMessages();
   }, [selectedSession]);
 
-
-  /*useEffect(() => {
-    // testee 
-    setSelectedSession("mock-session");
-    setMessages(MOCK_MESSAGES);
-  }, []);*/ 
+  
 
   const loadSessions = async () => {
     setLoadingSessions(true);
@@ -124,27 +106,18 @@ const LLMPage = () => {
   };
 
   const handleCreateSession = async () => {
-    setLoading(true);
-    try {
-      const sessionId = await createSession();
-
-      setSelectedSession(sessionId); // primeiro
-
-      await loadSessions(); // depois
-    } catch (err) {
-      console.error("Erro ao criar sessão:", err);
-    } finally {
-      setLoading(false);
-    }
+    const sessionId = await createSession();
+    setSelectedSession(sessionId);
+    await loadSessions();
   };
 
   const handleSend = async () => {
     if (!input.trim() || !selectedSession) return;
 
-    const messageToSend = input; // c ongela aqui
+    const messageToSend = input;
 
-    setLoading(true);
     setInput("");
+    setLoading(true);
 
     setMessages((prev) => [
       ...prev,
@@ -154,38 +127,19 @@ const LLMPage = () => {
     try {
       const result = await sendMessageToLLM(messageToSend, selectedSession);
 
-      setSelectedSession(result.sessionId);
-
       setMessages((prev) => [
         ...prev,
         { role: "assistant", content: result.message },
       ]);
+
     } catch {
       setMessages((prev) => [
         ...prev,
-        {
-          role: "assistant",
-          content: "❌ Erro ao comunicar com a LLM.",
-        },
+        { role: "assistant", content: "❌ Erro ao comunicar com a LLM." },
       ]);
     } finally {
       setLoading(false);
     }
-  };
-
-  const sendInitialMessage = async (text, sessionId) => {
-    setMessages([{ role: "user", content: text }]);
-
-    const result = await sendMessageToLLM(text, sessionId);
-
-    setSelectedSession(result.sessionId);
-
-    setMessages((prev) => [
-      ...prev,
-      { role: "assistant", content: result.message },
-    ]);
-
-    await loadSessions(); // 👈 importante
   };
 
 

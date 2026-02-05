@@ -1,6 +1,8 @@
 import { Box, Typography } from "@mui/material";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { useChatSession } from "../../ChatSessionContext";
+import { createSession, sendMessageToLLM } from "../../api/LLMAPI";
 
 export default function ExpandableIconButton({
   icon,
@@ -10,13 +12,24 @@ export default function ExpandableIconButton({
 }) {
   const [hover, setHover] = useState(false);
   const navigate = useNavigate();
+  const { getSession, setSession } = useChatSession();
 
-  const handleClick = () => {
+  const handleClick = async () => {
+
+    let sessionId = getSession(origin);
+  
+
+    if (!sessionId) {
+      sessionId = await createSession();
+      setSession(origin, sessionId);
+
+      if (initialMessage) {
+        await sendMessageToLLM(initialMessage, sessionId);
+      }
+    }
+
     navigate("/ai", {
-      state: {
-        chatOrigin: origin,
-        initialMessage,
-      },
+      state: { sessionId },
     });
   };
 
