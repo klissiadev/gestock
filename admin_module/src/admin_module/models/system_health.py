@@ -46,7 +46,8 @@ class SystemHealth:
             response = requests.get(self.config["ollama"]["url"], timeout=self.config["ollama"]["timeout"])
             if response.status_code == 200:
                 latency = time.perf_counter() - start
-                return self._calc_status(latency, "ollama"), round(latency * 1000, 2)
+                status = self._calc_status(latency, "ollama") if response.status_code == 200 else "Degradado"
+                return {"status": status, "latency": round(latency * 1000, 2)}
             return "Degradado", None # Respondeu mas não com 200 OK
         except:
             return "Offline", None
@@ -59,7 +60,8 @@ class SystemHealth:
                               timeout=self.config["smtp"]["timeout"]) as server:
                 server.ehlo() #  Faz um ping no servidor
                 latency = time.perf_counter() - start
-                return self._calc_status(latency, "smtp"), round(latency * 1000, 2)
+                status = self._calc_status(latency, "smtp")
+                return {"status": status, "latency": round(latency * 1000, 2)}
         except:
             return "Offline", None
         
