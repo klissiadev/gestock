@@ -102,8 +102,8 @@ class HardwareMonitor:
             minutes, seconds = divmod(rem, 60)
             
             if days > 0:
-                return f"{int(days)}d {int(hours)}h {int(minutes)}m"
-            return f"{int(hours)}h {int(minutes)}m"
+                return f"{int(days)}d {int(hours)}h {int(minutes)}m {int(seconds)}s"
+            return f"{int(hours)}h {int(minutes)}m {int(seconds)}s"
         except:
             return "Indisponível"
         
