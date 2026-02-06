@@ -1,10 +1,8 @@
 import time
-import psycopg
 import requests
 import smtplib
 import concurrent.futures
 from dotenv import load_dotenv
-import os
 from admin_module.utils.database import get_db_connection
 
 class SystemHealth:
