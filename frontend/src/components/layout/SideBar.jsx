@@ -41,24 +41,20 @@ export default function SideBar({ active, onChange, expanded, onToggle }) {
   const EXPANDED_WIDTH = 180;
 
   return (
-    <Drawer 
+    <Drawer
       variant="permanent"
       sx={{
         width: expanded ? EXPANDED_WIDTH : COLLAPSED_WIDTH,
         flexShrink: 0,
-
         "& .MuiDrawer-paper": {
           ml: 2,
           mt: 2,
           width: expanded ? EXPANDED_WIDTH : COLLAPSED_WIDTH,
-          overflow: "visible", 
+          overflow: "visible",
           position: "relative",
 
-          transition: (theme) =>
-            theme.transitions.create("width", {
-              easing: theme.transitions.easing.sharp,
-              duration: theme.transitions.duration.standard,
-            }),
+          display: "flex",          // 👈 AQUI
+          flexDirection: "column", // 👈 AQUI
         },
       }}
     >
@@ -98,21 +94,11 @@ export default function SideBar({ active, onChange, expanded, onToggle }) {
         </IconButton>
       </Box>
 
-      <Divider sx={{ mt: 2, mb: 3, borderWidth: 1.3}} />
+      <Divider sx={{ mt: 2, mb: 1, borderWidth: 1.3}} />
 
       {/* Menu */}
-
-      <List 
-        sx={{
-          flex: 1,
-          display: "flex",
-          flexDirection: "column",
-          alignItems: "center",
-          pb: 20,
-          gap: 0.5,
-          mt: 5
-        }}
-      >
+      <Box sx={{ flex: 1 }}>
+        <List sx={{ px: 1, mt: 3 }}>
         {menuItems.map((item) => {
           const button = (
             <ListItemButton
@@ -120,12 +106,21 @@ export default function SideBar({ active, onChange, expanded, onToggle }) {
               selected={active === item.id}
               onClick={() => onChange(item.id)}
               sx={{
-                justifyContent: expanded ? "space-between" : "center",
+                justifyContent: expanded ? "flex-start" : "center",
                 gap: 1,
-                width: expanded ? "100%" : "80%"
+                width: expanded ? "100%" : "80%",
+                minHeight: 40,
+                px: 2.4,
+                py: 0.8,
               }}
             >
-              <ListItemIcon>
+              <ListItemIcon
+                sx={{
+                  minWidth: 0,
+                  mr: expanded ? 1.5 : 0,
+                  justifyContent: "center",
+                }}
+              >
                 <AppIcon component={item.icon} />
               </ListItemIcon>
 
@@ -151,6 +146,7 @@ export default function SideBar({ active, onChange, expanded, onToggle }) {
           );
         })}
       </List>
+      </Box>
 
       {/* Logout */}
       <Box display="flex" justifyContent="center" mt={2} >

@@ -15,13 +15,14 @@ const AppRoutes = () => {
     <Routes>
       <Route element={<AppLayout />}>
         <Route path='/' element={<HomePage/>}/>
+        <Route path='/upload' element={<UploadPage />}/>
         <Route path='/sheets' element={<TabelaProduto />}/>
         <Route path='/notifications' element={<NotificationPage/>}/>
         <Route path='/ai' element={<LLMPage/>}/>
         <Route path='/forecast' element={<ForecastPage/>}/>
         <Route path='/reports' element={<ReportsPage/>}/>
         <Route path='/requests' element={<RequestsPage/>}/>
-        <Route path='/upload' element={<UploadPageDebug />} />
+        <Route path='/debug' element={<UploadPageDebug />} />
       </Route>
     </Routes>
   )

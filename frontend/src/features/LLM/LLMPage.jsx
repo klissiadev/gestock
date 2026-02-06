@@ -14,6 +14,7 @@ import ChatContainer from "./components/ChatContainer";
 import ChatInput from "./components/ChatInput";
 import FAQSuggestions from "./components/FAQSuggestions";
 import InitialChatLayout from "./components/InitialChatLayout";
+import ChatHistorySide from "./components/ChatHistorySide";
 
 
 
@@ -47,6 +48,19 @@ const LLMPage = () => {
   const [loading, setLoading] = useState(false);
   const [loadingSessions, setLoadingSessions] = useState(false);
   const location = useLocation();
+  const [historyOpen, setHistoryOpen] = useState(false);
+
+  /*useEffect(() => {
+    // simula sessões vindas do backend
+    const mockSessions = Array.from({ length: 12 }).map(
+      (_, i) => `chat-${i + 1}`
+    );
+
+    setSessions(mockSessions);
+    setSelectedSession(mockSessions[0]);
+    setMessages(MOCK_MESSAGES);
+  }, []);*/
+
 
   useEffect(() => {
     loadSessions();
@@ -67,12 +81,6 @@ const LLMPage = () => {
     initFromNavigation();
   }, [location.state]);
 
-
-  /*useEffect(() => {
-      // testee 
-      setSelectedSession("mock-session");
-      setMessages(MOCK_MESSAGES);
-    }, []);*/ 
 
   useEffect(() => {
     const loadMessages = async () => {
@@ -142,87 +150,101 @@ const LLMPage = () => {
     }
   };
 
+  /*const handleCreateSession = () => {
+    const newId = `chat-${sessions.length + 1}`;
+    setSessions((prev) => [...prev, newId]);
+    setSelectedSession(newId);
+    setMessages([]);
+  };
+
+  const handleSend = () => {
+    if (!input.trim()) return;
+
+    const userMessage = input;
+    setInput("");
+
+    setMessages((prev) => [
+      ...prev,
+      { role: "user", content: userMessage },
+      {
+        role: "assistant",
+        content: "Resposta mockada da LLM só para testar layout ✨",
+      },
+    ]);
+  };*/
 
 
   return (
     <Box
       sx={{
         height: "80vh",
-        overflow: "hidden",
         display: "flex",
-        flexDirection: "column",
+        flexDirection: "row",   // 👈 AGORA É LADO A LADO
         width: "100%",
-        p: 1,
+        overflow: "hidden",
       }}
     >
-      <ChatHeader
-        sessions={sessions}
-        selectedSession={selectedSession}
-        onSelectSession={(id) => {
-          setSelectedSession(id);
-          
-        }}
-        onCreateSession={handleCreateSession}
-      />
-
-      {/* CORPO DO CHAT */}
+      {/* CHAT */}
       <Box
         sx={{
           flex: 1,
-          minHeight: 0,
           display: "flex",
           flexDirection: "column",
+          p: 1,
+          transition: "all .3s ease",
         }}
       >
-      {/* ÁREA DAS MENSAGENS */}
-      <Box
-        sx={{
-          flex: 1,
-          minHeight: 0,
-          display: "flex",
-          justifyContent: "center",
-          
-        }}
-      >
-        {/* SLOT COM ALTURA FIXA E SCROLL */}
+
+        <ChatHeader
+          sessions={sessions}
+          selectedSession={selectedSession}
+          onSelectSession={setSelectedSession}
+          onCreateSession={handleCreateSession}
+          onToggleHistory={() => setHistoryOpen((prev) => !prev)}
+        />
+
+        {/* CORPO DO CHAT */}
         <Box
           sx={{
-            width: "100%",
-            maxWidth: 900,
-            height: "100%",
-            overflowY: "auto",
+            flex: 1,
+            minHeight: 0,
             display: "flex",
             flexDirection: "column",
           }}
         >
-          {messages.length === 0 ? (
-            <Box
-              sx={{
-                margin: "auto",
-                width: "100%",
-                display: "flex",
-                flexDirection: "column",
-                alignItems: "center",
-                gap: 2,
-              }}
-            >
-              <InitialChatLayout />
-              <ChatInput
-                value={input}
-                onChange={setInput}
-                onSend={handleSend}
-                disabled={!selectedSession || loading}
-                loading={loading}
-              />
-              <FAQSuggestions
-                onSelectSuggestion={(text) => setInput(text)}
-              />
-            </Box>
-          ) : (
-            <>
-              <ChatContainer messages={messages} />
-
-              <Box sx={{ mt: "auto", }}>
+        {/* ÁREA DAS MENSAGENS */}
+        <Box
+          sx={{
+            flex: 1,
+            minHeight: 0,
+            display: "flex",
+            justifyContent: "center",
+            
+          }}
+        >
+          {/* SLOT COM ALTURA FIXA E SCROLL */}
+          <Box
+            sx={{
+              width: "100%",
+              maxWidth: 900,
+              height: "100%",
+              overflowY: "auto",
+              display: "flex",
+              flexDirection: "column",
+            }}
+          >
+            {messages.length === 0 ? (
+              <Box
+                sx={{
+                  margin: "auto",
+                  width: "100%",
+                  display: "flex",
+                  flexDirection: "column",
+                  alignItems: "center",
+                  gap: 2,
+                }}
+              >
+                <InitialChatLayout />
                 <ChatInput
                   value={input}
                   onChange={setInput}
@@ -230,16 +252,40 @@ const LLMPage = () => {
                   disabled={!selectedSession || loading}
                   loading={loading}
                 />
+                <FAQSuggestions
+                  onSelectSuggestion={(text) => setInput(text)}
+                />
               </Box>
-            </>
-          )}
+            ) : (
+              <>
+                <ChatContainer messages={messages} />
+
+                <Box sx={{ mt: "auto", }}>
+                  <ChatInput
+                    value={input}
+                    onChange={setInput}
+                    onSend={handleSend}
+                    disabled={!selectedSession || loading}
+                    loading={loading}
+                  />
+                </Box>
+              </>
+            )}
+            </Box>
+          </Box>
         </Box>
       </Box>
-  </Box>
+      {/* HISTÓRICO */}
+    <ChatHistorySide
+      open={historyOpen}
+      onClose={() => setHistoryOpen(false)}
+      sessions={sessions}
+      selectedSession={selectedSession}
+      onSelectSession={setSelectedSession}
+      onCreateSession={handleCreateSession}
+    />
   </Box>
 );
-
-
 };
 
 export default LLMPage;
