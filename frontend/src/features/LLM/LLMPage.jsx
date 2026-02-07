@@ -106,6 +106,15 @@ const LLMPage = () => {
     try {
       const data = await fetchSessions();
       setSessions(data || []);
+
+      if (data?.length && !selectedSession) {
+        const firstId =
+          typeof data[0] === "string"
+            ? data[0]
+            : data[0].session_id;
+
+        setSelectedSession(firstId);
+      }
     } catch (err) {
       console.error("Erro ao carregar sessões:", err);
     } finally {
@@ -115,8 +124,8 @@ const LLMPage = () => {
 
   const handleCreateSession = async () => {
     const sessionId = await createSession();
-    setSelectedSession(sessionId);
     await loadSessions();
+    setSelectedSession(sessionId);
   };
 
   const handleSend = async () => {
