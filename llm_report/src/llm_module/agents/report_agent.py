@@ -1,8 +1,10 @@
 from typing import Any, Dict, Optional
-
 from pydantic import BaseModel, Field
+
 from langchain_ollama import ChatOllama
 from langchain_core.messages import SystemMessage, HumanMessage
+from src.prompts.report_prompts import PROMPTS
+
 
 
 # =========================
@@ -10,15 +12,10 @@ from langchain_core.messages import SystemMessage, HumanMessage
 # =========================
 
 class ReportInput(BaseModel):
-    """
-    Estrutura oficial de entrada para geração de relatórios.
-    """
-    tipo: str = Field(..., description="Tipo do relatório (ex: estoque, movimentações, auditoria)")
-    dados: Any = Field(..., description="Dados consolidados para geração do relatório")
-    parametros: Optional[Dict[str, Any]] = Field(
-        default_factory=dict,
-        description="Parâmetros adicionais usados no relatório"
-    )
+    report_type: str
+    tipo: str
+    dados: Any
+    parametros: Optional[Dict[str, Any]] = Field(default_factory=dict)
 
 
 # =========================
@@ -26,60 +23,102 @@ class ReportInput(BaseModel):
 # =========================
 
 class ReportAgent:
-    """
-    Agente especializado exclusivamente em geração de relatórios oficiais.
-    Não possui memória, não usa ferramentas e não consulta banco de dados.
-    """
 
-    PROMPT_VERSION = "v1.0"
+    PROMPT_VERSION = "v2.0"
+
+    EMPTY_RESPONSE = (
+        "Não há informação disponível no sistema para gerar este relatório."
+    )
 
     def __init__(self, model: ChatOllama):
         self.model = model
-        self.system_prompt = SystemMessage(content=self._build_system_prompt())
+        print("ReportAgent usando modelo:", self.model.model)
+
+        self.system_prompt = SystemMessage(
+            content=self._build_system_prompt()
+        )
+
+    # --------------------------------------------------
+    # SYSTEM PROMPT
+    # --------------------------------------------------
 
     def _build_system_prompt(self) -> str:
         return f"""
-Você é um agente especializado em geração de relatórios oficiais do sistema Gestock.
+    Você é responsável por gerar relatórios OFICIAIS do sistema Gestock.
 
-VERSÃO DO PROMPT: {self.PROMPT_VERSION}
+    VERSÃO DO PROMPT: {self.PROMPT_VERSION}
 
-REGRAS ABSOLUTAS:
-- Você NÃO consulta banco de dados.
-- Você NÃO inventa informações.
-- Você NÃO faz suposições ou estimativas.
-- Você utiliza APENAS os dados fornecidos na entrada.
-- Se algum dado estiver ausente, deixe isso explicitamente claro no relatório.
-- Você NÃO faz perguntas ao usuário.
-- Você NÃO menciona ferramentas, modelos ou processos internos.
-- O texto gerado é o RELATÓRIO FINAL do sistema.
+    REGRAS ABSOLUTAS:
 
-ESTILO:
-- Linguagem clara, objetiva e profissional.
-- Estrutura lógica e bem organizada.
-- Adequado para uso institucional e auditoria.
-""".strip()
+    1. Utilize EXCLUSIVAMENTE os dados recebidos.
+    2. Nunca realize cálculos ou classificações adicionais.
+    3. Nunca interprete dados.
+    4. Nunca gere conclusões.
+    5. Nunca reorganize ou agrupe registros.
+    6. Nunca adicione recomendações.
+    7. Nunca invente informações.
 
-    def _build_user_prompt(self, report: ReportInput) -> str:
-        return f"""
-TIPO DE RELATÓRIO:
-{report.tipo}
+    FORMATO DO RELATÓRIO:
 
-PARÂMETROS:
-{report.parametros}
+    - Título do relatório
+    - Parâmetros utilizados (se existirem)
+    - Listagem completa dos registros exatamente como recebidos
+    - Metadados (se existirem)
 
-DADOS:
-{report.dados}
+    Se algum campo estiver ausente, declare explicitamente:
 
-Gere o relatório correspondente seguindo rigorosamente as regras definidas.
-""".strip()
+    "Dado não disponível nos registros fornecidos."
 
-    async def gerar(self, report_input: ReportInput) -> str:
-        """
-        Gera o relatório final baseado exclusivamente nos dados fornecidos.
-        """
-        response = await self.model.ainvoke([
-            self.system_prompt,
-            HumanMessage(content=self._build_user_prompt(report_input))
-        ])
+    O conteúdo gerado é considerado documento oficial do sistema.
+    """.strip()
+
+
+    # --------------------------------------------------
+    # USER PROMPT
+    # --------------------------------------------------
+
+    def _get_prompt(self, report_type: str) -> str:
+        return PROMPTS.get(report_type, "Relatório não configurado.")
+
+    # --------------------------------------------------
+    # EXECUÇÃO
+    # --------------------------------------------------
+    async def gerar(self, report_input: ReportInput):
+
+        registros = report_input.dados.get("registros", [])
+        metadata = report_input.dados.get("metadata", {})
+
+        if not registros:
+            return self.EMPTY_RESPONSE
+
+        return await self.generate_report(
+            report_type=report_input.report_type,
+            dados=registros,
+            parametros=report_input.parametros,
+            metadata=metadata
+        )
+
+    async def generate_report(
+        self,
+        report_type: str,
+        dados: list,
+        parametros: dict,
+        metadata: dict | None = None
+    ):
+
+        prompt_template = self._get_prompt(report_type)
+
+        prompt = prompt_template.format(
+            dados=dados,
+            parametros=parametros,
+            metadata=metadata or {},
+            total_items=len(dados)
+        )
+
+        messages = [
+            SystemMessage(content=prompt)
+        ]
+
+        response = await self.model.ainvoke(messages)
 
         return response.content

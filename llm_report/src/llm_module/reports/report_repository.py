@@ -7,20 +7,17 @@ from llm_module.utils.postgres_client import PostgresClient
 class ReportRepository:
     """
     Camada responsável por acessar o banco de dados.
-    Aqui ficam apenas consultas SQL (preferencialmente em views).
+    Apenas consultas SQL.
     """
 
     def __init__(self):
         self.db = PostgresClient()
 
-    # -------------------------
-    # Estoque
-    # -------------------------
+    # =====================================================
+    # RELATÓRIO – ESTOQUE BAIXO
+    # =====================================================
 
     def get_estoque_baixo(self, limite: int | None = None) -> List[Dict[str, Any]]:
-        """
-        Produtos cujo estoque atual é menor ou igual ao estoque mínimo.
-        """
         sql = """
             SELECT
                 nome_produto,
@@ -37,10 +34,30 @@ class ReportRepository:
 
         return self.db.fetch_all(query=sql)
 
+    # =====================================================
+    # RELATÓRIO – INVENTÁRIO / SALDO DE ESTOQUE
+    # =====================================================
+
+    def get_inventario(self) -> List[Dict[str, Any]]:
+        sql = """
+            SELECT
+                nome_produto,
+                descricao,
+                estoque_atual,
+                estoque_minimo,
+                data_validade,
+                ativo
+            FROM app_core.v_produtos
+            ORDER BY nome_produto
+        """
+
+        return self.db.fetch_all(query=sql)
+
+    # =====================================================
+    # RELATÓRIO – VALIDADE PRÓXIMA
+    # =====================================================
+
     def get_validade_proxima(self, dias: int) -> List[Dict[str, Any]]:
-        """
-        Produtos com data de validade dentro dos próximos X dias.
-        """
         data_limite = (date.today() + timedelta(days=dias)).isoformat()
 
         sql = f"""
@@ -48,60 +65,47 @@ class ReportRepository:
                 nome_produto,
                 descricao,
                 estoque_atual,
-                estoque_minimo,
                 data_validade
             FROM app_core.v_produtos
             WHERE data_validade IS NOT NULL
               AND data_validade <= '{data_limite}'
-            ORDER BY data_validade, nome_produto
+            ORDER BY data_validade
         """
 
         return self.db.fetch_all(query=sql)
 
-    # -------------------------
-    # Giro de produtos
-    # -------------------------
+    # =====================================================
+    # RELATÓRIO – PRODUTOS SEM GIRO
+    # =====================================================
 
     def get_produtos_sem_giro(self, dias: int) -> List[Dict[str, Any]]:
-        """
-        Produtos sem qualquer movimentação (entrada ou saída)
-        nos últimos X dias.
-        """
         data_limite = (date.today() - timedelta(days=dias)).isoformat()
 
         sql = f"""
             SELECT
-                p.nome_produto,
-                p.descricao,
-                p.estoque_atual,
-                MAX(m.data_movimentacao) AS ultima_movimentacao
-            FROM app_core.v_produtos p
-            LEFT JOIN app_core.v_movimentacao m
-                ON m.nome_produto = p.nome_produto
-            GROUP BY
-                p.nome_produto,
-                p.descricao,
-                p.estoque_atual
-            HAVING
-                MAX(m.data_movimentacao) IS NULL
-                OR MAX(m.data_movimentacao) < '{data_limite}'
-            ORDER BY ultima_movimentacao NULLS FIRST, p.nome_produto
+                nome_produto,
+                ultima_movimentacao
+            FROM app_core.v_ultima_movimentacao_produto
+            WHERE ultima_movimentacao IS NULL
+               OR ultima_movimentacao < '{data_limite}'
+            ORDER BY ultima_movimentacao NULLS FIRST
         """
 
         return self.db.fetch_all(query=sql)
 
-    # -------------------------
-    # Movimentações
-    # -------------------------
+    # =====================================================
+    # RELATÓRIO – MOVIMENTAÇÕES NO PERÍODO
+    # =====================================================
 
-    def get_movimentacao_periodo(self, data_inicio: str, data_fim: str) -> List[Dict[str, Any]]:
-        """
-        Todas as movimentações dentro de um período.
-        """
+    def get_movimentacao_periodo(
+        self,
+        data_inicio: str,
+        data_fim: str
+    ) -> List[Dict[str, Any]]:
+
         sql = f"""
             SELECT
                 nome_produto,
-                tipo_movimentacao,
                 quantidade,
                 entidade,
                 data_movimentacao
@@ -112,32 +116,76 @@ class ReportRepository:
 
         return self.db.fetch_all(query=sql)
 
-    def get_entradas_saidas(self, data_inicio: str, data_fim: str) -> Dict[str, Any]:
-        """
-        Resumo de entradas e saídas por produto no período.
-        """
+    # =====================================================
+    # RELATÓRIO – ENTRADAS E SAÍDAS
+    # =====================================================
+
+    def get_entradas_saidas(
+        self,
+        data_inicio: str,
+        data_fim: str
+    ) -> Dict[str, Any]:
+
         sql = f"""
             SELECT
                 nome_produto,
-                tipo_movimentacao,
+                entidade,
                 SUM(quantidade) AS total_quantidade
             FROM app_core.v_movimentacao
             WHERE data_movimentacao BETWEEN '{data_inicio}' AND '{data_fim}'
-            GROUP BY nome_produto, tipo_movimentacao
+            GROUP BY nome_produto, entidade
             ORDER BY nome_produto
         """
 
-        rows = self.db.fetch_all(query=sql)
+        return self.db.fetch_all(query=sql)
 
-        resumo: Dict[str, Dict[str, int]] = {}
-        for row in rows:
-            produto = row["nome_produto"]
-            tipo = row["tipo_movimentacao"]
-            qtd = row["total_quantidade"]
+    # =====================================================
+    # RELATÓRIO – GIRO DE ESTOQUE
+    # =====================================================
 
-            if produto not in resumo:
-                resumo[produto] = {"entrada": 0, "saida": 0}
+    def get_giro_estoque(self) -> List[Dict[str, Any]]:
+        sql = """
+            SELECT
+                nome_produto,
+                total_entrada,
+                total_saida,
+                total_movimentacoes
+            FROM app_core.v_giro_estoque
+            ORDER BY total_movimentacoes DESC
+        """
 
-            resumo[produto][tipo] = qtd
+        return self.db.fetch_all(query=sql)
 
-        return resumo
+    
+    # =====================================================
+    # RELATÓRIO – SALDO DE ESTOQUE
+    # =====================================================
+    def get_saldo_estoque(self) -> List[Dict[str, Any]]:
+        sql = """
+            SELECT
+                nome_produto,
+                estoque_atual,
+                estoque_minimo
+            FROM app_core.v_produtos
+            ORDER BY nome_produto
+        """
+
+        return self.db.fetch_all(query=sql)
+    
+    # =====================================================
+    # RELATÓRIO – PRODUTOS CUSTO
+    # =====================================================
+    def get_produtos_custo(self) -> List[Dict[str, Any]]:
+        sql = """
+            SELECT
+                produto_id,
+                nome_produto,
+                estoque_atual,
+                custo_medio,
+                valor_total
+            FROM app_core.v_produtos_custo
+            ORDER BY valor_total DESC
+        """
+
+        return self.db.fetch_all(query=sql)
+
