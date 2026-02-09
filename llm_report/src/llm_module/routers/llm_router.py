@@ -1,18 +1,13 @@
 from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel
 
-from reports.report_intent import detect_report
-from reports.report_repository import ReportRepository
-from reports.report_service import ReportService
 from llm_module.services.llm_service import LLMService
-from llm_module.services.llm_sessions import (
-    list_sessions,
-    create_session,
-    session_exists
-)
+from llm_module.services.llm_sessions import LLMSessionService
+from fastapi.responses import StreamingResponse
 
 router = APIRouter(tags=["LLM"])
-service = LLMService()
+llm_service = LLMService()
+session_service = LLMSessionService(llm_service)
 
 
 class ChatRequest(BaseModel):
@@ -20,52 +15,79 @@ class ChatRequest(BaseModel):
     session_id: str | None = None
 
 
+# -------------------------
+# CHAT
+# -------------------------
 @router.post("/chat")
 async def chat_llm(payload: ChatRequest):
-    print("CHEGOU:", payload)
-    # valida sessão se vier
-    if payload.session_id and not session_exists(payload.session_id):
-        raise HTTPException(status_code=404, detail="Sessão não encontrada")
 
-    # Detecta se é pedido de relatório
-    intent = detect_report(payload.message)
-    print("INTENT DETECTADO:", intent)
-    # Se for relatório, não chama a LLM
-    if intent:
-        repository = ReportRepository()
-        report_service = ReportService(repository)
+    session_id = await session_service.ensure_session(payload.session_id)
 
-        report = report_service.generate(
-            report_type=intent["report_type"],
-            params=intent.get("params", {})
-        )
-
-        return {
-            "answer": "",
-            "session_id": payload.session_id,
-            "payload": report,
-        }
-
-    # Caso contrário, segue fluxo normal da LLM
-    answer = await service.send_message(
+    response = await llm_service.send_message(
         message=payload.message,
-        session_id=payload.session_id,
+        session_id=session_id,
     )
 
+    await session_service.touch_session(session_id)
+
     return {
-        "answer": answer,
-        "session_id": payload.session_id,
+        "response": response,
+        "session_id": session_id
     }
 
 
-# Sessões (TESTE)
-
+# -------------------------
+# LISTAR SESSÕES
+# -------------------------
 @router.get("/sessions")
-def get_sessions():
-    return list_sessions()
+async def list_sessions():
+    return await session_service.list_sessions()
 
 
+# -------------------------
+# CRIAR SESSÃO
+# -------------------------
 @router.post("/sessions")
-def new_session():
-    session_id = create_session()
+async def new_session():
+    session_id = await session_service.create_session()
     return {"session_id": session_id}
+
+
+# -------------------------
+# MENSAGENS DA SESSÃO
+# ------------------------
+@router.get("/sessions/{session_id}/messages")
+async def get_session_messages(session_id: str, limit: int = 100, offset: int = 0):
+
+    exists = await session_service.session_exists(session_id)
+
+    if not exists:
+        return []
+
+    return await session_service.get_session_messages(
+        session_id=session_id,
+        limit=limit,
+        offset=offset
+    )
+
+
+@router.post("/chat/stream")
+async def chat_llm_stream(payload: ChatRequest):
+
+    session_id = await session_service.ensure_session(payload.session_id)
+
+    async def generator():
+
+        async for chunk in llm_service.stream_message(
+            message=payload.message,
+            session_id=session_id,
+        ):
+            yield chunk.encode("utf-8") if isinstance(chunk, str) else chunk
+
+        await session_service.touch_session(session_id)
+
+    return StreamingResponse(
+        generator(),
+        media_type="text/plain",
+        headers={"X-Session-Id": session_id}
+    )
