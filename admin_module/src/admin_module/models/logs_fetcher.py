@@ -3,10 +3,14 @@ from typing import List, Dict, Any, Tuple, Union
 from psycopg import sql
 from psycopg.rows import dict_row
 
+# Logs suportados
+# -> Importação
+# -> Conversas da LLM
+# -> Requisição (NÃO IMPLEMENTADOs)
+
 
 class LogFetcher:
     # Faz SELECT
-
     def _fetch_all(
         self,
         table: str,
@@ -17,8 +21,7 @@ class LogFetcher:
         search_term: str | None = None,
         search_cols: list[str] | None = None,
         extra_where: list[str] | None = None,
-        extra_params: dict[str, Any] | None = None,
-    ) -> list[dict]:
+        extra_params: dict[str, Any] | None = None) -> list[dict]:
 
         columns_sql = ", ".join(columns) if columns else "*"
 
@@ -72,12 +75,13 @@ class LogFetcher:
                 cur.execute(query, params)
                 return cur.fetchall()
 
-
+    # Atualiza a tabela sempre que faz consulta
     def _refresh_log(self, table: str):
         with get_db_connection() as conn:
             with conn.cursor(row_factory=dict_row) as cur:
                 cur.execute(f"REFRESH MATERIALIZED VIEW CONCURRENTLY {table}")
 
+    # Buscar log de importacao
     def get_import_log(
         self,
         direction: str = "DESC",
@@ -85,8 +89,60 @@ class LogFetcher:
         search_term: str | None = None,
         status: str | None = None,
         periodo: tuple[str, str] | None = None,
-        apenas_erro: bool = False,
-    ) -> list[dict]:
+        apenas_erro: bool = False) -> list[dict]:
+        
+        COLUNAS_VALIDAS = ["id", "nome_arquivo", "qntd_registros", "status", "msg_erro", "registrado_em", "usuario"]
+        SEARCH_COLS = ["nome_arquivo", "usuario", "msg_erro"]
+
+        if order_by not in COLUNAS_VALIDAS:
+            order_by = "registrado_em"
+
+        conditions = {}
+        if status:
+            conditions["status"] = status
+        if apenas_erro:
+            conditions["status"] = "ERRO"
+
+        extra_where = []
+        extra_params = {}
+
+        if periodo:
+            data_inicio, data_fim = periodo
+            if data_inicio:
+                extra_where.append("registrado_em >= %(data_inicio)s")
+                extra_params["data_inicio"] = data_inicio
+            if data_fim:
+                extra_where.append("registrado_em <= %(data_fim)s")
+                extra_params["data_fim"] = data_fim
+
+        # Antes do fetch atualiza a tabela
+        self._refresh_log("app_logs.logs_import")
+
+        result = self._fetch_all(
+            table="app_logs.logs_import",
+            columns=COLUNAS_VALIDAS,
+            conditions=conditions,
+            order_by=order_by,
+            direction=direction,
+            search_term=search_term,
+            search_cols=SEARCH_COLS,
+            extra_where=extra_where,
+            extra_params=extra_params,
+        )
+
+        return result
+    
+    
+    
+    
+    def get_llm_log(
+        self,
+        direction: str = "DESC",
+        order_by: str = "registrado_em",
+        search_term: str | None = None,
+        status: str | None = None,
+        periodo: tuple[str, str] | None = None,
+        apenas_erro: bool = False) -> list[dict]:
         
         COLUNAS_VALIDAS = ["id", "nome_arquivo", "qntd_registros", "status", "msg_erro", "registrado_em", "usuario"]
         SEARCH_COLS = ["nome_arquivo", "usuario", "msg_erro"]

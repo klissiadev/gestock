@@ -1,14 +1,14 @@
 from fastapi import APIRouter, HTTPException
 from admin_module.models.hardware_monitor import HardwareMonitor
 
-router = APIRouter(tags=["Monitoring"])
+router = APIRouter(tags=["Módulo de Adminstração"])
 
 hardware_checker = HardwareMonitor()
 
 @router.get("/hardware")
 async def get_system_status():
     """
-    Retorna o status em tempo real do Banco, Ollama e SMTP.
+    Retorna o status em tempo real do servidor (consulo de CPU/GPU/RAM e DISCO)
     """
     try:
         data = hardware_checker.get_metrics()
