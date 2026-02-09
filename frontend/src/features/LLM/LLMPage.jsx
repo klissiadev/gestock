@@ -5,8 +5,8 @@ import { useLocation } from "react-router-dom";
 import {
   fetchSessions,
   createSession,
-  sendMessageToLLM,
-  fetchSessionMessages
+  fetchSessionMessages,
+  streamMessageToLLM
 } from "../../api/LLMAPI";
 
 import ChatHeader from "./components/ChatHeader";
@@ -90,6 +90,7 @@ const LLMPage = () => {
 
       setMessages(
         history.map((msg) => ({
+          id: crypto.randomUUID(),
           role: msg.role,
           content: msg.content,
         }))
@@ -128,27 +129,43 @@ const LLMPage = () => {
     setSelectedSession(sessionId);
   };
 
+
+
   const handleSend = async () => {
     if (!input.trim() || !selectedSession) return;
 
     const messageToSend = input;
-
     setInput("");
     setLoading(true);
 
+    const assistantId = crypto.randomUUID();
+    
+
+    // adiciona user + assistant vazio juntos (importante)
     setMessages((prev) => [
       ...prev,
       { role: "user", content: messageToSend },
+      { id: assistantId, role: "assistant", content: "" },
     ]);
+ 
+    let fullMessage = "";
 
     try {
-      const result = await sendMessageToLLM(messageToSend, selectedSession);
+      await streamMessageToLLM(
+        messageToSend,
+        selectedSession,
+        (chunk) => {
+          fullMessage += chunk;
 
-      setMessages((prev) => [
-        ...prev,
-        { role: "assistant", content: result.message },
-      ]);
-
+          setMessages((prev) =>
+            prev.map((msg) =>
+              msg.id === assistantId
+                ? { ...msg, content: fullMessage }
+                : msg
+            )
+          );
+        }
+      );
     } catch {
       setMessages((prev) => [
         ...prev,
@@ -157,7 +174,10 @@ const LLMPage = () => {
     } finally {
       setLoading(false);
     }
+
   };
+
+
 
   /*const handleCreateSession = () => {
     const newId = `chat-${sessions.length + 1}`;

@@ -61,35 +61,32 @@
 
 
 
-
   export async function streamMessageToLLM(message, sessionId, onChunk) {
+  console.log("➡️ streamMessageToLLM chamada");
 
-    const response = await fetch(`${BASE_URL}/llm/chat/stream`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        message,
-        session_id: sessionId
-      })
-    });
+  const response = await fetch(`${BASE_URL}/llm/chat/stream`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ message, session_id: sessionId }),
+  });
 
-    if (!response.ok || !response.body) {
-      throw new Error("Erro ao enviar mensagem");
-    }
+  console.log("⬅️ fetch respondeu");
 
-    const reader = response.body.getReader();
-    const decoder = new TextDecoder("utf-8");
-
-    while (true) {
-      const { done, value } = await reader.read();
-
-      if (done) break;
-
-      const chunk = decoder.decode(value, { stream: true });
-      onChunk(chunk);
-    }
-
-    // flush final
-    const finalChunk = decoder.decode();
-    if (finalChunk) onChunk(finalChunk);
+  if (!response.ok || !response.body) {
+    throw new Error("Erro ao enviar mensagem");
   }
+
+  const reader = response.body.getReader();
+  const decoder = new TextDecoder("utf-8");
+
+  while (true) {
+    const { done, value } = await reader.read();
+
+    if (done) break;
+
+    const chunk = decoder.decode(value, { stream: true });
+    onChunk(chunk);
+  }
+
+}
+

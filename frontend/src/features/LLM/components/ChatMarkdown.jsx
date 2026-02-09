@@ -1,35 +1,28 @@
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import rehypeRaw from "rehype-raw";
-import { Box, Typography } from "@mui/material";
+import { Box } from "@mui/material";
 
 export default function ChatMarkdown({ content }) {
   return (
     <Box
       sx={{
-        "& ul": { paddingLeft: 3 },
-        "& li": { margin:0 },
+        fontSize: 14,
+        lineHeight: 1.6,
+
         "& p": { margin: 0 },
+        "& ul": { paddingLeft: 3, margin: 0 },
+        "& ol": { paddingLeft: 3, margin: 0 },
+        "& li": { margin: 0 },
         "& strong": { fontWeight: 700 },
       }}
     >
       <ReactMarkdown
-        children={content}
         remarkPlugins={[remarkGfm]}
         rehypePlugins={[rehypeRaw]}
-        components={{
-          p: ({ children }) => (
-            <Typography variant="body2" >
-              {children}
-            </Typography>
-          ),
-          li: ({ children }) => (
-            <li>
-              <Typography variant="body2">{children}</Typography>
-            </li>
-          ),
-        }}
-      />
+      >
+        {content}
+      </ReactMarkdown>
     </Box>
   );
 }
