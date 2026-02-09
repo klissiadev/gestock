@@ -55,7 +55,7 @@ class AnalyticsService:
     # =====================================================
 
     def get_critical_products(self):
-        return self.repo.fetch_all("""
+        return self.repo.execute_query("""
             SELECT
                 p.id,
                 p.nome,
@@ -64,16 +64,17 @@ class AnalyticsService:
                 COALESCE(SUM(m.quantidade), 0) AS total_saidas
             FROM app_core.vw_product p
             LEFT JOIN app_core.mv_movimentacao m
-                   ON m.produto_nome = p.nome
-                  AND m.tipo_movimento = 'SAIDA'
+                ON m.produto_nome = p.nome
+                AND m.tipo_movimento = 'SAIDA'
             WHERE p.estoque_atual <= p.estoque_minimo
             GROUP BY
                 p.id,
                 p.nome,
                 p.estoque_atual,
                 p.estoque_minimo
-            ORDER BY total_saidas DESC  
+            ORDER BY total_saidas DESC
         """)
+
 
     # =====================================================
     # MOVIMENTAÇÃO POR PERÍODO (ENTRADAS X SAÍDAS)
@@ -97,17 +98,17 @@ class AnalyticsService:
     # =====================================================
 
     def get_financial_kpis(self):
-        compras = self.repo.fetch_one("""
+        compras = self.repo.execute_query("""
             SELECT COALESCE(SUM(quantidade * valor_unitario), 0) AS total
             FROM app_core.mv_movimentacao
             WHERE tipo_movimento = 'ENTRADA'
-        """)
+        """)[0]
 
-        vendas = self.repo.fetch_one("""
+        vendas = self.repo.execute_query("""
             SELECT COALESCE(SUM(quantidade * valor_unitario), 0) AS total
             FROM app_core.mv_movimentacao
             WHERE tipo_movimento = 'SAIDA'
-        """)
+        """)[0]
 
         return {
             "valor_compras": compras["total"],
@@ -115,12 +116,13 @@ class AnalyticsService:
             "margem_bruta_estimada": vendas["total"] - compras["total"]
         }
 
+
     # =====================================================
     # PRODUTOS MAIS VENDIDOS
     # =====================================================
 
     def get_top_selling_products(self, limit: int = 5):
-        return self.repo.fetch_all("""
+        return self.repo.execute_query("""
             SELECT
                 produto_nome AS nome,
                 SUM(quantidade) AS total_vendido,
@@ -131,6 +133,7 @@ class AnalyticsService:
             ORDER BY total_vendido DESC
             LIMIT %s
         """, (limit,))
+
 
     # =====================================================
     # PRODUTOS PRÓXIMOS DO VENCIMENTO
