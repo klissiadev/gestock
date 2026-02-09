@@ -1,7 +1,7 @@
 from fastapi import APIRouter, HTTPException
 from admin_module.models.system_health import SystemHealth
 
-router = APIRouter(tags=["Monitoring"])
+router = APIRouter(tags=["Módulo de Adminstração"])
 
 health_checker = SystemHealth()
 
