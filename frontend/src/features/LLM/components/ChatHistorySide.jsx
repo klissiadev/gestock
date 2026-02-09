@@ -69,7 +69,7 @@ const ChatHistorySide = ({
               fontWeight: 500,
               width: '100%'
             }}
-          > Nova requisição</Button>
+          > Nova conversa</Button>
         </Box>
 
         <Divider />
