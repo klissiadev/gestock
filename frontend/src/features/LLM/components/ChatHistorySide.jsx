@@ -7,7 +7,7 @@ import {useState, useEffect } from 'react';
 
 
 // --- SUBCOMPONENTE DE ITEM (Unificado no mesmo arquivo) ---
-const SessionItem = ({ id, isSelected, onSelect }) => {
+const SessionItem = ({ id, isSelected, onSelect, updateTrigger }) => {
   const [title, setTitle] = useState(null);
 
   useEffect(() => {
@@ -19,8 +19,12 @@ const SessionItem = ({ id, isSelected, onSelect }) => {
         console.error("Erro no título:", error);
       }
     };
+
     if (id) loadTitle();
-  }, [id]);
+    
+}, [updateTrigger]);
+  
+
 
   const displayTitle = title || "Nova conversa";
 
@@ -64,6 +68,7 @@ const ChatHistorySide = ({
   selectedSession,
   onSelectSession,
   onCreateSession,
+  updateTrigger,
 }) => {
 
 
@@ -145,6 +150,7 @@ const ChatHistorySide = ({
                 id={id}
                 isSelected={id === selectedSession}
                 onSelect={onSelectSession}
+                updateTrigger={updateTrigger}
               />
             );
           })}
