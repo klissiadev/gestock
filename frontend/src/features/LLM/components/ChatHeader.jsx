@@ -4,6 +4,7 @@ import BarSvg from "../../../assets/icon/iconBar.svg?react";
 const ChatHeader = ({
   selectedSession,
   onToggleHistory,
+  title,
 }) => {
   return (
     <Box
@@ -17,9 +18,9 @@ const ChatHeader = ({
         borderColor: "divider",
       }}
     >
-
+      {/* Titulo centralizado */}
       <Typography fontSize={18} fontWeight={500}>
-        {selectedSession || "Minerva"}
+        {title || "Minerva"}
       </Typography>
 
       {/* BOTÃO COLADO NA DIREITA */}

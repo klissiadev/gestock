@@ -44,6 +44,7 @@ class ChatBotService:
     def __init__(self):
         self.main_model = ChatOllama(model="qwen2.5:7B", temperature=0.0)
         self.summary_model = ChatOllama(model="gemma3:270m", temperature=0.0)
+        self._initialized = False
         
         self.tools = [
             buscar_produtos_a_vencer, tool_buscar_movimentacao, 
@@ -80,6 +81,9 @@ class ChatBotService:
         
     async def init(self):
         """Inicializa conexões assíncronas e o agente."""
+        if self._initialized: # Adicione essa flag no seu __init__
+            return self
+        
         await self.memory_pool.open()
         
         async with self.memory_pool.connection() as conn:
@@ -98,6 +102,7 @@ class ChatBotService:
             system_prompt=SystemMessage(content=self._load_system_prompt()),
             checkpointer=checkpointer,
         )
+        self._initialized = True
         return self
     
     def _load_system_prompt(self) -> str:
@@ -198,7 +203,6 @@ class ChatBotService:
                         "UPDATE app_ai.conversation_sessions SET title = %s WHERE session_id = %s::uuid",
                         (new_title, session_id)
                     )
-                    print(f"✅ Título gerado: {new_title}")
 
         except Exception as e:
             # Aqui descobriremos se o '0' é um erro de conexão ou de lógica
