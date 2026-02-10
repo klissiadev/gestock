@@ -1,10 +1,12 @@
 import { useEffect, useState } from "react";
-import { Box} from "@mui/material";
+import { Box } from "@mui/material";
+import { useLocation } from "react-router-dom";
 
 import {
   fetchSessions,
   createSession,
-  sendMessageToLLM,
+  fetchSessionMessages,
+  streamMessageToLLM
 } from "../../api/LLMAPI";
 
 import ChatHeader from "./components/ChatHeader";
@@ -12,46 +14,81 @@ import ChatContainer from "./components/ChatContainer";
 import ChatInput from "./components/ChatInput";
 import FAQSuggestions from "./components/FAQSuggestions";
 import InitialChatLayout from "./components/InitialChatLayout";
+import ChatHistorySide from "./components/ChatHistorySide";
 
-const MOCK_MESSAGES = [
-  {
-    role: "assistant",
-    content: "Olá! Tudo bem? 😊\n\nComo posso ajudar hoje?",
-  },
-  {
-    role: "user",
-    content: "Quero testar o layout do chat.",
-  },
-  {
-    role: "assistant",
-    content:
-      "Perfeito! 🚀\n\nAqui você consegue validar:\n- Alinhamento\n- Quebra de linha\n- Scroll\n- Estilo das mensagens",
-  },
-  {
-    role: "user",
-    content: "Ótimo, era isso mesmo!",
-  },
-];
-
-
+import { fetchTitle } from "./services/titleFetcher";
+import InitalPage from "./pages/InitalPage";
+import ChatModule from "./pages/ChatModule";
 
 const LLMPage = () => {
+  const [title, setTitle] = useState("Minerva");
   const [sessions, setSessions] = useState([]);
   const [selectedSession, setSelectedSession] = useState("");
   const [messages, setMessages] = useState([]);
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
   const [loadingSessions, setLoadingSessions] = useState(false);
+  const location = useLocation();
+  const [historyOpen, setHistoryOpen] = useState(false);
+  const [streamingId, setStreamingId] = useState(null);
+  const [updateTrigger, setUpdateTrigger] = useState(false); // Novo estado para forçar atualização do título
 
   useEffect(() => {
     loadSessions();
   }, []);
 
-  /*useEffect(() => {
-    // testee 
-    setSelectedSession("mock-session");
-    setMessages(MOCK_MESSAGES);
-  }, []);*/ 
+  // Gerador de titulo
+  useEffect(() => {
+    const loadTitle = async () => {
+      try {
+        if (!selectedSession) return;
+
+        const sessionTitle = await fetchTitle(selectedSession);
+        setTitle(sessionTitle || "Nova Conversa");
+      } catch (error) {
+        console.error("Falha ao recuperar título:", error);
+        setTitle("Nova Conversa");
+      }
+    };
+
+    loadTitle();
+  }, [selectedSession]);
+
+
+  useEffect(() => {
+    const initFromNavigation = async () => {
+      const { sessionId } = location.state || {};
+      if (!sessionId) return;
+
+      setSelectedSession(sessionId);
+
+      // ESSENCIAL
+      await loadSessions();
+    };
+
+    initFromNavigation();
+  }, [location.state]);
+
+
+  useEffect(() => {
+    const loadMessages = async () => {
+      if (!selectedSession) return;
+
+      const history = await fetchSessionMessages(selectedSession);
+
+      setMessages(
+        history.map((msg) => ({
+          id: crypto.randomUUID(),
+          role: msg.role,
+          content: msg.content,
+        }))
+      );
+    };
+
+    loadMessages();
+  }, [selectedSession]);
+
+
 
   const loadSessions = async () => {
     setLoadingSessions(true);
@@ -66,53 +103,67 @@ const LLMPage = () => {
   };
 
   const handleCreateSession = async () => {
-    setLoading(true);
-    try {
-      const result = await createSession();
-      const sessionId =
-        typeof result === "string" ? result : result.session_id;
-
-      await loadSessions();
-      setSelectedSession(sessionId);
-      setMessages([]);
-    } catch (err) {
-      console.error("Erro ao criar sessão:", err);
-    } finally {
-      setLoading(false);
-    }
+    const sessionId = await createSession();
+    await loadSessions();
+    setSelectedSession(sessionId);
   };
 
   const handleSend = async () => {
     if (!input.trim() || !selectedSession) return;
 
-    const messageToSend = input; // congela aqui
-
-    setLoading(true);
+    const messageToSend = input;
     setInput("");
+    setLoading(true);
 
+    const assistantId = crypto.randomUUID();
+
+
+    // adiciona user + assistant vazio juntos (importante)
     setMessages((prev) => [
       ...prev,
       { role: "user", content: messageToSend },
+      { id: assistantId, role: "assistant", content: "" },
     ]);
 
-    try {
-      const result = await sendMessageToLLM(messageToSend, selectedSession);
+    let fullMessage = "";
 
-      setMessages((prev) => [
-        ...prev,
-        { role: "assistant", content: result.answer },
-      ]);
+    try {
+      await streamMessageToLLM(
+        messageToSend,
+        selectedSession,
+        (chunk) => {
+          fullMessage += chunk;
+
+          setMessages((prev) =>
+            prev.map((msg) =>
+              msg.id === assistantId
+                ? { ...msg, content: fullMessage }
+                : msg
+            )
+          );
+        }
+      );
+
+      // Atualiza o título após a resposta completa (se o titulo for nulo)
+      if (title === "Nova Conversa") {
+        setTimeout(async () => {
+          const newTitle = await fetchTitle(selectedSession);
+
+          if (newTitle) { setTitle(newTitle); setUpdateTrigger(prev => !prev); }
+        }, 1000);
+      }
+
+
+
     } catch {
       setMessages((prev) => [
         ...prev,
-        {
-          role: "assistant",
-          content: "❌ Erro ao comunicar com a LLM.",
-        },
+        { role: "assistant", content: "Erro ao comunicar com a LLM." },
       ]);
     } finally {
       setLoading(false);
     }
+
   };
 
 
@@ -120,98 +171,102 @@ const LLMPage = () => {
     <Box
       sx={{
         height: "80vh",
-        overflow: "hidden",
         display: "flex",
-        flexDirection: "column",
+        flexDirection: "row",   // 👈 AGORA É LADO A LADO
         width: "100%",
-        p: 1,
+        overflow: "hidden",
       }}
     >
-      <ChatHeader
-        sessions={sessions}
-        selectedSession={selectedSession}
-        onSelectSession={(id) => {
-          setSelectedSession(id);
-          setMessages([]);
-        }}
-        onCreateSession={handleCreateSession}
-      />
 
-      {/* CORPO DO CHAT */}
+      {/* CHAT */}
       <Box
         sx={{
           flex: 1,
-          minHeight: 0,
           display: "flex",
           flexDirection: "column",
+          p: 1,
+          transition: "all .3s ease",
         }}
       >
-      {/* ÁREA DAS MENSAGENS */}
-      <Box
-        sx={{
-          flex: 1,
-          minHeight: 0,
-          display: "flex",
-          justifyContent: "center",
-          
-        }}
-      >
-        {/* SLOT COM ALTURA FIXA E SCROLL */}
+        {/* Cabecalho do chat */}
+        <ChatHeader
+          sessions={sessions}
+          selectedSession={selectedSession}
+          onSelectSession={setSelectedSession}
+          onCreateSession={handleCreateSession}
+          onToggleHistory={() => setHistoryOpen((prev) => !prev)}
+          title={title}
+        />
+
+        {/* CORPO DO CHAT */}
         <Box
           sx={{
-            width: "100%",
-            maxWidth: 900,
-            height: "100%",
-            overflowY: "auto",
+            flex: 1,
+            minHeight: 0,
             display: "flex",
             flexDirection: "column",
           }}
         >
-          {messages.length === 0 ? (
+          {/* ÁREA DAS MENSAGENS */}
+          <Box
+            sx={{
+              flex: 1,
+              minHeight: 0,
+              display: "flex",
+              justifyContent: "center",
+
+            }}
+          >
+            {/* SLOT COM ALTURA FIXA E SCROLL */}
             <Box
               sx={{
-                margin: "auto",
                 width: "100%",
+                maxWidth: messages.length === 0 ? 900 : "100%", // Tamanho condicional: Tela inicial -> 900px, Chat -> 100%
+                height: "100%",
+                overflowY: "auto",
                 display: "flex",
                 flexDirection: "column",
-                alignItems: "center",
-                gap: 2,
               }}
             >
-              <InitialChatLayout />
-              <ChatInput
-                value={input}
-                onChange={setInput}
-                onSend={handleSend}
-                disabled={!selectedSession || loading}
-                loading={loading}
-              />
-              <FAQSuggestions
-                onSelectSuggestion={(text) => setInput(text)}
-              />
-            </Box>
-          ) : (
-            <>
-              <ChatContainer messages={messages} />
-
-              <Box sx={{ mt: "auto", }}>
-                <ChatInput
-                  value={input}
-                  onChange={setInput}
-                  onSend={handleSend}
-                  disabled={!selectedSession || loading}
+              {messages.length === 0 ? (
+                // LAYOUT INICIAL PARA QUANDO NÃO HOUVER MENSAGENS
+                <InitalPage
+                  input={input}
+                  setInput={setInput}
+                  handleSend={handleSend}
                   loading={loading}
                 />
-              </Box>
-            </>
-          )}
+              ) : (
+                // LAYOUT DO CHAT PROPRIAMENTE DITO
+                <ChatModule
+                  messages={messages}
+                  input={input}
+                  setInput={setInput}
+                  handleSend={handleSend}
+                  selectedSession={selectedSession}
+                  loading={loading}/>
+
+              )}
+            </Box>
+
+
+          </Box>
+
         </Box>
       </Box>
-  </Box>
-  </Box>
-);
 
-
+      {/* HISTÓRICO menu que abre*/}
+      <ChatHistorySide
+        open={historyOpen}
+        onClose={() => setHistoryOpen(false)}
+        sessions={sessions}
+        selectedSession={selectedSession}
+        onSelectSession={setSelectedSession}
+        onCreateSession={handleCreateSession}
+        updateTrigger={updateTrigger}
+      />
+    </Box>
+  );
 };
 
 export default LLMPage;

@@ -58,7 +58,6 @@ const ChatMessages = ({ messages }) => {
                     ? "12px 12px 4px 12px"
                     : "12px 12px 12px 4px",
                   bgcolor: isUser ? "iconButton.active" : null ,
-                  whiteSpace: "pre-wrap",
                   wordBreak: "break-word",
                   display: "flex",
                   alignItems: "flex-end",

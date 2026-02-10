@@ -40,7 +40,7 @@ const InitialChatLayout = () => {
       </Typography>
 
       <Typography variant="h5" fontWeight={600}>
-        Como podemos te ajudar?
+        Como posso te ajudar?
       </Typography>
     </Box>
   );

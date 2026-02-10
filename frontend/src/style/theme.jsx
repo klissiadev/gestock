@@ -46,6 +46,40 @@ export const theme = createTheme({
                 },
             },
         },
+        MuiCssBaseline: {
+            styleOverrides: {
+            body: {
+                /* Firefox */
+                scrollbarWidth: "none",
+            },
+
+            /* Chrome, Edge, Safari */
+            "::-webkit-scrollbar": {
+                width: "8px",
+                height: "8px",
+            },
+
+            "::-webkit-scrollbar-track": {
+                background: "transparent",
+            },
+
+            "::-webkit-scrollbar-thumb": {
+                backgroundColor: "transparent",
+                borderRadius: "8px",
+                transition: "background-color 0.3s ease",
+            },
+
+            /* quando passa o mouse em QUALQUER área scrollável */
+            "*:hover::-webkit-scrollbar-thumb": {
+                backgroundColor: "rgba(0,0,0,0.35)",
+            },
+
+            /* Firefox hover */
+            "*:hover": {
+                scrollbarWidth: "thin",
+            },
+            },
+        },
     },
 });
 

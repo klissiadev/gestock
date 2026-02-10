@@ -11,7 +11,6 @@ const ChatInput = ({
   onChange,
   onSend,
   disabled,
-  loading,
 }) => {
   return (
     <Box
@@ -73,11 +72,7 @@ const ChatInput = ({
             flexShrink: 0,
           }}
         >
-          {loading ? (
-            <CircularProgress size={18} />
-          ) : (
-            <SendIcon width={16} height={16} />
-          )}
+          <SendIcon width={16} height={16} />
         </IconButton>
       </Box>
     </Box>
