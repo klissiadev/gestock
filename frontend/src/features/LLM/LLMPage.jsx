@@ -53,6 +53,8 @@ const LLMPage = () => {
   const location = useLocation();
   const [historyOpen, setHistoryOpen] = useState(false);
 
+  const [updateTrigger, setUpdateTrigger] = useState(false); // Novo estado para forçar atualização do título
+
   /*useEffect(() => {
     // simula sessões vindas do backend
     const mockSessions = Array.from({ length: 12 }).map(
@@ -186,10 +188,21 @@ const LLMPage = () => {
           );
         }
       );
+
+      // Atualiza o título após a resposta completa (se o titulo for nulo)
+      if (title === "Nova Conversa") {
+        setTimeout(async () => {
+          const newTitle = await fetchTitle(selectedSession);
+          
+          if (newTitle) {setTitle(newTitle); setUpdateTrigger(prev => !prev);}
+      }, 1000);}
+      
+
+
     } catch {
       setMessages((prev) => [
         ...prev,
-        { role: "assistant", content: "❌ Erro ao comunicar com a LLM." },
+        { role: "assistant", content: "Erro ao comunicar com a LLM." },
       ]);
     } finally {
       setLoading(false);
@@ -333,7 +346,7 @@ const LLMPage = () => {
       selectedSession={selectedSession}
       onSelectSession={setSelectedSession}
       onCreateSession={handleCreateSession}
-      title={title}
+      updateTrigger={updateTrigger}
     />
   </Box>
 );
