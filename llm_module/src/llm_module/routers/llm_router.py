@@ -5,7 +5,7 @@ from llm_module.services.llm_service import LLMService
 from llm_module.services.llm_sessions import LLMSessionService
 from fastapi.responses import StreamingResponse
 
-router = APIRouter(tags=["LLM"])
+router = APIRouter(tags=["LLM"], prefix="/llm")
 llm_service = LLMService()
 session_service = LLMSessionService(llm_service)
 

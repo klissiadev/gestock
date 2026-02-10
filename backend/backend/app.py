@@ -24,6 +24,11 @@ from backend.logging_middleware import LoggingMiddleware
 from backend.logger import logger as app_logger
 
 # =========================
+# IMPORTS DE LLM
+# =========================
+from llm_module.routers.llm_router import router as llm_router
+
+# =========================
 # CONFIGURA LOGGING (1x)
 # =========================
 setup_logging()
@@ -96,6 +101,11 @@ async def read_root(request: Request):
     )
     return {"message": "Backend API com logging"}
 
+@app.on_event("startup")
+def print_routes():
+    for route in app.routes:
+        print(f"Rota encontrada: {route.path}")
+
 # =========================
 # REGISTRO DOS ROUTERS
 # =========================
@@ -106,3 +116,4 @@ app.include_router(view_router)
 app.include_router(movimentacao_router)
 app.include_router(event_router)
 app.include_router(notification_router)
+app.include_router(llm_router)

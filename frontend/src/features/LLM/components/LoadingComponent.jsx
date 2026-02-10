@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { frasesMinerva } from '../constants/loading_phases';
 import { CircularProgress, Stack, Typography, Fade } from '@mui/material';
 
+
 const LoadingComponent = () => {
     const [frase, setFrase] = useState(frasesMinerva.curto[0]);
     const [show, setShow] = useState(true);
