@@ -9,7 +9,7 @@ async def gerar_relatorio(tipo: str, parametros: dict | None = None) -> str:
 
     parametros = parametros or {}
 
-    print(f"[TOOL] Gerando relatório: {tipo} | Params: {parametros}")
+    print(f"[TOOL] Chamou gerar_relatorio {tipo} {parametros}")
 
     try:
         return await orchestrator.gerar_relatorio(tipo, parametros)

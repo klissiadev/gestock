@@ -25,7 +25,7 @@ class ReportOrchestratorService:
         self,
         report_type: str,
         params: dict | None = None,
-    ) -> dict:
+    ) -> str:
 
         params = params or {}
 
@@ -44,7 +44,9 @@ class ReportOrchestratorService:
             # =============================
             # Validação de dados
             # =============================
-            if not resultado or not resultado.get("data"):
+            dados = resultado.get("data") or []
+
+            if not isinstance(dados, list) or not dados:
                 return "Não há informação disponível no sistema para responder a esta pergunta."
 
             # =============================
@@ -54,10 +56,10 @@ class ReportOrchestratorService:
                 report_type=resultado["report_type"],
                 tipo=resultado["title"],
                 dados={
-                    "registros": resultado["data"],
+                    "registros": dados,
                     "metadata": resultado.get("metadata", {})
                 },
-                parametros=resultado["params"],
+                parametros=resultado.get("params", {}),
             )
 
             # =============================
