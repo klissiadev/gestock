@@ -1,64 +1,8 @@
-import { Box, Typography, IconButton, Divider, Button} from "@mui/material";
+import { Box, Typography, IconButton, Divider, Button } from "@mui/material";
 import CloseIcon from "@mui/icons-material/Close";
 import AddSvg from "../../../assets/icon/iconAdd.svg?react";
-import { fetchTitle } from "../services/titleFetcher";
-import {useState, useEffect } from 'react';
+import SessionItem from "./SessionItem";
 
-
-
-// --- SUBCOMPONENTE DE ITEM (Unificado no mesmo arquivo) ---
-const SessionItem = ({ id, isSelected, onSelect, updateTrigger }) => {
-  const [title, setTitle] = useState(null);
-
-  useEffect(() => {
-    const loadTitle = async () => {
-      try {
-        const data = await fetchTitle(id);
-        setTitle(data);
-      } catch (error) {
-        console.error("Erro no título:", error);
-      }
-    };
-
-    if (id) loadTitle();
-    
-}, [updateTrigger]);
-  
-
-
-  const displayTitle = title || "Nova conversa";
-
-  return (
-    <Box
-      onClick={() => onSelect(id)}
-      sx={{
-        p: "10px 12px",
-        mb: 0.5,
-        borderRadius: "8px",
-        cursor: "pointer",
-        display: "flex",
-        alignItems: "center",
-        gap: 1.5,
-        bgcolor: isSelected ? "action.selected" : "transparent",
-        "&:hover": { bgcolor: "action.hover", color: "text.primary" },
-        transition: "all 0.2s ease",
-      }}
-    >
-      <Typography
-        variant="body2"
-        sx={{
-          whiteSpace: "nowrap",
-          overflow: "hidden",
-          textOverflow: "ellipsis",
-          fontSize: "0.85rem",
-          fontWeight: isSelected ? 600 : 400,
-        }}
-      >
-        {displayTitle}
-      </Typography>
-    </Box>
-  );
-};
 
 
 const ChatHistorySide = ({
@@ -72,12 +16,12 @@ const ChatHistorySide = ({
 }) => {
 
 
-  
+
 
 
   return (
     <Box
-      sx={(theme)=>({
+      sx={(theme) => ({
         width: open ? 320 : 0,
         transition: "width .3s ease",
         overflow: "hidden",
@@ -103,13 +47,13 @@ const ChatHistorySide = ({
           p={2}
         >
           <Typography fontWeight={500} color="textDisabled">Histórico</Typography>
-          <IconButton onClick={onClose} 
+          <IconButton onClick={onClose}
             sx={(theme) => ({
               width: 30,
               height: 30,
               borderRadius: '50%',
               backgroundColor: theme.palette.iconButton.active,
-              color:"black"
+              color: "black"
             })}
           >
             <CloseIcon />
@@ -118,16 +62,16 @@ const ChatHistorySide = ({
 
         {/* BOTÃO NOVO CHAT */}
         <Box px={2} pb={2}>
-          <Button 
-            variant="contained" 
-            color="primary" 
+          <Button
+            variant="contained"
+            color="primary"
             startIcon={<AddSvg width={18} height={18} />}
             onClick={() => {
               onCreateSession();
               onClose();
             }}
-            sx={{ 
-              textTransform: 'none', 
+            sx={{
+              textTransform: 'none',
               borderColor: 'common.black',
               fontSize: 14,
               borderRadius: '12px',
@@ -154,7 +98,6 @@ const ChatHistorySide = ({
               />
             );
           })}
-
 
         </Box>
       </Box>

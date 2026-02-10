@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Box} from "@mui/material";
+import { Box } from "@mui/material";
 import { useLocation } from "react-router-dom";
 
 import {
@@ -17,30 +17,8 @@ import InitialChatLayout from "./components/InitialChatLayout";
 import ChatHistorySide from "./components/ChatHistorySide";
 
 import { fetchTitle } from "./services/titleFetcher";
-
-
-
-const MOCK_MESSAGES = [
-  {
-    role: "assistant",
-    content: "Olá! Tudo bem? \n\nComo posso ajudar hoje?",
-  },
-  {
-    role: "user",
-    content: "Quero testar o layout do chat.",
-  },
-  {
-    role: "assistant",
-    content:
-      "Perfeito! \n\nAqui você consegue validar:\n- Alinhamento\n- Quebra de linha\n- Scroll\n- Estilo das mensagens",
-  },
-  {
-    role: "user",
-    content: "Ótimo, era isso mesmo!",
-  },
-];
-
-
+import InitalPage from "./pages/InitalPage";
+import ChatModule from "./pages/ChatModule";
 
 const LLMPage = () => {
   const [title, setTitle] = useState("Minerva");
@@ -53,21 +31,7 @@ const LLMPage = () => {
   const location = useLocation();
   const [historyOpen, setHistoryOpen] = useState(false);
   const [streamingId, setStreamingId] = useState(null);
-
-
   const [updateTrigger, setUpdateTrigger] = useState(false); // Novo estado para forçar atualização do título
-
-  /*useEffect(() => {
-    // simula sessões vindas do backend
-    const mockSessions = Array.from({ length: 12 }).map(
-      (_, i) => `chat-${i + 1}`
-    );
-
-    setSessions(mockSessions);
-    setSelectedSession(mockSessions[0]);
-    setMessages(MOCK_MESSAGES);
-  }, []);*/
-
 
   useEffect(() => {
     loadSessions();
@@ -77,7 +41,7 @@ const LLMPage = () => {
   useEffect(() => {
     const loadTitle = async () => {
       try {
-        if (!selectedSession) return; 
+        if (!selectedSession) return;
 
         const sessionTitle = await fetchTitle(selectedSession);
         setTitle(sessionTitle || "Nova Conversa");
@@ -88,7 +52,7 @@ const LLMPage = () => {
     };
 
     loadTitle();
-  }, [selectedSession]); 
+  }, [selectedSession]);
 
 
   useEffect(() => {
@@ -124,7 +88,7 @@ const LLMPage = () => {
     loadMessages();
   }, [selectedSession]);
 
-  
+
 
   const loadSessions = async () => {
     setLoadingSessions(true);
@@ -144,8 +108,6 @@ const LLMPage = () => {
     setSelectedSession(sessionId);
   };
 
-
-
   const handleSend = async () => {
     if (!input.trim() || !selectedSession) return;
 
@@ -154,7 +116,7 @@ const LLMPage = () => {
     setLoading(true);
 
     const assistantId = crypto.randomUUID();
-    
+
 
     // adiciona user + assistant vazio juntos (importante)
     setMessages((prev) => [
@@ -162,7 +124,7 @@ const LLMPage = () => {
       { role: "user", content: messageToSend },
       { id: assistantId, role: "assistant", content: "" },
     ]);
- 
+
     let fullMessage = "";
 
     try {
@@ -186,10 +148,11 @@ const LLMPage = () => {
       if (title === "Nova Conversa") {
         setTimeout(async () => {
           const newTitle = await fetchTitle(selectedSession);
-          
-          if (newTitle) {setTitle(newTitle); setUpdateTrigger(prev => !prev);}
-      }, 1000);}
-      
+
+          if (newTitle) { setTitle(newTitle); setUpdateTrigger(prev => !prev); }
+        }, 1000);
+      }
+
 
 
     } catch {
@@ -204,31 +167,6 @@ const LLMPage = () => {
   };
 
 
-
-  /*const handleCreateSession = () => {
-    const newId = `chat-${sessions.length + 1}`;
-    setSessions((prev) => [...prev, newId]);
-    setSelectedSession(newId);
-    setMessages([]);
-  };
-
-  const handleSend = () => {
-    if (!input.trim()) return;
-
-    const userMessage = input;
-    setInput("");
-
-    setMessages((prev) => [
-      ...prev,
-      { role: "user", content: userMessage },
-      {
-        role: "assistant",
-        content: "Resposta mockada da LLM só para testar layout ✨",
-      },
-    ]);
-  };*/
-
-
   return (
     <Box
       sx={{
@@ -239,6 +177,7 @@ const LLMPage = () => {
         overflow: "hidden",
       }}
     >
+
       {/* CHAT */}
       <Box
         sx={{
@@ -249,7 +188,7 @@ const LLMPage = () => {
           transition: "all .3s ease",
         }}
       >
-
+        {/* Cabecalho do chat */}
         <ChatHeader
           sessions={sessions}
           selectedSession={selectedSession}
@@ -268,79 +207,66 @@ const LLMPage = () => {
             flexDirection: "column",
           }}
         >
-        {/* ÁREA DAS MENSAGENS */}
-        <Box
-          sx={{
-            flex: 1,
-            minHeight: 0,
-            display: "flex",
-            justifyContent: "center",
-            
-          }}
-        >
-          {/* SLOT COM ALTURA FIXA E SCROLL */}
+          {/* ÁREA DAS MENSAGENS */}
           <Box
             sx={{
-              width: "100%",
-              maxWidth: 900,
-              height: "100%",
-              overflowY: "auto",
+              flex: 1,
+              minHeight: 0,
               display: "flex",
-              flexDirection: "column",
+              justifyContent: "center",
+
             }}
           >
-            {messages.length === 0 ? (
-              <Box
-                sx={{
-                  margin: "auto",
-                  width: "100%",
-                  display: "flex",
-                  flexDirection: "column",
-                  alignItems: "center",
-                  gap: 2,
-                }}
-              >
-                <InitialChatLayout />
-                <ChatInput
-                  value={input}
-                  onChange={setInput}
-                  onSend={handleSend}
-                  disabled={!selectedSession || loading}
+            {/* SLOT COM ALTURA FIXA E SCROLL */}
+            <Box
+              sx={{
+                width: "100%",
+                maxWidth: messages.length === 0 ? 900 : "100%", // Tamanho condicional: Tela inicial -> 900px, Chat -> 100%
+                height: "100%",
+                overflowY: "auto",
+                display: "flex",
+                flexDirection: "column",
+              }}
+            >
+              {messages.length === 0 ? (
+                // LAYOUT INICIAL PARA QUANDO NÃO HOUVER MENSAGENS
+                <InitalPage
+                  input={input}
+                  setInput={setInput}
+                  handleSend={handleSend}
+                  loading={loading}
                 />
-                <FAQSuggestions
-                  onSelectSuggestion={(text) => setInput(text)}
-                />
-              </Box>
-            ) : (
-              <>
-                <ChatContainer messages={messages} />
+              ) : (
+                // LAYOUT DO CHAT PROPRIAMENTE DITO
+                <ChatModule
+                  messages={messages}
+                  input={input}
+                  setInput={setInput}
+                  handleSend={handleSend}
+                  selectedSession={selectedSession}
+                  loading={loading}/>
 
-                <Box sx={{ mt: "auto", }}>
-                  <ChatInput
-                    value={input}
-                    onChange={setInput}
-                    onSend={handleSend}
-                    disabled={!selectedSession || loading}
-                  />
-                </Box>
-              </>
-            )}
+              )}
             </Box>
+
+
           </Box>
+
         </Box>
       </Box>
-      {/* HISTÓRICO */}
-    <ChatHistorySide
-      open={historyOpen}
-      onClose={() => setHistoryOpen(false)}
-      sessions={sessions}
-      selectedSession={selectedSession}
-      onSelectSession={setSelectedSession}
-      onCreateSession={handleCreateSession}
-      updateTrigger={updateTrigger}
-    />
-  </Box>
-);
+
+      {/* HISTÓRICO menu que abre*/}
+      <ChatHistorySide
+        open={historyOpen}
+        onClose={() => setHistoryOpen(false)}
+        sessions={sessions}
+        selectedSession={selectedSession}
+        onSelectSession={setSelectedSession}
+        onCreateSession={handleCreateSession}
+        updateTrigger={updateTrigger}
+      />
+    </Box>
+  );
 };
 
 export default LLMPage;

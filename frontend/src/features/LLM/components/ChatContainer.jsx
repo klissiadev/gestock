@@ -1,9 +1,10 @@
-import { Paper, Typography, Fab } from "@mui/material";
+import { Paper, Typography, Fab, Box } from "@mui/material";
 import KeyboardArrowDownRoundedIcon from "@mui/icons-material/KeyboardArrowDownRounded";
 import { useEffect, useRef, useState } from "react";
 import ChatMessages from "./ChatMessages";
+import LoadingComponent from "./LoadingComponent";
 
-const ChatContainer = ({ messages }) => {
+const ChatContainer = ({ messages, loading }) => {
   const containerRef = useRef(null);
   const bottomRef = useRef(null);
   const [showScrollButton, setShowScrollButton] = useState(false);
@@ -51,6 +52,12 @@ const ChatContainer = ({ messages }) => {
       ) : (
         <>
           <ChatMessages messages={messages} />
+          {/* O LoadingComponent entra aqui! */}
+          {loading && (
+            <Box sx={{ mt: 1, ml: 1 }}>
+              <LoadingComponent />
+            </Box>
+          )}
           <div ref={bottomRef} />
         </>
       )}
