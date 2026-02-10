@@ -82,22 +82,23 @@ class ChatBotService:
         """Inicializa conexões assíncronas e o agente."""
         await self.memory_pool.open()
         
-        #tive que alterar a inicialização do chatbot, a main está fazendo o auxilio
         async with self.memory_pool.connection() as conn:
             await conn.execute("SELECT 1")
-            
-            # setup da memória do agente
-            checkpointer = AsyncPostgresSaver(conn)
-            await checkpointer.setup()
-
-            # criação do agente
-            self.agent = create_agent(
-                model=self.main_model,
-                middleware=self.middleware,
-                tools=self.tools,
-                system_prompt=SystemMessage(content=self._load_system_prompt()),
-                checkpointer=checkpointer,
-            )
+        
+        # Setup de Memoria do agente
+        conn = await self.memory_pool.getconn() 
+        checkpointer = AsyncPostgresSaver(conn)
+        await checkpointer.setup()
+        
+        # Criacao do agente
+        self.agent = create_agent(
+            model=self.main_model,
+            middleware=self.middleware,
+            tools=self.tools,
+            system_prompt=SystemMessage(content=self._load_system_prompt()),
+            checkpointer=checkpointer,
+        )
+        return self
     
     def _load_system_prompt(self) -> str:
         if not Config.SYSTEM_PROMPT_LOCATION:
@@ -155,15 +156,53 @@ class ChatBotService:
             await self.memory_pool.close()
             logger.info("Serviço encerrado com segurança.")
 
+    async def _generate_title(self, text: str) -> str:
+        """Gera um título curto usando o Gemma 270M"""
+        # Usando o prompt que você definiu mas passando para o invoke
+        prompt = (
+            f"Instrução: Resuma o texto abaixo em um título de no máximo 4 palavras.\n"
+            f"Regra: Responda APENAS o título, sem pontuação.\n"
+            f"Texto: {text[:500]}" # Limitando para economizar contexto
+        )
+
+        try:
+            # Nota: Idealmente, defina o self.title_model no seu __init__
+            # res = await self.title_model.ainvoke(prompt)
+            res = await ChatOllama(model="gemma3:270m").ainvoke(prompt)
+
+            title = res.content.strip().replace('"', '').split('\n')[0]
+            return title if title else "Nova Conversa"
+        except Exception as e:
+            logger.error(f"Erro ao gerar título: {e}")
+            return "Nova Conversa"
+
     async def _save_log(self, session_id: str, user_input: str, bot_output: str):
         """Armazena a interacao em texto puro num banco de dados"""
-        query = """
+        query_insert = """
             INSERT INTO app_ai.conversation_logs (session_id, user_message, bot_response)
             VALUES (%s, %s, %s)
         """
+
+        query_select_title = """
+            SELECT title FROM app_ai.conversation_sessions WHERE session_id = %s
+        """
+
+        query_update_title = """
+            UPDATE app_ai.conversation_sessions 
+            SET title = %s 
+            WHERE session_id = %s
+        """
+
         try:
             async with self.memory_pool.connection() as conn:
-                await conn.execute(query, (session_id, user_input, bot_output))
+                await conn.execute(query_insert, (session_id, user_input, bot_output))
+                result = await conn.execute(query_select_title, (session_id,))
+                row = await result.fetchone()
+                if row and row[0] is None:
+                    new_title = await self._generate_title(user_input)
+                    await conn.execute(query_update_title, (new_title, session_id))
+                    logger.info(f"Título gerado para {session_id}: {new_title}")
+
         except Exception as e:
             logger.error(f"Falha ao salvar log legível: {e}")
 
