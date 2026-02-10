@@ -39,10 +39,10 @@ export default function ExpandableIconButton({
       onMouseLeave={() => setHover(false)}
       onClick={handleClick}
       sx={(theme) => ({
-        height: 48,
-        width: hover ? 160 : 48,
+        height: 41,
+        width: hover ? 160 : 41,
         backgroundColor: theme.palette.iconButton.active,
-        borderRadius: "12px",
+        borderRadius: "10px",
         display: "flex",
         alignItems: "center",
         cursor: "pointer",
@@ -56,8 +56,8 @@ export default function ExpandableIconButton({
     >
       <Box
         sx={(theme) => ({
-          minWidth: 48,
-          height: 48,
+          minWidth: 41,
+          height: 41,
           display: "flex",
           justifyContent: "center",
           alignItems: "center",

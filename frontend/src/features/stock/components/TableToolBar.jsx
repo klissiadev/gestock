@@ -2,7 +2,7 @@ import React from "react";
 import { Box, Typography, Stack, Divider} from "@mui/material";
 import SearchBar from "./SearchBar";
 import OrderSelector from "./OrderSelector";
-import OrderButton from "./orderButton";
+import OrderBySelect from "./OrderBySelect";
 import ExpandableIconButton from "../../../components/ui/ExpandableIconButton.jsx";
 import ChatSvg from "../../../assets/icon/iconChat.svg?react";
 
@@ -10,7 +10,7 @@ import InvetorySvg from "../../../assets/icon/iconInventory.svg?react";
 
 const TableToolBar = ({ titulo, filters, onFilterChange }) => {
   return (
-    <Stack x={1} pt={1}>
+    <Stack x={1}>
       <Stack direction="row" alignItems="center" pb={1}>
         <Box sx={{ flex: 1 }} />
 
@@ -24,7 +24,7 @@ const TableToolBar = ({ titulo, filters, onFilterChange }) => {
           }}
         >
           <InvetorySvg width={26} height={26} />
-          <Typography variant="h5">
+          <Typography fontSize={20} fontWeight={500}>
             {titulo}
           </Typography>
         </Box>
@@ -37,7 +37,7 @@ const TableToolBar = ({ titulo, filters, onFilterChange }) => {
           }}
         >
           <ExpandableIconButton
-            icon={<ChatSvg width={20} height={20} />}
+            icon={<ChatSvg width={16} height={16} />}
             origin="sheets"
             initialMessage="Olá Minerva, me ajude com o estoque."
           />
@@ -66,17 +66,11 @@ const TableToolBar = ({ titulo, filters, onFilterChange }) => {
             ]}
           />
 
-          <OrderSelector
-            name="orderBy"
-            value={filters.orderBy}
+          <OrderBySelect
+            name="ordenar"
+            orderBy={filters.orderBy}
+            isAsc={filters.isAsc}
             onChange={onFilterChange}
-            placeholder="Ordenar"
-            startingPoint="id"
-            options={[
-              { value: "nome", label: "Nome" },
-              { value: "estoque_atual", label: "Quantidade" },
-              { value: "data_validade", label: "Vencimento" },
-            ]}
           />
         </Box>
 
@@ -100,12 +94,7 @@ const TableToolBar = ({ titulo, filters, onFilterChange }) => {
             justifyContent: "flex-end",
             gap: 1,
           }}
-        >
-          <OrderButton
-            radius={10}
-            filter={filters.isAsc}
-            onFilterChange={onFilterChange}
-          />
+        >   
         </Box>
       </Stack>
     </Stack>

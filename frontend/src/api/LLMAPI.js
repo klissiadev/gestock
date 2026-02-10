@@ -62,15 +62,12 @@
 
 
   export async function streamMessageToLLM(message, sessionId, onChunk) {
-  console.log("➡️ streamMessageToLLM chamada");
 
   const response = await fetch(`${BASE_URL}/llm/chat/stream`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ message, session_id: sessionId }),
   });
-
-  console.log("⬅️ fetch respondeu");
 
   if (!response.ok || !response.body) {
     throw new Error("Erro ao enviar mensagem");

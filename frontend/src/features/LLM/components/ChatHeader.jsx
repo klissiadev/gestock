@@ -18,7 +18,7 @@ const ChatHeader = ({
       }}
     >
 
-      <Typography fontSize={18} fontWeight={500}>
+      <Typography fontSize={20} fontWeight={500}>
         {selectedSession || "Minerva"}
       </Typography>
 

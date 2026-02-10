@@ -53,8 +53,8 @@ export default function SideBar({ active, onChange, expanded, onToggle }) {
           overflow: "visible",
           position: "relative",
 
-          display: "flex",          // 👈 AQUI
-          flexDirection: "column", // 👈 AQUI
+          display: "flex",         
+          flexDirection: "column", 
         },
       }}
     >
@@ -106,18 +106,18 @@ export default function SideBar({ active, onChange, expanded, onToggle }) {
               selected={active === item.id}
               onClick={() => onChange(item.id)}
               sx={{
-                justifyContent: expanded ? "flex-start" : "center",
+                justifyContent: expanded ? "left" : "center",
                 gap: 1,
                 width: expanded ? "100%" : "80%",
                 minHeight: 40,
-                px: 2.4,
+                px: expanded ? 1.4 : 2.4,
                 py: 0.8,
               }}
             >
               <ListItemIcon
                 sx={{
                   minWidth: 0,
-                  mr: expanded ? 1.5 : 0,
+                  mr: expanded ? 1 : 0,
                   justifyContent: "center",
                 }}
               >
@@ -149,10 +149,38 @@ export default function SideBar({ active, onChange, expanded, onToggle }) {
       </Box>
 
       {/* Logout */}
-      <Box display="flex" justifyContent="center" mt={2} >
-        <IconButton>
-          <AppIcon component={LogOutSvg} />
-        </IconButton>
+      <Box display="flex" justifyContent="center" mt={2} px={1}>
+        <ListItemButton
+          sx={{
+            justifyContent: expanded ? "left" : "center",
+            gap: 1,
+            width: expanded ? "100%" : "80%",
+            minHeight: 40,
+            px: expanded ? 1.4 : 2.4,
+            py: 0.8,
+          }}
+        >
+          <ListItemIcon
+            sx={{
+              minWidth: 0,
+              mr: expanded ? 1 : 0,
+              justifyContent: "center",
+            }}
+          >
+            <AppIcon component={LogOutSvg} />
+          </ListItemIcon>
+
+          {expanded && (
+            <ListItemText
+              primary="Logout"
+              sx={{ 
+                whiteSpace: "nowrap",
+                maxWidth: expanded ? "100%" : 0,
+                transition: "opacity 0.2s",
+              }}
+            />
+          )}
+        </ListItemButton>
       </Box>
     </Drawer>
   );
