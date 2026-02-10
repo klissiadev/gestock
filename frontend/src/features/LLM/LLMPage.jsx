@@ -16,6 +16,8 @@ import FAQSuggestions from "./components/FAQSuggestions";
 import InitialChatLayout from "./components/InitialChatLayout";
 import ChatHistorySide from "./components/ChatHistorySide";
 
+import { fetchTitle } from "./services/titleFetcher";
+
 
 
 const MOCK_MESSAGES = [
@@ -41,6 +43,7 @@ const MOCK_MESSAGES = [
 
 
 const LLMPage = () => {
+  const [title, setTitle] = useState("Minerva");
   const [sessions, setSessions] = useState([]);
   const [selectedSession, setSelectedSession] = useState("");
   const [messages, setMessages] = useState([]);
@@ -65,6 +68,23 @@ const LLMPage = () => {
   useEffect(() => {
     loadSessions();
   }, []);
+
+  // Gerador de titulo
+  useEffect(() => {
+    const loadTitle = async () => {
+      try {
+        if (!selectedSession) return; 
+
+        const sessionTitle = await fetchTitle(selectedSession);
+        setTitle(sessionTitle || "Nova Conversa");
+      } catch (error) {
+        console.error("Falha ao recuperar título:", error);
+        setTitle("Nova Conversa");
+      }
+    };
+
+    loadTitle();
+  }, [selectedSession]); 
 
 
   useEffect(() => {
@@ -230,6 +250,7 @@ const LLMPage = () => {
           onSelectSession={setSelectedSession}
           onCreateSession={handleCreateSession}
           onToggleHistory={() => setHistoryOpen((prev) => !prev)}
+          title={title}
         />
 
         {/* CORPO DO CHAT */}
@@ -312,6 +333,7 @@ const LLMPage = () => {
       selectedSession={selectedSession}
       onSelectSession={setSelectedSession}
       onCreateSession={handleCreateSession}
+      title={title}
     />
   </Box>
 );
