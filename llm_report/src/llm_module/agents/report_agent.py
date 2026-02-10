@@ -3,7 +3,7 @@ from pydantic import BaseModel, Field
 
 from langchain_ollama import ChatOllama
 from langchain_core.messages import SystemMessage, HumanMessage
-from src.prompts.report_prompts import PROMPTS
+from prompts.report_prompts import PROMPTS
 
 
 
@@ -85,7 +85,12 @@ class ReportAgent:
     # --------------------------------------------------
     async def gerar(self, report_input: ReportInput):
 
-        registros = report_input.dados.get("registros", [])
+        registros = (
+            report_input.dados.get("registros")
+            or report_input.dados.get("data")
+            or []
+        )
+        
         metadata = report_input.dados.get("metadata", {})
 
         if not registros:
@@ -105,7 +110,8 @@ class ReportAgent:
         parametros: dict,
         metadata: dict | None = None
     ):
-
+        print("TOTAL DADOS:", len(dados))
+        print("REPORT TYPE:", report_type)
         prompt_template = self._get_prompt(report_type)
 
         prompt = prompt_template.format(
@@ -116,9 +122,10 @@ class ReportAgent:
         )
 
         messages = [
-            SystemMessage(content=prompt)
+            self.system_prompt,
+            HumanMessage(content=prompt)
         ]
 
         response = await self.model.ainvoke(messages)
 
-        return response.content
+        return response.content or self.EMPTY_RESPONSE

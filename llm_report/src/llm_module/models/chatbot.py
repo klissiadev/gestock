@@ -68,28 +68,16 @@ class ChatBotService:
         @tool(return_direct=True)
         async def gerar_relatorio(tipo: str, parametros: dict | None = None) -> str:
             """
-            Use esta ferramenta SEMPRE que o usuário pedir:
+            Utilize esta ferramenta SEMPRE que o usuário solicitar relatórios.
 
-            - geração de relatório
-            - análise de estoque
-            - curva ABC
-            - inventário
-            - movimentações
-            - entradas e saídas
-            - produtos sem giro
-            - validade próxima
+            Exemplos de frases que DEVEM chamar esta ferramenta:
 
-            Tipos aceitos:
-
-            estoque_baixo
-            produtos_sem_giro
-            movimentacao_periodo
-            entradas_saidas
-            validade_proxima
-            inventario
-            saldo_estoque
-            giro_estoque
-            curva_abc
+            - "relatório de estoque baixo"
+            - "quais produtos estão com estoque baixo"
+            - "mostrar inventário"
+            - "relatório de curva ABC"
+            - "movimentação do mês"
+            - "relatório de entradas e saídas"
             """
 
             try:
@@ -147,6 +135,11 @@ class ChatBotService:
 
             checkpointer = AsyncPostgresSaver(conn)
             await checkpointer.setup()
+
+            self.main_model = ChatOllama(
+                model="llama3.1:8b",
+                temperature=0.0
+            ).bind_tools(self.tools)
 
             self.agent = create_agent(
                 model=self.main_model,
