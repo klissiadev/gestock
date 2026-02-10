@@ -127,3 +127,15 @@ class LLMSessionService:
             return await self.create_session()
 
         return session_id
+    
+    async def get_session_title(self, session_id: str) -> str | None:
+        query = "SELECT title FROM app_ai.conversation_sessions WHERE session_id = %s::uuid"
+
+        async with self.llm_service.chatbot.memory_pool.connection() as conn:
+            cursor = await conn.execute(query, (session_id,))
+            row = await cursor.fetchone()
+
+        if row:
+            return row["title"]
+
+        return None
