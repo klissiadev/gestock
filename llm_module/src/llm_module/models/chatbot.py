@@ -225,7 +225,7 @@ class ChatBotService:
             # No LangGraph, o chunk geralmente vem como uma tupla (mensagem, metadados)
             # ou diretamente o conteúdo dependendo da versão
             content = chunk[0].content if isinstance(chunk, tuple) else chunk.content
-            
+
             if content:
                 full_response.append(content)
                 yield content # Envia o pedaço de texto para o cliente imediatamente
