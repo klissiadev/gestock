@@ -91,3 +91,7 @@ async def chat_llm_stream(payload: ChatRequest):
         media_type="text/plain",
         headers={"X-Session-Id": session_id}
     )
+    
+@router.get("/sessions/{session_id}/title")
+async def get_session_title(session_id: str):
+    return await session_service.get_session_title(session_id)

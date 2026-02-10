@@ -44,6 +44,7 @@ class ChatBotService:
     def __init__(self):
         self.main_model = ChatOllama(model="qwen2.5:7B", temperature=0.0)
         self.summary_model = ChatOllama(model="gemma3:270m", temperature=0.0)
+        self._initialized = False
         
         self.tools = [
             buscar_produtos_a_vencer, tool_buscar_movimentacao, 
@@ -80,6 +81,9 @@ class ChatBotService:
         
     async def init(self):
         """Inicializa conexões assíncronas e o agente."""
+        if self._initialized: # Adicione essa flag no seu __init__
+            return self
+        
         await self.memory_pool.open()
         
         async with self.memory_pool.connection() as conn:
@@ -98,6 +102,7 @@ class ChatBotService:
             system_prompt=SystemMessage(content=self._load_system_prompt()),
             checkpointer=checkpointer,
         )
+        self._initialized = True
         return self
     
     def _load_system_prompt(self) -> str:
@@ -157,54 +162,51 @@ class ChatBotService:
             logger.info("Serviço encerrado com segurança.")
 
     async def _generate_title(self, text: str) -> str:
-        """Gera um título curto usando o Gemma 270M"""
-        # Usando o prompt que você definiu mas passando para o invoke
+        """Gera um título curto e objetivo usando Llama 3.2 1B."""
+        # Usar um template de poucas palavras ajuda o modelo a entender o tom "etiqueta"
         prompt = (
-            f"Instrução: Resuma o texto abaixo em um título de no máximo 4 palavras.\n"
-            f"Regra: Responda APENAS o título, sem pontuação.\n"
-            f"Texto: {text[:500]}" # Limitando para economizar contexto
+            "Você é um assistente de indexação. Resuma a intenção do usuário em um título de 2 a 4 palavras.\n"
+            "Regras: Responda APENAS o título. Sem pontuação. Sem explicações.\n\n"
+            f"Entrada: '{text[:300]}'\n"
+            "Título:"
         )
 
         try:
-            # Nota: Idealmente, defina o self.title_model no seu __init__
-            # res = await self.title_model.ainvoke(prompt)
-            res = await ChatOllama(model="gemma3:270m").ainvoke(prompt)
-
-            title = res.content.strip().replace('"', '').split('\n')[0]
-            return title if title else "Nova Conversa"
+            res = await self.summary_model.ainvoke(prompt)
+            title = res.content.strip().split('\n')[0].replace('"', '').replace('.', '')
+            return title if len(title) > 2 else "Nova Conversa"
+            
         except Exception as e:
             logger.error(f"Erro ao gerar título: {e}")
             return "Nova Conversa"
 
     async def _save_log(self, session_id: str, user_input: str, bot_output: str):
-        """Armazena a interacao em texto puro num banco de dados"""
-        query_insert = """
-            INSERT INTO app_ai.conversation_logs (session_id, user_message, bot_response)
-            VALUES (%s, %s, %s)
-        """
-
-        query_select_title = """
-            SELECT title FROM app_ai.conversation_sessions WHERE session_id = %s
-        """
-
-        query_update_title = """
-            UPDATE app_ai.conversation_sessions 
-            SET title = %s 
-            WHERE session_id = %s
-        """
-
+    # Melhore o log de erro para investigar o "0"
         try:
             async with self.memory_pool.connection() as conn:
-                await conn.execute(query_insert, (session_id, user_input, bot_output))
-                result = await conn.execute(query_select_title, (session_id,))
+                # 1. Salva o log da conversa
+                await conn.execute(
+                    "INSERT INTO app_ai.conversation_logs (session_id, user_message, bot_response) VALUES (%s, %s, %s)",
+                    (session_id, user_input, bot_output)
+                )
+
+                # 2. Tenta atualizar o título se ele for nulo
+                # Usamos COALESCE ou conferimos se a sessão existe
+                result = await conn.execute(
+                    "SELECT title FROM app_ai.conversation_sessions WHERE session_id = %s::uuid", # LangGraph usa thread_id
+                    (session_id,)
+                )
                 row = await result.fetchone()
-                if row and row[0] is None:
+                if row and row['title'] is None:
                     new_title = await self._generate_title(user_input)
-                    await conn.execute(query_update_title, (new_title, session_id))
-                    logger.info(f"Título gerado para {session_id}: {new_title}")
+                    await conn.execute(
+                        "UPDATE app_ai.conversation_sessions SET title = %s WHERE session_id = %s::uuid",
+                        (new_title, session_id)
+                    )
 
         except Exception as e:
-            logger.error(f"Falha ao salvar log legível: {e}")
+            # Aqui descobriremos se o '0' é um erro de conexão ou de lógica
+            logger.error(f"Erro detalhado no log: {type(e).__name__}: {e}", exc_info=True)
 
     async def stream_message(self, user_input: str, session_id: str = "guest"):
         if not self.agent:
@@ -243,13 +245,13 @@ async def main():
     chatbot = ChatBotService()
     await chatbot.init()
     try:
-        print("Minerva: ", end="", flush=True)
-        
-        # Como stream_message tem 'yield', usamos 'async for'
-        async for chunk in chatbot.stream_message("Olá, Minerva! Eu sou o Pedro", session_id="user_123"):
-            print(chunk, end="", flush=True)
-            
-        print() # Apenas para pular linha ao final da resposta
+        # CORREÇÃO: Adicionado await na chamada do método
+        titulo = await chatbot._generate_title("Quais dados posso consultar?")
+        print(titulo)
+        print() 
+        titulo = await chatbot._generate_title("Gere um relatório da curva abc")
+        print(titulo)
+        print() 
     finally:
         await chatbot.close()
         

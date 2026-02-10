@@ -2,8 +2,8 @@ import { Box, Typography, IconButton } from "@mui/material";
 import BarSvg from "../../../assets/icon/iconBar.svg?react";
 
 const ChatHeader = ({
-  selectedSession,
   onToggleHistory,
+  title,
 }) => {
   return (
     <Box
@@ -17,9 +17,9 @@ const ChatHeader = ({
         borderColor: "divider",
       }}
     >
-
+      {/* Titulo centralizado */}
       <Typography fontSize={20} fontWeight={500}>
-        {selectedSession || "Minerva"}
+        {title || "Minerva"}
       </Typography>
 
       {/* BOTÃO COLADO NA DIREITA */}

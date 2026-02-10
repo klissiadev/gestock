@@ -1,6 +1,65 @@
 import { Box, Typography, IconButton, Divider, Button} from "@mui/material";
 import CloseIcon from "@mui/icons-material/Close";
 import AddSvg from "../../../assets/icon/iconAdd.svg?react";
+import { fetchTitle } from "../services/titleFetcher";
+import {useState, useEffect } from 'react';
+
+
+
+// --- SUBCOMPONENTE DE ITEM (Unificado no mesmo arquivo) ---
+const SessionItem = ({ id, isSelected, onSelect, updateTrigger }) => {
+  const [title, setTitle] = useState(null);
+
+  useEffect(() => {
+    const loadTitle = async () => {
+      try {
+        const data = await fetchTitle(id);
+        setTitle(data);
+      } catch (error) {
+        console.error("Erro no título:", error);
+      }
+    };
+
+    if (id) loadTitle();
+    
+}, [updateTrigger]);
+  
+
+
+  const displayTitle = title || "Nova conversa";
+
+  return (
+    <Box
+      onClick={() => onSelect(id)}
+      sx={{
+        p: "10px 12px",
+        mb: 0.5,
+        borderRadius: "8px",
+        cursor: "pointer",
+        display: "flex",
+        alignItems: "center",
+        gap: 1.5,
+        bgcolor: isSelected ? "action.selected" : "transparent",
+        "&:hover": { bgcolor: "action.hover", color: "text.primary" },
+        transition: "all 0.2s ease",
+      }}
+    >
+      <Typography
+        variant="body2"
+        sx={{
+          whiteSpace: "nowrap",
+          overflow: "hidden",
+          textOverflow: "ellipsis",
+          fontSize: "0.85rem",
+          fontWeight: isSelected ? 600 : 400,
+        }}
+      >
+        {displayTitle}
+      </Typography>
+    </Box>
+  );
+};
+
 
 const ChatHistorySide = ({
   open,
@@ -9,7 +68,13 @@ const ChatHistorySide = ({
   selectedSession,
   onSelectSession,
   onCreateSession,
+  updateTrigger,
 }) => {
+
+
+  
+
+
   return (
     <Box
       sx={(theme)=>({
@@ -75,28 +140,22 @@ const ChatHistorySide = ({
         <Divider />
 
         <Box sx={{ overflowY: "auto", p: 1 }}>
+
+
           {sessions.map((s) => {
             const id = typeof s === "string" ? s : s.session_id;
-
             return (
-              <Box
+              <SessionItem
                 key={id}
-                onClick={() => onSelectSession(id)}
-                sx={{
-                  p: 1,
-                  borderRadius: 1,
-                  cursor: "pointer",
-                  bgcolor:
-                    id === selectedSession
-                      ? "action.selected"
-                      : "transparent",
-                  "&:hover": { bgcolor: "action.hover" },
-                }}
-              >
-                {id}
-              </Box>
+                id={id}
+                isSelected={id === selectedSession}
+                onSelect={onSelectSession}
+                updateTrigger={updateTrigger}
+              />
             );
           })}
+
+
         </Box>
       </Box>
     </Box>
