@@ -6,10 +6,10 @@ import { useState, useEffect } from "react";
 export const SearchBar = ({ value, onChange }) => {
   const searchBarStyle = {
     borderStyle: "solid",
-    borderWidth: "2px",
-    borderRadius: 4,
+    borderWidth: "1px",
+    borderRadius: 3,
     borderColor: (theme) => theme.palette.common.black,
-    padding: "4px 8px",
+    padding: "2px 6px",
     "&.Mui-focused .MuiOutlinedInput-notchedOutline": {
       borderWidth: 0,
     },

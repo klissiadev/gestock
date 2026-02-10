@@ -1,106 +1,43 @@
-import {
-  Box,
-  Typography,
-  IconButton,
-  Menu,
-  MenuItem,
-  Divider,
-} from "@mui/material";
-import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
-import AddIcon from "@mui/icons-material/Add";
-import { useState } from "react";
+import { Box, Typography, IconButton } from "@mui/material";  
+import BarSvg from "../../../assets/icon/iconBar.svg?react";
 
 const ChatHeader = ({
-  sessions,
-  selectedSession,
-  onSelectSession,
-  onCreateSession,
+  onToggleHistory,
+  title,
 }) => {
-  const [anchorEl, setAnchorEl] = useState(null);
-  const open = Boolean(anchorEl);
-
-  const handleOpen = (e) => {
-    setAnchorEl(e.currentTarget);
-  };
-
-  const handleClose = () => {
-    setAnchorEl(null);
-  };
-
-  const handleSelect = (id) => {
-    onSelectSession(id);
-    handleClose();
-  };
-
-  const handleToggle = (e) => {
-    e.stopPropagation();
-    setAnchorEl(e.currentTarget);
-  };
-
   return (
     <Box
       sx={{
+        position: "relative",
         display: "flex",
-        gap: 1,
-        mb: 2,
-        cursor: "pointer",
+        alignItems: "center",
+        justifyContent: "center",
         pb: 2,
         borderBottom: "1px solid",
         borderColor: "divider",
-        width: "100%",
-        justifyContent: "center",
-        alignItems: "center",
       }}
     >
-      <Box
-        display="flex"
-        alignItems="center"
-        gap={0.5}
-        onClick={handleToggle}
-      >
-        <Typography fontSize={16}>
-          {selectedSession ? "Nome do chat" : "Nova conversa"}
-        </Typography>
+      {/* Titulo centralizado */}
+      <Typography fontSize={20} fontWeight={500}>
+        {title || "Minerva"}
+      </Typography>
 
-        <ExpandMoreIcon fontSize="small" />
-      </Box>
-
-      <Menu
-        anchorEl={anchorEl}
-        open={open}
-        onClose={handleClose}
-        PaperProps={{
-          sx: { minWidth: 220 },
-        }}
-      >
-        {sessions.map((s) => {
-          const sessionId =
-            typeof s === "string" ? s : s.session_id;
-
-          return (
-            <MenuItem
-              key={sessionId}
-              onClick={() => handleSelect(sessionId)}
-            >
-              {sessionId}
-            </MenuItem>
-          );
+      {/* BOTÃO COLADO NA DIREITA */}
+      <IconButton
+        onClick={onToggleHistory}
+        sx={(theme) => ({
+          position: "absolute",
+          right: 0,
+          backgroundColor: theme.palette.iconButton.active,
+          borderRadius: "10px",
+          "&:hover": {
+            backgroundColor: theme.palette.action.hover,
+          },
         })}
-
-        <Divider />
-
-        <MenuItem
-          onClick={() => {
-            handleClose();
-            onCreateSession();
-          }}
-        >
-          <AddIcon fontSize="small" sx={{ mr: 1 }} />
-          Nova conversa
-        </MenuItem>
-      </Menu>
+      >
+        <BarSvg width={18} height={18} />
+      </IconButton>
     </Box>
-
   );
 };
 

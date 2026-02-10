@@ -20,6 +20,7 @@ import ShoppingSvg from "../../assets/icon/iconShop.svg?react";
 import ChartSvg from "../../assets/icon/iconBars.svg?react";
 import ReportsSvg from "../../assets/icon/iconRecord.svg?react";
 import LogOutSvg from "../../assets/icon/iconOut.svg?react";
+import MovSvg from "../../assets/icon/iconMove.svg?react";
 
 import ChevronRightIcon from "@mui/icons-material/ChevronRight";
 import ChevronLeftIcon from "@mui/icons-material/ChevronLeft";
@@ -29,6 +30,7 @@ const menuItems = [
   { id: "home", icon: HomeSvg, title: "Home" },
   { id: "ai", icon: ChatSvg, title: "Chat"},
   { id: "sheets", icon: InvetorySvg, title: "Inventory" },
+  { id: "movements", icon: MovSvg, title: "Movements" },
   { id: "requests", icon: ShoppingSvg, title: "Request" },
   { id: "forecast", icon: ChartSvg, title: "Forecast"},
   { id: "reports", icon: ReportsSvg, title: "Reports" },
@@ -39,24 +41,20 @@ export default function SideBar({ active, onChange, expanded, onToggle }) {
   const EXPANDED_WIDTH = 180;
 
   return (
-    <Drawer 
+    <Drawer
       variant="permanent"
       sx={{
         width: expanded ? EXPANDED_WIDTH : COLLAPSED_WIDTH,
         flexShrink: 0,
-
         "& .MuiDrawer-paper": {
           ml: 2,
           mt: 2,
           width: expanded ? EXPANDED_WIDTH : COLLAPSED_WIDTH,
-          overflow: "visible", 
+          overflow: "visible",
           position: "relative",
 
-          transition: (theme) =>
-            theme.transitions.create("width", {
-              easing: theme.transitions.easing.sharp,
-              duration: theme.transitions.duration.standard,
-            }),
+          display: "flex",         
+          flexDirection: "column", 
         },
       }}
     >
@@ -96,32 +94,33 @@ export default function SideBar({ active, onChange, expanded, onToggle }) {
         </IconButton>
       </Box>
 
-      <Divider sx={{ mt: 2, mb: 3, borderWidth: 1.3}} />
+      <Divider sx={{ mt: 2, mb: 1, borderWidth: 1.3}} />
 
       {/* Menu */}
-
-      <List 
-        sx={{
-          flex: 1,
-          display: "flex",
-          flexDirection: "column",
-          alignItems: "center",
-          pb: 16,
-          gap: 0.5
-        }}
-      >
+      <Box sx={{ flex: 1 }}>
+        <List sx={{ px: 1, mt: 3 }}>
         {menuItems.map((item) => {
           const button = (
             <ListItemButton
+              key={item.id}
               selected={active === item.id}
               onClick={() => onChange(item.id)}
               sx={{
-                justifyContent: expanded ? "space-between" : "center",
+                justifyContent: expanded ? "left" : "center",
                 gap: 1,
-                width: expanded ? "100%" : "80%"
+                width: expanded ? "100%" : "80%",
+                minHeight: 40,
+                px: expanded ? 1.4 : 2.4,
+                py: 0.8,
               }}
             >
-              <ListItemIcon>
+              <ListItemIcon
+                sx={{
+                  minWidth: 0,
+                  mr: expanded ? 1 : 0,
+                  justifyContent: "center",
+                }}
+              >
                 <AppIcon component={item.icon} />
               </ListItemIcon>
 
@@ -132,7 +131,6 @@ export default function SideBar({ active, onChange, expanded, onToggle }) {
                     whiteSpace: "nowrap",
                     maxWidth: expanded ? "100%" : 0,
                     transition: "opacity 0.2s",
-                    whiteSpace: "nowrap",
                   }}
                 />
               )}
@@ -140,20 +138,49 @@ export default function SideBar({ active, onChange, expanded, onToggle }) {
           );
 
           return expanded ? (
-            button
+            <Box key={item.id}>{button}</Box>
           ) : (
-            <Tooltip title={item.title} placement="right">
+            <Tooltip key={item.id}  title={item.title} placement="right">
               {button}
             </Tooltip>
           );
         })}
       </List>
+      </Box>
 
       {/* Logout */}
-      <Box display="flex" justifyContent="center" mt={2} >
-        <IconButton>
-          <AppIcon component={LogOutSvg} />
-        </IconButton>
+      <Box display="flex" justifyContent="center" mt={2} px={1}>
+        <ListItemButton
+          sx={{
+            justifyContent: expanded ? "left" : "center",
+            gap: 1,
+            width: expanded ? "100%" : "80%",
+            minHeight: 40,
+            px: expanded ? 1.4 : 2.4,
+            py: 0.8,
+          }}
+        >
+          <ListItemIcon
+            sx={{
+              minWidth: 0,
+              mr: expanded ? 1 : 0,
+              justifyContent: "center",
+            }}
+          >
+            <AppIcon component={LogOutSvg} />
+          </ListItemIcon>
+
+          {expanded && (
+            <ListItemText
+              primary="Logout"
+              sx={{ 
+                whiteSpace: "nowrap",
+                maxWidth: expanded ? "100%" : 0,
+                transition: "opacity 0.2s",
+              }}
+            />
+          )}
+        </ListItemButton>
       </Box>
     </Drawer>
   );
