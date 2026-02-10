@@ -21,7 +21,7 @@ import ChatHistorySide from "./components/ChatHistorySide";
 const MOCK_MESSAGES = [
   {
     role: "assistant",
-    content: "Olá! Tudo bem? 😊\n\nComo posso ajudar hoje?",
+    content: "Olá! Tudo bem? \n\nComo posso ajudar hoje?",
   },
   {
     role: "user",
@@ -30,7 +30,7 @@ const MOCK_MESSAGES = [
   {
     role: "assistant",
     content:
-      "Perfeito! 🚀\n\nAqui você consegue validar:\n- Alinhamento\n- Quebra de linha\n- Scroll\n- Estilo das mensagens",
+      "Perfeito! \n\nAqui você consegue validar:\n- Alinhamento\n- Quebra de linha\n- Scroll\n- Estilo das mensagens",
   },
   {
     role: "user",
@@ -49,6 +49,8 @@ const LLMPage = () => {
   const [loadingSessions, setLoadingSessions] = useState(false);
   const location = useLocation();
   const [historyOpen, setHistoryOpen] = useState(false);
+  const [streamingId, setStreamingId] = useState(null);
+
 
   /*useEffect(() => {
     // simula sessões vindas do backend
@@ -107,15 +109,6 @@ const LLMPage = () => {
     try {
       const data = await fetchSessions();
       setSessions(data || []);
-
-      if (data?.length && !selectedSession) {
-        const firstId =
-          typeof data[0] === "string"
-            ? data[0]
-            : data[0].session_id;
-
-        setSelectedSession(firstId);
-      }
     } catch (err) {
       console.error("Erro ao carregar sessões:", err);
     } finally {
@@ -279,7 +272,6 @@ const LLMPage = () => {
                   onChange={setInput}
                   onSend={handleSend}
                   disabled={!selectedSession || loading}
-                  loading={loading}
                 />
                 <FAQSuggestions
                   onSelectSuggestion={(text) => setInput(text)}
@@ -295,7 +287,6 @@ const LLMPage = () => {
                     onChange={setInput}
                     onSend={handleSend}
                     disabled={!selectedSession || loading}
-                    loading={loading}
                   />
                 </Box>
               </>

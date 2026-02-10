@@ -15,6 +15,14 @@ const OrderSelector = ({
         displayEmpty
         size="small"
         onChange={(e) => onChange(name, e.target.value)}
+          renderValue={(selected) => {
+            if (!selected) {
+              return <span style={{ color: "#9e9e9e" }}>{placeholder}</span>;
+            }
+
+            const found = options.find((o) => o.value === selected);
+            return found ? found.label : selected;
+          }}
         sx={{
           height: 36,
           borderRadius: "8px",
