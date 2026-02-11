@@ -220,7 +220,7 @@ class ChatBotService:
         async for chunk in self.agent.astream(
             {"messages": [HumanMessage(content=user_input)]},
             {"configurable": {"thread_id": session_id}},
-            stream_mode="messages" # Foca apenas nos chunks de mensagens
+            stream_mode="messages" 
         ):
             # No LangGraph, o chunk geralmente vem como uma tupla (mensagem, metadados)
             # ou diretamente o conteúdo dependendo da versão
@@ -229,6 +229,10 @@ class ChatBotService:
             if content:
                 full_response.append(content)
                 yield content # Envia o pedaço de texto para o cliente imediatamente
+                
+        print("Mensagem completa enviada ao cliente: ")
+        print("".join(full_response))
+        print("***" * 10)
 
         # --- Logging após o streaming terminar ---
         complete_text = "".join(full_response)
@@ -245,13 +249,11 @@ async def main():
     chatbot = ChatBotService()
     await chatbot.init()
     try:
-        # CORREÇÃO: Adicionado await na chamada do método
-        titulo = await chatbot._generate_title("Quais dados posso consultar?")
-        print(titulo)
-        print() 
-        titulo = await chatbot._generate_title("Gere um relatório da curva abc")
-        print(titulo)
-        print() 
+        user_input = "Quais produtos estão a vencer nos próximos 30 dias?"
+        print("Enviando mensagem para o chatbot...")
+        mensagem = []
+        async for chunk in chatbot.stream_message(user_input, session_id="test-session-123"):
+            print(f"Chunk recebido: {chunk}")
     finally:
         await chatbot.close()
         
