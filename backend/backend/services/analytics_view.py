@@ -2,13 +2,36 @@ from datetime import date, timedelta
 from backend.database.repository import Repository
 
 
+'''
+Os dados gerados até o momento são:
+
+- Estoque atual (todos os produtos)
+- Estoque atual de matéria prima
+- Estoque atual de produtos Semi-Acabados
+- Estoque atual de produtos acabados
+
+- top produtos acabados mais vendidos (leva em consideração o mês)
+- itens críticos
+- quantidade de itens vendidos em cada mês (leva em consideração um ano)
+
+'''
+
+
+
 class AnalyticsService:
     def __init__(self, repo: Repository):
         self.repo = repo
 
+
+    '''
     # =====================================================
     # KPIs GERAIS DE ESTOQUE
     # =====================================================
+
+    calcula:
+    - estoque total geral
+    - qtd de produtos com baixo estoque geral
+    - qtd de produtos vencidos geral
 
     def get_stock_kpis(self):
         estoque_total = self.repo.execute_query("""
@@ -35,14 +58,48 @@ class AnalyticsService:
             "produtos_vencidos": vencidos["count"]
         }
 
+    # =====================================================
+    # KPIs FINANCEIROS
+    # =====================================================
+
+    def get_financial_kpis_por_mes(self, start: date, end: date):
+        return self.repo.execute_query("""
+            SELECT
+                DATE_TRUNC('month', data_evento) AS mes,
+                SUM(CASE WHEN tipo_movimento = 'ENTRADA'
+                        THEN quantidade * valor_unitario ELSE 0 END) AS valor_compras,
+                SUM(CASE WHEN tipo_movimento = 'SAIDA'
+                        THEN quantidade * valor_unitario ELSE 0 END) AS valor_vendas
+            FROM app_core.mv_movimentacao
+            WHERE data_evento BETWEEN %s AND %s
+            GROUP BY DATE_TRUNC('month', data_evento)
+            ORDER BY mes
+        """, (start, end))
+
+    
+    '''
 
     # =====================================================
+    # ESTOQUE TOTAL (TODOS OS PRODUTOS)
+    # =====================================================
+
+    def get_total_stock(self):
+        result = self.repo.execute_query("""
+            SELECT COALESCE(SUM(estoque_atual), 0) AS total
+            FROM app_core.vw_product
+        """)[0]
+
+        return {"estoque_total": result["total"]}
+    
+    # =====================================================
     # ESTOQUE POR TIPO
+    # (Matéria-prima, Semi-acabado, Acabado)
     # =====================================================
 
     def get_stock_by_type(self):
         return self.repo.execute_query("""
-            SELECT tipo,
+            SELECT
+                tipo,
                 SUM(estoque_atual) AS estoque_total
             FROM app_core.vw_product
             GROUP BY tipo
@@ -54,6 +111,9 @@ class AnalyticsService:
     # PRODUTOS CRÍTICOS
     # =====================================================
 
+    '''
+    Calculo dos produtos críticos
+    '''
     def get_critical_products(self):
         return self.repo.execute_query("""
             SELECT
@@ -74,120 +134,49 @@ class AnalyticsService:
                 p.estoque_minimo
             ORDER BY total_saidas DESC
         """)
-
-
+    
     # =====================================================
-    # MOVIMENTAÇÃO POR PERÍODO (ENTRADAS X SAÍDAS)
+    # TOP PRODUTOS ACABADOS MAIS VENDIDOS (MÊS ATUAL)
     # =====================================================
 
-    def get_movimentacao_por_periodo(self, start: date, end: date):
+    def get_top_selling_products_by_month(
+        self,
+        year: int,
+        month: int,
+        limit: int = 5
+    ):
         return self.repo.execute_query("""
             SELECT
-                DATE(data_evento) AS data,
-                SUM(CASE WHEN tipo_movimento = 'ENTRADA' THEN quantidade ELSE 0 END) AS entradas,
-                SUM(CASE WHEN tipo_movimento = 'SAIDA' THEN quantidade ELSE 0 END) AS saidas
-            FROM app_core.mv_movimentacao
-            WHERE data_evento BETWEEN %s AND %s
-            GROUP BY DATE(data_evento)
-            ORDER BY data
-        """, (start, end))
-
-
-    # =====================================================
-    # KPIs FINANCEIROS
-    # =====================================================
-
-    def get_financial_kpis(self):
-        compras = self.repo.execute_query("""
-            SELECT COALESCE(SUM(quantidade * valor_unitario), 0) AS total
-            FROM app_core.mv_movimentacao
-            WHERE tipo_movimento = 'ENTRADA'
-        """)[0]
-
-        vendas = self.repo.execute_query("""
-            SELECT COALESCE(SUM(quantidade * valor_unitario), 0) AS total
-            FROM app_core.mv_movimentacao
-            WHERE tipo_movimento = 'SAIDA'
-        """)[0]
-
-        return {
-            "valor_compras": compras["total"],
-            "valor_vendas": vendas["total"],
-            "margem_bruta_estimada": vendas["total"] - compras["total"]
-        }
-
-
-    # =====================================================
-    # PRODUTOS MAIS VENDIDOS
-    # =====================================================
-
-    def get_top_selling_products(self, limit: int = 5):
-        return self.repo.execute_query("""
-            SELECT
-                produto_nome AS nome,
-                SUM(quantidade) AS total_vendido,
-                SUM(quantidade * valor_unitario) AS faturamento
-            FROM app_core.mv_movimentacao
-            WHERE tipo_movimento = 'SAIDA'
-            GROUP BY produto_nome
+                m.produto_nome AS nome,
+                SUM(m.quantidade) AS total_vendido
+            FROM app_core.mv_movimentacao m
+            JOIN app_core.vw_product p
+                ON p.nome = m.produto_nome
+            WHERE m.tipo_movimento = 'SAIDA'
+            AND LOWER(p.tipo) = 'produto acabado'
+            AND EXTRACT(YEAR FROM m.data_evento) = %s
+            AND EXTRACT(MONTH FROM m.data_evento) = %s
+            GROUP BY m.produto_nome
             ORDER BY total_vendido DESC
             LIMIT %s
-        """, (limit,))
+        """, (year, month, limit))
 
 
+    
     # =====================================================
-    # PRODUTOS PRÓXIMOS DO VENCIMENTO
-    # =====================================================
-
-    def get_products_near_expiration(self, days: int = 30):
-        limite = date.today() + timedelta(days=days)
-
-        return self.repo.fetch_all("""
-            SELECT id, nome, data_validade
-            FROM app_core.vw_product
-            WHERE data_validade IS NOT NULL
-              AND data_validade BETWEEN CURRENT_DATE AND %s
-            ORDER BY data_validade
-        """, (limite,))
-
-    # =====================================================
-    # PRODUÇÃO / CONSUMO (MOVIMENTAÇÃO INTERNA)
+    # QUANTIDADE DE ITENS VENDIDOS POR MÊS (ANO)
     # =====================================================
 
-    def get_production_summary(self):
-        return self.repo.fetch_all("""
+    def get_sales_by_month(self, year: int):
+        return self.repo.execute_query("""
             SELECT
-                tipo_movimento,
-                SUM(quantidade) AS total
-            FROM app_core.mv_movimentacao
-            WHERE tipo_movimento = 'INTERNA'
-            GROUP BY tipo_movimento
-        """)
-
-    # =====================================================
-    # GIRO DE ESTOQUE (SIMPLIFICADO)
-    # =====================================================
-
-    def get_stock_turnover(self, start: date, end: date):
-        saidas = self.repo.fetch_one("""
-            SELECT COALESCE(SUM(quantidade), 0) AS total
+                DATE_TRUNC('month', data_evento) AS mes,
+                SUM(quantidade) AS total_vendido
             FROM app_core.mv_movimentacao
             WHERE tipo_movimento = 'SAIDA'
-              AND data_evento BETWEEN %s AND %s
-        """, (start, end))
+              AND EXTRACT(YEAR FROM data_evento) = %s
+            GROUP BY DATE_TRUNC('month', data_evento)
+            ORDER BY mes
+        """, (year,))
 
-        estoque_medio = self.repo.fetch_one("""
-            SELECT AVG(estoque_atual) AS medio
-            FROM app_core.vw_product
-        """)
-
-        giro = 0
-        if estoque_medio["medio"] and estoque_medio["medio"] > 0:
-            giro = saidas["total"] / estoque_medio["medio"]
-
-        return {
-            "saidas_periodo": saidas["total"],
-            "estoque_medio": estoque_medio["medio"],
-            "giro_estoque": round(giro, 2)
-        }
 
