@@ -12,13 +12,14 @@ const CardStock = ({ title, value, percentage, period }) => {
             textAlign: "center",
             backgroundColor: theme.palette.card.background,
             borderRadius: 3,
+            pt:2
         })}
     >  
-        <Typography fontSize={16} >
+        <Typography fontSize={18} >
             {title}
         </Typography>
 
-        <Typography variant="h4" sx={{ mt: 2 }}>
+        <Typography variant="h4" sx={{ mt: 1 }}>
             {value}
         </Typography>
         <Box sx={{ display: "flex", alignItems: "center", justifyContent: "center", mt: 1 , gap: 1}}>
