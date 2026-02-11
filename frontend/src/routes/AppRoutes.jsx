@@ -21,6 +21,7 @@ const AppRoutes = () => {
         <Route path='/upload' element={<UploadPage />}/>
         <Route path='/sheets' element={<TabelaProduto />}/>
         <Route path='/notifications' element={<NotificationPage/>}/>
+        <Route path="/movements" element={<TabelaMovimentacao />} />
         <Route path='/ai' element={<LLMPage/>}/>
         <Route path='/forecast' element={<ForecastPage/>}/>
         <Route path='/reports' element={<ReportsPage/>}/>
