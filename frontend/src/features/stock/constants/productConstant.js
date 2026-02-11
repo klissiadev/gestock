@@ -19,5 +19,5 @@ export const INITIAL_FILTERS = {
     isAsc: true,
     categoria: "",
     isBaixoEstoque: false,
-    isVencidos: false
+    isVencido: false
 }
