@@ -91,8 +91,9 @@ export const button_model = {
 export const paper_box = {
     backgroundColor: theme => theme.palette.uploadBox.main,
     maxWidth: 500,
-    mx: "auto",
     p: 4,
     borderRadius: 3,
     boxShadow: 3,
+    height: "fit-content",
+    m: "auto"
 }

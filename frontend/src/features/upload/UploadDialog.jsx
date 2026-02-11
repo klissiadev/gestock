@@ -1,10 +1,10 @@
 import { useRef, useState, useEffect } from 'react';
 import { Paper, Stack, Typography, Divider, Button, CircularProgress } from '@mui/material'
-import TypeSelector from "../components/TypeSelector";
-import DragBox from "../components/DragBox";
-import { button_model, cancel_button, accept_button, paper_box, uploadText } from "../styles/style";
-import { useFileUpload } from '../hooks/useFileManager';
-import SucessBox from '../components/SucessBox';
+import TypeSelector from "./components/TypeSelector";
+import DragBox from "./components/DragBox";
+import { button_model, cancel_button, accept_button, paper_box, uploadText } from "./styles/style";
+import { useFileUpload } from './hooks/useFileManager';
+import SucessBox from './components/SucessBox';
 
 const UploadDialog = () => {
   const {
