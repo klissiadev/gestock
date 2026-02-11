@@ -5,7 +5,19 @@ from llm_module.services.report_orchestrator import ReportOrchestratorService
 async def main():
     orchestrator = ReportOrchestratorService()
 
-    resposta = await orchestrator.gerar_relatorio("giro_estoque")
+    """resposta = await orchestrator.gerar_relatorio(
+        "movimentacao_periodo",
+        {
+            "data_inicio": "2024-01-01",
+            "data_fim": "2026-12-31"
+        }
+    )"""
+
+    resposta = await orchestrator.gerar_relatorio(
+        "inventario"
+    )
+
+    """resposta = await orchestrator.gerar_relatorio("estoque_baixo")"""
 
     print("\n===== RESULTADO =====")
     print(resposta)

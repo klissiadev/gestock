@@ -103,18 +103,19 @@ class ReportRepository:
         data_fim: str
     ) -> List[Dict[str, Any]]:
 
-        sql = f"""
+        sql = """
             SELECT
                 nome_produto,
                 quantidade,
                 entidade,
-                data_movimentacao
+                data_movimentacao,
+                tipo_movimentacao AS tipo_movimentacao
             FROM app_core.v_movimentacao
-            WHERE data_movimentacao BETWEEN '{data_inicio}' AND '{data_fim}'
+            WHERE data_movimentacao BETWEEN %s AND %s
             ORDER BY data_movimentacao DESC
         """
 
-        return self.db.fetch_all(query=sql)
+        return self.db.fetch_all(sql, (data_inicio, data_fim))
 
     # =====================================================
     # RELATÓRIO – ENTRADAS E SAÍDAS
@@ -124,20 +125,24 @@ class ReportRepository:
         self,
         data_inicio: str,
         data_fim: str
-    ) -> Dict[str, Any]:
+    ):
 
-        sql = f"""
+        sql = """
             SELECT
                 nome_produto,
                 entidade,
+                tipo_movimentacao AS tipo_movimentacao,
                 SUM(quantidade) AS total_quantidade
             FROM app_core.v_movimentacao
-            WHERE data_movimentacao BETWEEN '{data_inicio}' AND '{data_fim}'
-            GROUP BY nome_produto, entidade
+            WHERE data_movimentacao BETWEEN %s AND %s
+            GROUP BY
+                nome_produto,
+                entidade,
+                tipo_movimentacao
             ORDER BY nome_produto
         """
 
-        return self.db.fetch_all(query=sql)
+        return self.db.fetch_all(query=sql, params=(data_inicio, data_fim))
 
     # =====================================================
     # RELATÓRIO – GIRO DE ESTOQUE

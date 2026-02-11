@@ -46,6 +46,7 @@ class ReportOrchestratorService:
             # =============================
             dados = resultado.get("data") or []
 
+            print("Validação dos dados em orquestrador",dados)
             if not isinstance(dados, list) or not dados:
                 return "Não há informação disponível no sistema para responder a esta pergunta."
 
