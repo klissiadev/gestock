@@ -1,7 +1,10 @@
 from enum import Enum
 from typing import Any, Dict, List, Callable
 from datetime import datetime
+from decimal import Decimal
 
+from llm_module.builders.analysis_builder import AnalysisBuilder
+from llm_module.builders.movement_builder import MovementBuilder
 from llm_module.reports.report_repository import ReportRepository
 
 
@@ -16,6 +19,7 @@ class ReportType(Enum):
     SALDO_ESTOQUE = "saldo_estoque"
     GIRO_ESTOQUE = "giro_estoque"
     CURVA_ABC = "curva_abc"
+    PRODUTOS_CUSTO = "produtos_custo"
 
 
 class ReportService:
@@ -41,6 +45,7 @@ class ReportService:
             ReportType.SALDO_ESTOQUE: self._saldo_estoque,
             ReportType.GIRO_ESTOQUE: self._giro_estoque,
             ReportType.CURVA_ABC: self._curva_abc,
+            ReportType.PRODUTOS_CUSTO: self._produtos_custo,
         }
 
     # --------------------------------------------------
@@ -95,7 +100,7 @@ class ReportService:
             "generated_at": datetime.utcnow().isoformat(),
             "params": params,
             "metadata": metadata or {},
-            "total_items": len(data) if isinstance(data, list) else None,
+            "total_items": len(data["registros"]) if isinstance(data, dict) else len(data),
             "data": data,
         }
 
@@ -115,23 +120,65 @@ class ReportService:
 
         return data, {"dias_analisados": dias}, "Produtos sem giro"
 
+
+
+    # --------------------------------------------------
+    # movimentacao_periodo
+    # --------------------------------------------------
+
     def _movimentacao_periodo(self, params):
+
         data_inicio, data_fim = self._validate_period(params)
 
-        data = self.repository.get_movimentacao_periodo(
+        registros = self.repository.get_movimentacao_periodo(
             data_inicio, data_fim
         )
 
-        return data, {}, "Movimentações no período"
+        analise = {
+            "resumo_geral": AnalysisBuilder.resumo_movimentacao(registros),
+            "totais_por_produto": AnalysisBuilder.total_por_produto(registros),
+            "totais_por_tipo": AnalysisBuilder.total_por_tipo(registros)
+        }
+
+        metadata = {
+            "data_inicio": data_inicio,
+            "data_fim": data_fim
+        }
+
+        return {
+            "registros": registros,
+            "analise": analise
+        }, metadata, "Movimentações no período"
+
+    # --------------------------------------------------
+    # Entradas_saida
+    # --------------------------------------------------
+    def get_movimentacoes_agrupadas(self, params):
+
+        data_inicio, data_fim = self._validate_period(params)
+
+        registros = self.repository.get_entradas_saidas(
+            data_inicio, data_fim
+        )
+
+        return MovementBuilder.agrupar_entradas_saidas(registros)
 
     def _entradas_saidas(self, params):
+
         data_inicio, data_fim = self._validate_period(params)
 
-        data = self.repository.get_entradas_saidas(
+        registros = self.repository.get_entradas_saidas(
             data_inicio, data_fim
         )
 
-        return data, {}, "Resumo de entradas e saídas"
+        dados_agrupados = MovementBuilder.agrupar_entradas_saidas(registros)
+
+        metadata = {
+            "data_inicio": data_inicio,
+            "data_fim": data_fim
+        }
+
+        return dados_agrupados, metadata, "Resumo de entradas e saídas"
 
     def _validade_proxima(self, params):
         dias = self._safe_int(params.get("dias"), 30)
@@ -195,6 +242,15 @@ class ReportService:
         metadata = {"valor_total_estoque": total_valor}
 
         return resultado, metadata, "Relatório Curva ABC"
+    
+    # --------------------------------------------------
+    # produtos_custo
+    # --------------------------------------------------
+    def _produtos_custo(self, params):
+        data = self.repository.get_produtos_custo()
+        data = normalize_llm_data(data)
+
+        return data, {}, "Produtos e Seus Custos"
 
     # --------------------------------------------------
     # VALIDADORES
