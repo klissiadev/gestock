@@ -83,7 +83,7 @@ class HardwareMonitor:
             return {
                 "name": name,
                 "usage": usage,
-                "vram_used_mb": vram / (1024**2),
+                "vram_used_mb": round(vram / (1024**2), 2),
                 "vram_total_mb": "N/A",
                 "temp": "N/A"
             }
