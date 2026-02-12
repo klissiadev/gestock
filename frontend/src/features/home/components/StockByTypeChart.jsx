@@ -55,7 +55,7 @@ export default function StockByTypeChart({ stockByType, period }) {
         yAxis={[
           {
             min: 0,
-            max: 600,
+            max: 100000,
             tickNumber: 7,
             tickLabelStyle: {
               fontSize: 14,

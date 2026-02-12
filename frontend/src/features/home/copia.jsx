@@ -1,59 +1,133 @@
 import { Box } from "@mui/material";
+import { useEffect, useState } from "react";
+
 import CardStock from "./components/CardStock";
 import SalesLineChart from "./components/SalesLineChart";
 import StockByTypeChart from "./components/StockByTypeChart";
 import TopSalesChart from "./components/TopSalesChart";
 import ExpiringItemsCard from "./components/ExpiredItensCard";
 
-const STOCK_CARDS = [
-  { title: "Estoque total", value: "1.240", percentage: 12, period: "mês" },
-  { title: "Matéria Prima", value: "320", percentage: 8, period: "mês" },
-  { title: "Semiacabados", value: "210", percentage: 5, period: "mês" },
-  { title: "Acabados", value: "110", percentage: 3, period: "mês" },
-];
+import {
+  getTotalStock,
+  getStockByType,
+  getCriticalProducts,
+  getSalesByMonth,
+  getTopSellingProductsByMonth,
+} from "../../api/analyticsApi";
 
+function formatMonthFromDate(dateString) {
+  const date = new Date(dateString);
 
-export const SALES_BY_MONTH = [
-  { month: "Jan", value: 100 },
-  { month: "Fev", value: 35 },
-  { month: "Mar", value: 130 },
-  { month: "Abr", value: 300 },
-  { month: "Mai", value: 285 },
-  { month: "Jun", value: 240 },
-  { month: "Jul", value: 275 },
-  { month: "Ago", value: 275 },
-  { month: "Set", value: 310 },
-  { month: "Out", value: 90 },
-  { month: "Nov", value: 220 },
-  { month: "Dez", value: 280 },
-];
+  const months = [
+    "Jan", "Fev", "Mar", "Abr", "Mai", "Jun",
+    "Jul", "Ago", "Set", "Out", "Nov", "Dez"
+  ];
 
-export const STOCK_BY_TYPE = [
-  { label: "Matéria Prima", value: 260 },
-  { label: "Semiacabado", value: 450 },
-  { label: "Acabado", value: 140 },
-];
+  return months[date.getMonth()];
+}
 
-export const TOP_SALES = [
-  { product: "Headset Gamer", total: 650 },
-  { product: "Mouse Gamer RGB", total: 580 },
-  { product: "Mouse Óptico", total: 540 },
-  { product: "Teclado Gamer", total: 520 },
-  { product: "Teclado Mecânico RGB", total: 460 },
-];
+function getMonthName(monthNumber) {
+  const months = [
+    "Janeiro", "Fevereiro", "Março", "Abril", "Maio", "Junho",
+    "Julho", "Agosto", "Setembro", "Outubro", "Novembro", "Dezembro"
+  ];
 
-export const EXPIRING_ITEMS = [
-  { product: "Matéria Prima Prima", quantity: 215645, due: "18/02/2026", status: "Crítico" },
-  { product: "Matéria Prima", quantity: 51515, due: "19/02/2026", status: "Crítico" },
-  { product: "Produto", quantity: 215645, due: "04/03/2026", status: "Crítico" },
-  { product: "Item", quantity: 51515, due: "26/03/2026", status: "Crítico" },
-  { product: "Matéria Prima", quantity: 51515, due: "26/03/2026", status: "Crítico" },
-  { product: "Item", quantity: 51515, due: "26/03/2026", status: "Crítico" },
-  { product: "Produto", quantity: 51515, due: "26/03/2026", status: "Crítico" },
-];
+  return months[monthNumber - 1] ?? "";
+}
 
 
 export default function HomePage2() {
+  const [STOCK_CARDS, setStockCards] = useState([]);
+  const [SALES_BY_MONTH, setSalesByMonth] = useState([]);
+  const [STOCK_BY_TYPE, setStockByType] = useState([]);
+  const [TOP_SALES, setTopSales] = useState([]);
+  const [EXPIRING_ITEMS, setExpiringItems] = useState([]);
+
+  const year = 2026;
+  const month = 5;
+
+  useEffect(() => {
+    async function loadData() {
+      try {
+        const [
+          totalStockRes,
+          stockByTypeRes,
+          criticalProductsRes,
+          salesByMonthRes,
+          topSellingRes,
+        ] = await Promise.all([
+          getTotalStock(),
+          getStockByType(),
+          getCriticalProducts(),
+          getSalesByMonth(year),
+          getTopSellingProductsByMonth(year, month),
+        ]);
+
+        console.log("totalStockRes", totalStockRes);
+        console.log("stockByTypeRes", stockByTypeRes);
+        console.log("salesByMonthRes", salesByMonthRes);
+        console.log("topSellingRes", topSellingRes);
+        console.log("criticalProductsRes", criticalProductsRes);
+
+        // CARDS
+        const cards = [
+          {
+            title: "Estoque total",
+            value: totalStockRes.estoque_total ?? 0,
+            percentage: 0,
+            period: "ano",
+          },
+          ...stockByTypeRes.map((item) => ({
+            title: item.tipo,
+            value: item.estoque_total ?? 0,
+            percentage: 0,
+            period: "ano",
+          })),
+        ];
+
+        setStockCards(cards);
+
+        // VENDAS POR MÊS
+        const salesFormatted = salesByMonthRes.map((m) => ({
+          month: formatMonthFromDate(m.mes),
+          value: m.total_vendido,
+        }));
+
+        setSalesByMonth(salesFormatted);
+
+        // ESTOQUE POR TIPO (baixo estoque)
+        const stockFormatted = stockByTypeRes.map((item) => ({
+          label: item.tipo,
+          value: item.estoque_total ?? 0,
+        }));
+
+        setStockByType(stockFormatted);
+
+        // TOP VENDAS
+        const topFormatted = topSellingRes.map((p) => ({
+          product: p.nome,
+          total: p.total_vendido,
+        }));
+
+        setTopSales(topFormatted);
+
+        // PRODUTOS CRÍTICOS
+        const criticalFormatted = criticalProductsRes.map((p) => ({
+          product: p.nome,
+          quantity: p.estoque_atual,
+          due: p.data_validade,
+          status: "Crítico",
+        }));
+
+        setExpiringItems(criticalFormatted);
+      } catch (error) {
+        console.error("Erro ao carregar dashboard:", error);
+      }
+    }
+
+    loadData();
+  }, []);
+
   return (
     <Box sx={{ width: "100%", p: 1 , display: "flex", flexDirection:"column", gap: 2,}}>
       <Box
@@ -90,7 +164,7 @@ export default function HomePage2() {
           <StockByTypeChart stockByType={STOCK_BY_TYPE} period={"Dezembro"}/>
         </Box>
         <Box width={"35%"}>
-          <TopSalesChart topSales={TOP_SALES} period={"Dezembro"} />
+          <TopSalesChart topSales={TOP_SALES} period={getMonthName(month)}/>
         </Box>
         <Box width={"35%"}>
           <ExpiringItemsCard expiringItems={EXPIRING_ITEMS}/>
