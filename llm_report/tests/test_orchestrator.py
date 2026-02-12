@@ -6,7 +6,7 @@ async def main():
     orchestrator = ReportOrchestratorService()
 
     """resposta = await orchestrator.gerar_relatorio(
-        "movimentacao_periodo",
+        "entradas_saidas",
         {
             "data_inicio": "2024-01-01",
             "data_fim": "2026-12-31"
@@ -14,7 +14,7 @@ async def main():
     )"""
 
     resposta = await orchestrator.gerar_relatorio(
-        "inventario"
+        "estoque_baixo"
     )
 
     """resposta = await orchestrator.gerar_relatorio("estoque_baixo")"""

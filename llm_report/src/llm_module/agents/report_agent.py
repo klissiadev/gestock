@@ -13,7 +13,7 @@ from prompts.report_prompts import PROMPTS
 
 class ReportInput(BaseModel):
     report_type: str
-    tipo: str
+    tipo: str | None = None
     dados: Any
     parametros: Optional[Dict[str, Any]] = Field(default_factory=dict)
 
