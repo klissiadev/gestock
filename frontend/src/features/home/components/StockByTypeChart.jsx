@@ -44,7 +44,7 @@ export default function StockByTypeChart({ stockByType, period }) {
             scaleType: "band",
             dataKey: "label",
             tickLabelStyle: {
-              fontSize: 14,
+              fontSize: 12,
               fill: "#000",
             },
             axisLine: { stroke: "transparent" },

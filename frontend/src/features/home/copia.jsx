@@ -3,6 +3,7 @@ import CardStock from "./components/CardStock";
 import SalesLineChart from "./components/SalesLineChart";
 import StockByTypeChart from "./components/StockByTypeChart";
 import TopSalesChart from "./components/TopSalesChart";
+import ExpiringItemsCard from "./components/ExpiredItensCard";
 
 const STOCK_CARDS = [
   { title: "Estoque total", value: "1.240", percentage: 12, period: "mês" },
@@ -40,6 +41,17 @@ export const TOP_SALES = [
   { product: "Teclado Gamer", total: 520 },
   { product: "Teclado Mecânico RGB", total: 460 },
 ];
+
+export const EXPIRING_ITEMS = [
+  { product: "Matéria Prima Prima", quantity: 215645, due: "18/02/2026", status: "Crítico" },
+  { product: "Matéria Prima", quantity: 51515, due: "19/02/2026", status: "Crítico" },
+  { product: "Produto", quantity: 215645, due: "04/03/2026", status: "Crítico" },
+  { product: "Item", quantity: 51515, due: "26/03/2026", status: "Crítico" },
+  { product: "Matéria Prima", quantity: 51515, due: "26/03/2026", status: "Crítico" },
+  { product: "Item", quantity: 51515, due: "26/03/2026", status: "Crítico" },
+  { product: "Produto", quantity: 51515, due: "26/03/2026", status: "Crítico" },
+];
+
 
 export default function HomePage2() {
   return (
@@ -80,7 +92,9 @@ export default function HomePage2() {
         <Box width={"35%"}>
           <TopSalesChart topSales={TOP_SALES} period={"Dezembro"} />
         </Box>
-        
+        <Box width={"35%"}>
+          <ExpiringItemsCard expiringItems={EXPIRING_ITEMS}/>
+        </Box>
       </Box>
     </Box>
   );

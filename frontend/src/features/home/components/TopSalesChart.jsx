@@ -1,68 +1,123 @@
-// TopSalesChart.jsx
-import { Box, Typography } from "@mui/material";
-import { BarChart } from "@mui/x-charts/BarChart";
+// TopSalesManual.jsx
+import { Box, Typography, Tooltip, Paper, Divider } from "@mui/material";
 
-export default function TopSalesChart({ topSales , period }) {
+const MAX = 700;
+
+function SaleTooltip({ product, total, children }) {
+  return (
+    <Tooltip
+      arrow
+      placement="top-start"
+      slotProps={{
+        tooltip: {
+          sx: {
+            bgcolor: "transparent",
+            p: 0,
+            boxShadow: "none",
+          },
+        },
+        arrow: {
+          sx: {
+            color: "transparent",
+          },
+        },
+      }}
+      title={
+        <Paper
+          elevation={3}
+          sx={{
+            p: 1,
+            borderRadius: "4px",
+            minWidth: 90,
+          }}
+        >
+          <Typography sx={{ fontSize: 14}}>{product}</Typography>
+          <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+            <Box
+              sx={{
+                width: 12,
+                height: 12,
+                bgcolor: "#222626",
+                borderRadius: "3px",
+              }}
+            />
+            <Typography sx={{ fontSize: 18, fontWeight: 600 }}>
+              {total}
+            </Typography>
+          </Box>
+        </Paper>
+      }
+    >
+      {children}
+    </Tooltip>
+  );
+}
+
+export default function TopSalesManual({ topSales, period }) {
   return (
     <Box
       sx={{
         background: "#EDEDED",
         borderRadius: "24px",
-        py:2,
+        px: 4,
+        py: 2,
         height: 440,
-
-        "& .MuiChartsAxis-line": {
-          display: "none",
-        },
-        "& .MuiBarElement-root": {
-          rx: 18,
-          ry: 18,
-        },
+        width: "100%",
       }}
     >
       <Typography
-        sx={{
-          fontSize: 20,
-          fontWeight: 500,
-          textAlign: "center",
-          py:1
-        }}
+        sx={{ fontSize: 20, fontWeight: 500, textAlign: "center", mb: 2, mt:1}}
       >
         Top vendas - {period}
       </Typography>
 
-      <BarChart
-        layout="horizontal"
-        dataset={topSales}
-        xAxis={[
-          {
-            min: 0,
-            max: 700,
-            tickNumber: 8,
-            tickLabelStyle: { fontSize: 12   },
-            tickSize: 0,
-          },
-        ]}
-        yAxis={[
-          {
-            scaleType: "band",
-            data: topSales.map((d) => d.product),
-            tickLabelStyle: {
-              fontSize: 14,
-              fill: "#000",
-            },
-            bandPadding: 0.5,
-          },
-        ]}
-        series={[
-          {
-            dataKey: "total",
-            color: "#222626",
-          },
-        ]}
-        margin={{ top: 10, bottom: 40, left: 30, right: 30 }}
-        grid={{ horizontal: false, vertical: false }}
-      />
+      <Box sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
+        {topSales.map((item) => (
+          <Box key={item.product}>
+            <Typography sx={{ fontSize: 12, mb: 1}}>
+              {item.product}
+            </Typography>
+
+            <SaleTooltip product={item.product} total={item.total}>
+              <Box
+                sx={{
+                  height: 20,
+                  width: "100%",
+                  background: "#9E9E9E",
+                  borderRadius: "20px",
+                  overflow: "hidden",
+                  cursor: "pointer",
+                }}
+              >
+                <Box
+                  sx={{
+                    height: "100%",
+                    width: `${(item.total / MAX) * 100}%`,
+                    background: "#222626",
+                    borderRadius: "20px",
+                    transition: "0.3s",
+                  }}
+                />
+              </Box>
+            </SaleTooltip>
+          </Box>
+        ))}
+      </Box>
+
+      <Box
+        sx={{
+          display: "flex",
+          justifyContent: "space-between",
+          mt: 3,
+          px: 1,
+        }}
+      >
+        {[0, 100, 200, 300, 400, 500, 600, 700].map((n) => (
+          <Typography key={n} sx={{ fontSize: 12, color: "#000" }}>
+            {n}
+          </Typography>
+        ))}
+      </Box>
     </Box>
   );
 }
