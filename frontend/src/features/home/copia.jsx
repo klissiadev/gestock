@@ -5,7 +5,7 @@ import CardStock from "./components/CardStock";
 import SalesLineChart from "./components/SalesLineChart";
 import StockByTypeChart from "./components/StockByTypeChart";
 import TopSalesChart from "./components/TopSalesChart";
-import ExpiringItemsCard from "./components/ExpiredItensCard";
+import CriticalItemsCard from "./components/CriticalItensCard";
 
 import {
   getTotalStock,
@@ -161,13 +161,13 @@ export default function HomePage2() {
         }}
       >
         <Box width={"30%"}>
-          <StockByTypeChart stockByType={STOCK_BY_TYPE} period={"Dezembro"}/>
+          <StockByTypeChart stockByType={STOCK_BY_TYPE}/>
         </Box>
         <Box width={"35%"}>
           <TopSalesChart topSales={TOP_SALES} period={getMonthName(month)}/>
         </Box>
         <Box width={"35%"}>
-          <ExpiringItemsCard expiringItems={EXPIRING_ITEMS}/>
+          <CriticalItemsCard criticalItems={EXPIRING_ITEMS}/>
         </Box>
       </Box>
     </Box>

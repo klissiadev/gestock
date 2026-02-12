@@ -19,7 +19,7 @@ function StatusPill({ label }) {
   );
 }
 
-export default function ExpiringItemsCard({ expiringItems }) {
+export default function CriticalItemsCard({ criticalItems }) {
   return (
     <Box
       sx={{
@@ -29,6 +29,7 @@ export default function ExpiringItemsCard({ expiringItems }) {
         px:1,
         height: 440,
         width:"100%",
+        overflowY: 'auto',
       }}
     >
       {/* Header */}
@@ -42,7 +43,7 @@ export default function ExpiringItemsCard({ expiringItems }) {
         }}
       >
         <Typography sx={{ fontSize: 20, fontWeight: 500 }}>
-          Itens vencendo
+          Itens críticos
         </Typography>
 
         <IconButton
@@ -64,7 +65,7 @@ export default function ExpiringItemsCard({ expiringItems }) {
       <Box
         sx={{
           display: "grid",
-          gridTemplateColumns: "2fr 1fr 1fr 1fr",
+          gridTemplateColumns: "2fr 1fr 1fr",
           px: 1,
           pb: 1,
           borderBottom: "1px solid #CFCFCF",
@@ -74,37 +75,34 @@ export default function ExpiringItemsCard({ expiringItems }) {
       >
         <Typography fontSize={12} fontWeight={600}>Produto</Typography>
         <Typography fontSize={12} fontWeight={600}>Quantidade</Typography>
-        <Typography fontSize={12} fontWeight={600}>Validade</Typography>
         <Typography fontSize={12} fontWeight={600}>Status</Typography>
       </Box>
 
       {/* Linhas */}
       <Box sx={{ mt: 2, display: "flex", flexDirection: "column", gap: 3}}>
-        {expiringItems.map((item, index) => (
+        {criticalItems.map((item, index) => (
           <Box
             key={index}
             sx={{
               display: "grid",
-              gridTemplateColumns: "2fr 1fr 1fr 1fr",
+              gridTemplateColumns: "2fr 1fr 1fr",
               px: 1,
               justifyItems: "center"
             }}
           >
             <Typography
                 sx={{ 
-                    maxWidth: 150,
-                    fontSize: 16,
-                    overflow: "hidden",
-                    textOverflow: "ellipsis",
-                    whiteSpace: "nowrap"
+                  maxWidth: 150,
+                  fontSize: 16,
+                  overflow: "hidden",
+                  textOverflow: "ellipsis",
+                  whiteSpace: "nowrap"
                 }}
             >
               {item.product}
             </Typography>
 
             <Typography sx={{ fontSize: 14 }}>{item.quantity}</Typography>
-
-            <Typography sx={{ fontSize: 14 }}>{item.due}</Typography>
 
             <StatusPill label={item.status} />
           </Box>

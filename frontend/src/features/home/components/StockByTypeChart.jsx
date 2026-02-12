@@ -3,7 +3,7 @@ import { Box, Typography } from "@mui/material";
 import { BarChart } from "@mui/x-charts/BarChart";
 
 
-export default function StockByTypeChart({ stockByType, period }) {
+export default function StockByTypeChart({ stockByType}) {
   return (
     <Box
       sx={{
@@ -34,7 +34,7 @@ export default function StockByTypeChart({ stockByType, period }) {
           py:1
         }}
       >
-        Estoque por tipo - {period}
+        Estoque por tipo
       </Typography>
 
       <BarChart
@@ -58,7 +58,7 @@ export default function StockByTypeChart({ stockByType, period }) {
             max: 100000,
             tickNumber: 7,
             tickLabelStyle: {
-              fontSize: 14,
+              fontSize: 12,
               fill: "#555",
             },
             axisLine: { stroke: "transparent" },
