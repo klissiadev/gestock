@@ -13,12 +13,17 @@ from psycopg_pool import AsyncConnectionPool
 from psycopg.rows import dict_row
 from langchain_core.messages import SystemMessage, HumanMessage
 from langchain.tools import tool
+from pydantic import BaseModel
 
 from llm_module.services.report_orchestrator import ReportOrchestratorService
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.WARNING)
 load_dotenv()
+
+class ReportToolSchema(BaseModel):
+    report_type: str
+    params: dict | None = None
 
 
 # ======================================================
@@ -55,7 +60,11 @@ class Config:
 
 class ChatBotService:
 
-    def __init__(self):
+    def __init__(self, test_mode: bool = True):
+
+        # FLAG TESTE
+        env_test_mode = os.getenv("LLM_TEST_MODE", "false").lower() == "true"
+        self.test_mode = test_mode or env_test_mode
 
         # MODELOS
         self.main_model = ChatOllama(model="llama3.1:8b", temperature=0.0)
@@ -66,24 +75,37 @@ class ChatBotService:
 
         # TOOL OFICIAL DE RELATÓRIO
         @tool(return_direct=True)
-        async def gerar_relatorio(tipo: str, parametros: dict | None = None) -> str:
+        async def gerar_relatorio(
+            report_type: str,
+            params: dict | None = None,
+            **kwargs
+        ) -> str:
             """
-            Utilize esta ferramenta SEMPRE que o usuário solicitar relatórios.
+            Utilize esta ferramenta quando o usuário solicitar relatórios.
 
-            Exemplos de frases que DEVEM chamar esta ferramenta:
+            Tipos disponíveis:
 
-            - "relatório de estoque baixo"
-            - "quais produtos estão com estoque baixo"
-            - "mostrar inventário"
-            - "relatório de curva ABC"
-            - "movimentação do mês"
-            - "relatório de entradas e saídas"
+            - estoque_baixo
+            - giro_estoque
+            - entradas_saidas
+            - movimentacao_periodo
+            - saldo_estoque
+            - curva_abc
+            - inventario
+            - validade_proxima
+            - produtos_sem_giro
             """
 
             try:
+
+                if params is None:
+                    params = {}
+
+                params.update(kwargs)
+
                 return await self.report_orchestrator.gerar_relatorio(
-                    report_type=tipo,
-                    params=parametros,
+                    report_type=report_type,
+                    params=params
                 )
 
             except Exception as e:
