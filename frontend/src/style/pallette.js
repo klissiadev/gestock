@@ -39,5 +39,8 @@ export const palette = {
       button: "#676767",
     }
 
+    card: {
+      background: "#cfcfcf",
+    }
 };
 
