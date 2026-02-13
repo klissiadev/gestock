@@ -18,11 +18,11 @@ dependencies = [
     "openpyxl (>=3.1.5,<4.0.0)",
     "psycopg2-binary (>=2.9.11,<3.0.0)",
     "charset-normalizer (>=3.4.4,<4.0.0)",
-    "module-chat"
+    "llm_module"
 ]
 
 [tool.poetry.dependencies]
-module-chat = { path = "../llm_module", develop = true }
+llm_module = { path = "../llm_module", develop = true }
 
 [build-system]
 requires = ["poetry-core>=2.0.0,<3.0.0"]

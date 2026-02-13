@@ -29,7 +29,7 @@ export default function AppLayout() {
     }
 
     return (
-        <Box display="flex" minHeight="100vh">
+        <Box display="flex" height="100vh" sx={{ overflow: "hidden" }}>
             <ToastContainer />
             <SideBar 
                 active={active}
@@ -44,7 +44,7 @@ export default function AppLayout() {
                     flex: 1,
                     display: "flex",
                     flexDirection: "column",
-                    minHeight: 0,
+                    minWidth: 0,
                     p: 2,
                 }}
                 >
@@ -59,6 +59,7 @@ export default function AppLayout() {
                     flex: 1,
                     minHeight: 0,
                     display: "flex",
+                    overflow: "hidden"
                     }}
                 >
                     <PageContainer>

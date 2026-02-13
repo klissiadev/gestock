@@ -1,6 +1,7 @@
 import os
 import logging
 import asyncio
+import token
 from typing import Optional, List, Dict, Any
 
 from dotenv import load_dotenv
@@ -11,7 +12,7 @@ from langchain.agents.middleware import SummarizationMiddleware
 from langgraph.checkpoint.postgres.aio import AsyncPostgresSaver
 from psycopg_pool import AsyncConnectionPool
 from psycopg.rows import dict_row
-from langchain_core.messages import SystemMessage, HumanMessage
+from langchain_core.messages import SystemMessage, HumanMessage, AIMessageChunk
 
 from llm_module.tools.sql_tools import (
     tool_buscar_produto,
@@ -215,23 +216,23 @@ class ChatBotService:
         self._validate_input(user_input)
         
         full_response = []
-        
-        # O astream retorna um gerador assíncrono de eventos
-        async for chunk in self.agent.astream(
+        async for token, metadata in self.agent.astream(
             {"messages": [HumanMessage(content=user_input)]},
             {"configurable": {"thread_id": session_id}},
-            stream_mode="messages" # Foca apenas nos chunks de mensagens
+            stream_mode="messages" 
         ):
-            # No LangGraph, o chunk geralmente vem como uma tupla (mensagem, metadados)
-            # ou diretamente o conteúdo dependendo da versão
-            content = chunk[0].content if isinstance(chunk, tuple) else chunk.content
+            # ignorar tokens que não são do modelo (ex: tool calls)
+            if not isinstance(token, AIMessageChunk):
+                continue
+            text = token.text
+            if text:
+                full_response.append(text)
+                yield text
 
-            if content:
-                full_response.append(content)
-                yield content # Envia o pedaço de texto para o cliente imediatamente
-
-        # --- Logging após o streaming terminar ---
+        # resposta completa
         complete_text = "".join(full_response)
+
+        # salvar em background
         task = asyncio.create_task(
             self._save_log(session_id, user_input, complete_text)
         )
@@ -245,13 +246,12 @@ async def main():
     chatbot = ChatBotService()
     await chatbot.init()
     try:
-        # CORREÇÃO: Adicionado await na chamada do método
-        titulo = await chatbot._generate_title("Quais dados posso consultar?")
-        print(titulo)
-        print() 
-        titulo = await chatbot._generate_title("Gere um relatório da curva abc")
-        print(titulo)
-        print() 
+        user_input = "Quais produtos estão a vencer nos próximos 30 dias?"
+        print("Enviando mensagem para o chatbot: Titulo Papo de Maluco")
+        resposta = await chatbot.send_message(user_input, session_id="301bc7d2-891a-4c06-a178-c5fea5dd0c61")
+        print("Resposta do chatbot:")
+        print(resposta)
+
     finally:
         await chatbot.close()
         
