@@ -7,22 +7,24 @@ import LLMPage from '../features/LLM/LLMPage';
 import ForecastPage from '../features/forecast/ForecastPage';
 import ReportsPage from '../features/reports/ReportsPage';
 import RequestsPage from '../features/requests/RequestsPage';
-import UploadPageDebug from "../features/upload/UploadPageDebug";
+import UploadPageDebug from "../features/debug/UploadPageDebug";
 import AlertDialogSlide from "../features/upload/components/SucessBox";
 import TabelaMovimentacao from '../features/stock/pages/TabelaMovimentacao';
 import StockSheets from "../features/stock/StockPageDebug";
 import StockPage from '../features/stock/StockPageDebug';
 import HomePage2 from "../features/home/copia";
 import HomePage from "../features/home/HomePage";
+import UploadDialog from "../features/upload/UploadDialog";
 
 const AppRoutes = () => {
   return (
     <Routes>
       <Route element={<AppLayout />}>
         <Route path='/' element={<HomePage2/>}/>
-        <Route path='/upload' element={<UploadPage />}/>
+        <Route path='/upload' element={<UploadDialog />}/>
         <Route path='/sheets' element={<TabelaProduto />}/>
         <Route path='/notifications' element={<NotificationPage/>}/>
+        <Route path="/movements" element={<TabelaMovimentacao />} />
         <Route path='/ai' element={<LLMPage/>}/>
         <Route path='/forecast' element={<ForecastPage/>}/>
         <Route path='/reports' element={<ReportsPage/>}/>

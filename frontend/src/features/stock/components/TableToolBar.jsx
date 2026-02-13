@@ -7,6 +7,7 @@ import ExpandableIconButton from "../../../components/ui/ExpandableIconButton.js
 import ChatSvg from "../../../assets/icon/iconChat.svg?react";
 
 import InvetorySvg from "../../../assets/icon/iconInventory.svg?react";
+import DownloadButton from "./DownloadButton.jsx";
 
 const TableToolBar = ({ titulo, filters, onFilterChange }) => {
   return (
@@ -94,7 +95,8 @@ const TableToolBar = ({ titulo, filters, onFilterChange }) => {
             justifyContent: "flex-end",
             gap: 1,
           }}
-        >   
+        >  
+          <DownloadButton filter={filters} whatTable={"products"}/> 
         </Box>
       </Stack>
     </Stack>
