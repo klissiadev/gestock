@@ -37,7 +37,7 @@ export const palette = {
     uploadBox: {
       main: "#DBDBDB",
       button: "#676767",
-    }
+    },
 
     card: {
       background: "#cfcfcf",
