@@ -15,6 +15,8 @@ from backend.routers.movimentacao_router import router as movimentacao_router
 from backend.routers.views_router import router as view_router
 from backend.routers.event_router import router as event_router
 from backend.routers.notification_router import router as notification_router
+from backend.routers.analytics_router import router as analytics_router
+
 
 # =========================
 # IMPORTS DE LOGGING
@@ -118,3 +120,4 @@ app.include_router(movimentacao_router)
 app.include_router(event_router)
 app.include_router(notification_router)
 app.include_router(llm_router)
+app.include_router(analytics_router, prefix="/analytics", tags=["Analytics"])
