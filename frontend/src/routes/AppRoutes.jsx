@@ -16,6 +16,8 @@ import HomePage2 from "../features/home/copia";
 import HomePage from "../features/home/HomePage";
 import UploadDialog from "../features/upload/UploadDialog";
 
+import AdminPage from "../features/admin/AdminPage";
+
 const AppRoutes = () => {
   return (
     <Routes>
@@ -30,8 +32,7 @@ const AppRoutes = () => {
         <Route path='/reports' element={<ReportsPage/>}/>
         <Route path='/requests' element={<RequestsPage/>}/>
         <Route path='/debug' element={<StockSheets />} />
-        <Route path='/debug2' element={<AlertDialogSlide />} />
-        <Route path='/debug' element={<StockPage />} />
+        <Route path='/debug2' element={<AdminPage />} />
       </Route>
     </Routes>
   )

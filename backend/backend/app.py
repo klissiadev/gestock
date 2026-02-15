@@ -31,6 +31,13 @@ from backend.logger import logger as app_logger
 from llm_module.routers.llm_router import router as llm_router
 
 # =========================
+# IMPORTS DO MODULO ADMIN
+# =========================
+from admin_module.routers.health_router import router as health_router
+from admin_module.routers.status_router import router as status_router
+from admin_module.routers.logs_router import router as logs_router
+
+# =========================
 # CONFIGURA LOGGING (1x)
 # =========================
 setup_logging()
@@ -121,3 +128,7 @@ app.include_router(event_router)
 app.include_router(notification_router)
 app.include_router(llm_router)
 app.include_router(analytics_router, prefix="/analytics", tags=["Analytics"])
+
+app.include_router(health_router)
+app.include_router(status_router)
+app.include_router(logs_router)

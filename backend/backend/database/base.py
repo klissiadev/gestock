@@ -5,6 +5,15 @@ from fastapi import HTTPException
 import os
 from dotenv import load_dotenv
 
+"""
+    Pra multiplas conexões: Ideal seria o ThreadedConnectionPool pra nao ficar criando varias conexões e fechando
+    > Usado pelo Modulo de Admin
+    > Backend
+    TO DO: Integrar ao LLM
+
+    Dessa forma, abre só um gerenciador de conexão e agiliza tudo com postgre
+"""
+
 load_dotenv()
 
 def get_connection():
