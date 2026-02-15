@@ -4,7 +4,7 @@ import asyncio
 import token
 from typing import Optional, List, Dict, Any
 
-from dotenv import load_dotenv
+from llm_module.utils.env_loader import load_env_from_root
 from langchain_ollama import ChatOllama
 from langchain.agents import create_agent
 from langchain_community.document_loaders import TextLoader
@@ -26,7 +26,7 @@ from llm_module.tools.sql_tools import (
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.WARNING)
-load_dotenv()
+load_env_from_root()
 
 class Config:
     """Centraliza as configurações do ambiente."""

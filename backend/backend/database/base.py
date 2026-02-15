@@ -3,7 +3,8 @@ import psycopg2
 from psycopg2.extras import RealDictCursor
 from fastapi import HTTPException
 import os
-from dotenv import load_dotenv
+from backend.utils.env_loader import load_env_from_root
+from pathlib import Path
 
 """
     Pra multiplas conexões: Ideal seria o ThreadedConnectionPool pra nao ficar criando varias conexões e fechando
@@ -14,7 +15,7 @@ from dotenv import load_dotenv
     Dessa forma, abre só um gerenciador de conexão e agiliza tudo com postgre
 """
 
-load_dotenv()
+load_env_from_root()
 
 def get_connection():
     try:
