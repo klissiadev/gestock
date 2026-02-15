@@ -3,7 +3,7 @@
 ![GitHub repo size](https://img.shields.io/github/repo-size/iuricode/README-template?style=for-the-badge)
 ![GitHub language count](https://img.shields.io/github/languages/count/iuricode/README-template?style=for-the-badge)
 
-[![Linguagens](https://skillicons.dev/icons?i=react,postgres,tailwind,js,python,fastapi,docker)]()
+[![Linguagens](https://skillicons.dev/icons?i=react,postgres,tailwind,js,python,fastapi,docker,mui)]()
 
 <p align="center">
   <img src="https://media.istockphoto.com/id/1138429558/pt/foto/rows-of-shelves.jpg?s=612x612&w=0&k=20&c=Q_IQ0T-vjlcsCPUrQj79xkifkD6nhmjWNAQQ4WQwHgo=" alt="Imagem do gestock">
@@ -21,7 +21,7 @@
 
 O Gestock utiliza uma arquitetura moderna para garantir performance e escalabilidade:
 
-* **Frontend:** React com TailwindCSS
+* **Frontend:** React com MaterialUI
 * **Backend:** Python com FastAPI
 * **Banco de Dados:** PostgreSQL
 * **DevOps:** Docker (em breve)
@@ -33,12 +33,19 @@ Antes de começar, verifique se você atendeu aos seguintes requisitos:
 * [Git](https://git-scm.com)
 * [Python 3.10+](https://www.python.org/) (para o backend)
 * [Node.js](https://nodejs.org/) (para o frontend)
-* [Pipx](https://github.com/pypa/pipx) e [Poetry](https://python-poetry.org/) (Gerenciamento de dependências Python)
+* [Pipx](https://github.com/pypa/pipx)
+* [Poetry](https://python-poetry.org/) e [uv](https://docs.astral.sh/uv/) (Gerenciamento de dependências Python)
 
 ## 🚀 Instalando o Gestock
 
 ### 1. Configurando o Backend (API)
-Acesse a documentação detalhada na pasta [Backend]([https://python-poetry.org](https://github.com/klissiadev/gestock/blob/main/backend/README.md)/) 
+```bash
+  cd backend
+  # Instale as dependências e módulos
+  poetry install
+  # Execute o projeto
+  task run
+```
 
 ### 2. Configurando o Frontend
 ```bash
