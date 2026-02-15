@@ -1,3 +1,4 @@
+// frontend\src\components\layout\PageContainer.jsx
 import { Box } from "@mui/material";
 
 export default function PageContainer({ children }) {
