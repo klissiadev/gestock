@@ -1,12 +1,19 @@
+// frontend\src\components\layout\Header.jsx
 import React from 'react'
 import { Box, IconButton, Button, Typography} from "@mui/material";
 import AppIcon from "../ui/AppIcon";
 import PerfilSvg from "../../assets/icon/iconPerfil.svg?react";
 import NotificationSvg from "../../assets/icon/iconNotify.svg?react";
 import AddSvg from "../../assets/icon/iconAdd.svg?react";
+import PeriodSelector from "../ui/PeriodSelector";
+import { useHeader } from "../../HeaderContext";
 
 const Header = () => {
     const nome = "Carlos Ribeiro";
+    const { headerConfig } = useHeader();
+
+    
+
     return (
         <Box 
             sx={{
@@ -33,18 +40,27 @@ const Header = () => {
                 <Typography fontSize={18} >{nome}</Typography>
             </Box>
             <Box display="flex" alignItems="center" justifyContent="space-between" gap={2} mr={1}>
-                <Button 
-                    variant="contained" 
-                    color="primary" 
-                    startIcon={<AddSvg width={18} height={18} />}
-                    sx={{ 
-                        textTransform: 'none', 
-                        borderRadius: '12px', 
-                        border: '1.5px solid',    
+                {headerConfig.variant === "home" ? (
+                    <PeriodSelector
+                        value={headerConfig.period}
+                        onChange={headerConfig.onPeriodChange}
+                    />
+                    ) : (
+                    <Button 
+                        variant="contained"
+                        color="primary"
+                        startIcon={<AddSvg width={18} height={18} />}
+                        sx={{ 
+                        textTransform: 'none',
+                        borderRadius: '12px',
+                        border: '1.5px solid',
                         borderColor: 'common.black',
                         fontSize: 14
-                }}
-                > Nova requisição</Button>
+                        }}
+                    >
+                        Nova requisição
+                    </Button>
+                )}
                 <IconButton
                     sx={{
                         borderRadius: '12px',

@@ -1,11 +1,13 @@
+// frontend\src\features\home\HomePage.jsx
 import { Box } from "@mui/material";
 import { useEffect, useState } from "react";
 
 import CardStock from "./components/CardStock";
 import SalesLineChart from "./components/SalesLineChart";
-import StockByTypeChart from "./components/StockByTypeChart";
 import TopSalesChart from "./components/TopSalesChart";
 import CriticalItemsCard from "./components/CriticalItensCard";
+import { useHeader } from "../../HeaderContext";
+
 
 import {
   getTotalStock,
@@ -42,9 +44,28 @@ export default function HomePage2() {
   const [STOCK_BY_TYPE, setStockByType] = useState([]);
   const [TOP_SALES, setTopSales] = useState([]);
   const [EXPIRING_ITEMS, setExpiringItems] = useState([]);
+  const { setHeaderConfig } = useHeader();
 
-  const year = 2026;
-  const month = 5;
+  const [year, setYear] = useState(2026);
+  const [month, setMonth] = useState(5);
+
+
+  useEffect(() => {
+    setHeaderConfig({
+      variant: "home",
+      period: { year, month },
+      onPeriodChange: ({ year: newYear, month: newMonth }) => {
+        setYear(newYear);
+        setMonth(newMonth);
+      },
+    });
+
+    return () => {
+      setHeaderConfig({});
+    };
+  }, [year, month]);
+
+
 
   useEffect(() => {
     async function loadData() {
@@ -126,7 +147,7 @@ export default function HomePage2() {
     }
 
     loadData();
-  }, []);
+  }, [year, month]);
 
   return (
     <Box sx={{ width: "100%", p: 1 , display: "flex", flexDirection:"column", gap: 2,}}>
@@ -160,14 +181,11 @@ export default function HomePage2() {
           gap: 2,
         }}
       >
-        <Box width={"30%"}>
-          <StockByTypeChart stockByType={STOCK_BY_TYPE}/>
-        </Box>
-        <Box width={"35%"}>
-          <TopSalesChart topSales={TOP_SALES} period={getMonthName(month)}/>
-        </Box>
-        <Box width={"35%"}>
+        <Box width={"45%"}>
           <CriticalItemsCard criticalItems={EXPIRING_ITEMS}/>
+        </Box>
+        <Box width={"55%"}>
+          <TopSalesChart topSales={TOP_SALES} period={getMonthName(month)}/>
         </Box>
       </Box>
     </Box>
