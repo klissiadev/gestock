@@ -1,3 +1,4 @@
+
 from admin_module.utils.database import get_db_connection
 from typing import List, Dict, Any, Tuple, Union
 from psycopg import sql
@@ -10,7 +11,6 @@ from psycopg.rows import dict_row
 
 
 class LogFetcher:
-    # Faz SELECT
     def _fetch_all(
         self,
         table: str,
@@ -21,58 +21,67 @@ class LogFetcher:
         search_term: str | None = None,
         search_cols: list[str] | None = None,
         extra_where: list[str] | None = None,
-        extra_params: dict[str, Any] | None = None) -> list[dict]:
+        extra_params: dict[str, Any] | None = None
+    ) -> list[dict]:
 
-        columns_sql = ", ".join(columns) if columns else "*"
+        if columns:
+            cols_query = sql.SQL(", ").join(map(sql.Identifier, columns))
+        else:
+            cols_query = sql.SQL("*")
 
-        query = f"SELECT {columns_sql} FROM {table}"
+        query_base = sql.SQL("SELECT {cols} FROM {table}").format(
+            cols=cols_query,
+            table=sql.Identifier(*table.split('.'))
+        )
 
         where_clauses = []
         params = {}
 
-        # conditions
         if conditions:
             for i, (col, value) in enumerate(conditions.items()):
                 param_name = f"cond_{i}"
-                where_clauses.append(f"{col} = %({param_name})s")
+                where_clauses.append(sql.SQL("{col} = %({param})s").format(
+                    col=sql.Identifier(col),
+                    param=sql.Literal(param_name)
+                ))
                 params[param_name] = value
 
-
-        # search
         if search_term and search_cols:
             search_parts = []
-
             for i, col in enumerate(search_cols):
                 param_name = f"search_{i}"
-                search_parts.append(f"{col} ILIKE %({param_name})s")
+                search_parts.append(sql.SQL("{col} ILIKE %({param})s").format(
+                    col=sql.Identifier(col),
+                    param=sql.Literal(param_name)
+                ))
                 params[param_name] = f"%{search_term}%"
 
-            where_clauses.append("(" + " OR ".join(search_parts) + ")")
+            where_clauses.append(sql.SQL("({parts})").format(
+                parts=sql.SQL(" OR ").join(search_parts)
+            ))
 
         if extra_where:
-            where_clauses.extend(extra_where)
+            for clause in extra_where:
+                where_clauses.append(sql.SQL(clause))
 
         if extra_params:
             params.update(extra_params)
 
-        # apply WHERE
+        full_query = query_base
         if where_clauses:
-            query += " WHERE " + " AND ".join(where_clauses)
+            full_query += sql.SQL(" WHERE ") + sql.SQL(" AND ").join(where_clauses)
 
-
-        # order
         if order_by:
-            direction = direction.upper()
-            if direction not in ("ASC", "DESC"):
-                direction = "ASC"
+            dir_sql = sql.SQL("DESC") if direction.upper() == "DESC" else sql.SQL("ASC")
+            full_query += sql.SQL(" ORDER BY {col} {direction}").format(
+                col=sql.Identifier(order_by),
+                direction=dir_sql
+            )
 
-            query += f" ORDER BY {order_by} {direction}"
-
-
-        # execute
+        # 6. Execução
         with get_db_connection() as conn:
             with conn.cursor(row_factory=dict_row) as cur:
-                cur.execute(query, params)
+                cur.execute(full_query, params)
                 return cur.fetchall()
 
     # Atualiza a tabela sempre que faz consulta
@@ -133,54 +142,33 @@ class LogFetcher:
         return result
     
     
-    
-    
+    # Conversas da LLM
     def get_llm_log(
         self,
-        direction: str = "DESC",
-        order_by: str = "registrado_em",
-        search_term: str | None = None,
-        status: str | None = None,
-        periodo: tuple[str, str] | None = None,
-        apenas_erro: bool = False) -> list[dict]:
+        period: tuple[str, str] = None,
+        user_name: str = None,
+    ) -> list[dict]: 
         
-        COLUNAS_VALIDAS = ["id", "nome_arquivo", "qntd_registros", "status", "msg_erro", "registrado_em", "usuario"]
-        SEARCH_COLS = ["nome_arquivo", "usuario", "msg_erro"]
-
-        if order_by not in COLUNAS_VALIDAS:
-            order_by = "registrado_em"
-
-        conditions = {}
-        if status:
-            conditions["status"] = status
-        if apenas_erro:
-            conditions["status"] = "ERRO"
-
         extra_where = []
         extra_params = {}
+        COLUNAS = ["session_id", "user_message", "bot_response", "created_at"]
 
-        if periodo:
-            data_inicio, data_fim = periodo
+        if period:
+            data_inicio, data_fim = period
             if data_inicio:
-                extra_where.append("registrado_em >= %(data_inicio)s")
-                extra_params["data_inicio"] = data_inicio
+                extra_where.append("created_at >= %(start)s")
+                extra_params["start"] = data_inicio
             if data_fim:
-                extra_where.append("registrado_em <= %(data_fim)s")
-                extra_params["data_fim"] = data_fim
+                extra_where.append("created_at < (%(end)s::date + interval '1 day')")
+                extra_params["end"] = data_fim
 
-        # Antes do fetch atualiza a tabela
-        self._refresh_log("app_logs.logs_import")
-
-        result = self._fetch_all(
-            table="app_logs.logs_import",
-            columns=COLUNAS_VALIDAS,
-            conditions=conditions,
-            order_by=order_by,
-            direction=direction,
-            search_term=search_term,
-            search_cols=SEARCH_COLS,
+        # self._refresh_log("app_ai.conversation_logs")
+        
+        return self._fetch_all(
+            table="app_ai.conversation_logs",
+            columns=COLUNAS,
             extra_where=extra_where,
             extra_params=extra_params,
+            order_by="created_at",
+            direction="DESC"
         )
-
-        return result

@@ -28,6 +28,7 @@ from backend.logger import logger as app_logger
 # =========================
 from admin_module.routers.health_router import router as health_router
 from admin_module.routers.status_router import router as status_router
+from admin_module.routers.logs_router import router as logs_router
 
 # =========================
 # CONFIGURA LOGGING (1x)
@@ -116,3 +117,5 @@ app.include_router(notification_router)
 
 app.include_router(health_router)
 app.include_router(status_router)
+
+app.include_router(logs_router)
