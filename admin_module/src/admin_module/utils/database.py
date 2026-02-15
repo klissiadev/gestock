@@ -2,8 +2,10 @@ import os
 from psycopg_pool import ConnectionPool
 from dotenv import load_dotenv
 import atexit
+from pathlib import Path
+from admin_module.utils.env_loader import load_env_from_root
 
-load_dotenv()
+load_env_from_root()
 
 # Inicializamos o Pool Globalmente
 db_pool = ConnectionPool(

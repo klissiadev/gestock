@@ -2,13 +2,12 @@ import time
 import requests
 import smtplib
 import concurrent.futures
-from dotenv import load_dotenv
 from admin_module.utils.database import get_db_connection
+from admin_module.utils.env_loader import load_env_from_root
 
 class SystemHealth:
     def __init__(self):
-        
-        load_dotenv()
+        load_env_from_root()
         self.config = {
             "db": {"slow": 1.5, "timeout": 5},
             "ollama": {"url": "http://127.0.0.1:11434/", "slow": 1, "timeout": 5},

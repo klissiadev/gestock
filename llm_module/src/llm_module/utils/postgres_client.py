@@ -1,5 +1,5 @@
 import os
-from dotenv import load_dotenv
+from llm_module.utils.env_loader import load_env_from_root
 import psycopg
 from datetime import date
 
@@ -9,7 +9,7 @@ class PostgresClient:
         """
         Inicializa a conexão síncrona com o Postgres usando psycopg.
         """
-        load_dotenv()
+        load_env_from_root()
 
         self.conninfo = (
             f"host={os.getenv('DB_HOST')} "
