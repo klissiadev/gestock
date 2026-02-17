@@ -1,12 +1,10 @@
 import os
 from psycopg_pool import ConnectionPool
-from psycopg import sql
 from psycopg.rows import dict_row
 import atexit
-from env_loader import load_env_from_root
-
+from auth_module.utils.env_loader import load_env_from_root
 from pydantic import EmailStr
-
+from auth_module.models.User import UserDB
 
 load_env_from_root()
 
@@ -32,17 +30,43 @@ def fetch_all_users():
             data = cur.execute("SELECT * FROM app_core.usuarios").fetchall()
             return data
 
-def verify_user(email: EmailStr) -> bool:
+def this_user_exists(email: EmailStr) -> bool:
     """Busca se há usuario com um e-mail especifico.
     Retorna: True ou False 
     """
     with get_db_connection() as conn:
         with conn.cursor(row_factory=dict_row) as cur:
-            data = cur.execute("SELECT * FROM app_core.usuarios WHERE email= %s ", (email, )).fetchall()
+            cur.execute("SELECT 1 FROM app_core.usuarios WHERE email= %s ", (email, ))
+            return cur.fetchone() is not None 
+
+def register_user(user: UserDB):
+    """Cadastra o usuario no banco de dados. 
+    Retorna nada
+    """
+    with get_db_connection() as conn:
+        with conn.cursor(row_factory=dict_row) as cur:
+            cur.execute(
+                """
+                INSERT INTO app_core.usuarios (nome, papel, senha_hash, email) 
+                VALUES (%s, %s, %s, %s);
+                """,
+                (user.nome, user.papel, user.senha_hash, user.email, )
+            )
+        conn.commit()
+
+
+def get_user_by_email(email: EmailStr) -> UserDB | None:
+    """Busca usuario através de E-mail e retornar como objeto UserDB"""
+    with get_db_connection() as conn:
+        with conn.cursor(row_factory=dict_row) as cur:
+            cur.execute("SELECT * FROM app_core.usuarios WHERE email = %s", (email,))
+            data = cur.fetchone()
             if data:
-                print('achou')
-            else:
-                print('nao achou')        
+                return UserDB.model_validate(data)
+            return None
+        
+
+
 
 
             

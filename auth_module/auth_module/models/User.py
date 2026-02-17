@@ -19,22 +19,19 @@ class UserLogin(BaseModel):
 
 # Retorno da API
 class UserPublic(BaseModel):
-    id: int 
     nome: str
     email: EmailStr 
     papel: UserRole
-    ativo: bool
-    
+
     model_config = ConfigDict(from_attributes=True)
 
 # Modelo Interno
 class UserDB(BaseModel):
-    id: int
     nome: str
     email: EmailStr
-    senha_hash: str 
-    papel: UserRole
-    ativo: bool
+    senha_hash: bytes
+    papel: UserRole = UserRole.GESTOR
+    ativo: bool = True
     
     model_config = ConfigDict(from_attributes=True)
 

@@ -38,6 +38,12 @@ from admin_module.routers.status_router import router as status_router
 from admin_module.routers.logs_router import router as logs_router
 
 # =========================
+# IMPORT DO MODULO AUTH
+# =========================
+from auth_module.routers.user_router import router as auth_router
+
+
+# =========================
 # CONFIGURA LOGGING (1x)
 # =========================
 setup_logging()
@@ -132,3 +138,5 @@ app.include_router(analytics_router, prefix="/analytics", tags=["Analytics"])
 app.include_router(health_router)
 app.include_router(status_router)
 app.include_router(logs_router)
+
+app.include_router(auth_router)

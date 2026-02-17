@@ -3,9 +3,9 @@ name = "auth-module"
 version = "0.1.0"
 description = "Add your description here"
 readme = "README.md"
-requires-python = ">=3.13"
+requires-python = ">=3.11,<4.0"
 dependencies = [
-    "fastapi[standard]>=0.129.0",
+    "fastapi[standard]>=0.123.5",
     "psycopg[binary,pool]>=3.3.2",
     "pwdlib[argon2]>=0.3.0",
     "pyjwt>=2.11.0",
