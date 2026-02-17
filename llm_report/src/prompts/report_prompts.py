@@ -8,7 +8,6 @@ REGRAS OBRIGATÓRIAS:
 
 1. Liste todos os produtos que atendam a **qualquer uma** das seguintes condições:
    a) estoque_atual < estoque_minimo
-   b) estoque_atual <= 20% de estoque_minimo + estoque_minimo
 2. Cada produto listado deve conter obrigatoriamente:
    - nome_produto
    - descricao
