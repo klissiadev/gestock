@@ -7,6 +7,7 @@ import {
   InputAdornment
 } from "@mui/material";
 import ErrorOutlineIcon from "../../../assets/icon/iconError.svg?react";
+import { sendCredencials } from "../service/loginService";
 
 const LoginForm = () => {
   const [email, setEmail] = useState("");
@@ -23,6 +24,10 @@ const LoginForm = () => {
 
     setError(false);
     console.log("Login:", { email, password });
+
+    sendCredencials(email, password);
+
+
   };
 
   return (
