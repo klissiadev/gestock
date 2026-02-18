@@ -25,7 +25,7 @@ export default function AppLayout() {
      */
 
     function handleChange(route) {
-        navigate(route === "home" ? "/" : `/${route}`);
+        navigate(`/${route}`);
     }
 
     function toggleSidebar() {
