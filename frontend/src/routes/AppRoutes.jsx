@@ -17,12 +17,14 @@ import HomePage from "../features/home/HomePage";
 import UploadDialog from "../features/upload/UploadDialog";
 
 import AdminPage from "../features/admin/AdminPage";
+import LoginPage from "../features/auth/pages/LoginPage";
 
 const AppRoutes = () => {
   return (
     <Routes>
+      <Route path='/' element={<LoginPage/>}/>
       <Route element={<AppLayout />}>
-        <Route path='/' element={<HomePage2/>}/>
+        <Route path='/home' element={<HomePage2/>}/>
         <Route path='/upload' element={<UploadDialog />}/>
         <Route path='/sheets' element={<TabelaProduto />}/>
         <Route path='/notifications' element={<NotificationPage/>}/>
