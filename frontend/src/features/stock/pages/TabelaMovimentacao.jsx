@@ -16,7 +16,6 @@ const StockPage = () => {
     handleFilterChange,
     resetFilters,
   } = useMovimentTable();
-  console.log(filters);
 
   return (
     <Stack

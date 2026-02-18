@@ -1,0 +1,75 @@
+import { createContext, useContext, useState, useEffect, useCallback } from "react";
+import { sendCredencials } from "./api/loginService";
+
+const AuthContext = createContext({});
+
+export const AuthProvider = ({ children }) => {
+    const [user, setUser] = useState(null);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState(null);
+
+    // Da um ping pra verificar sessão e pega informacoes basicas do usuario
+    const verificarSessao = useCallback(async (token) => {
+        try {
+            const response = await fetch('http://127.0.0.1:8000/auth/me', {
+                method: 'GET',
+                headers: { 'Authorization': `Bearer ${token}` }
+            });
+
+            if (response.ok) {
+                const dadosUsuario = await response.json();
+                setUser(dadosUsuario);
+            } else {
+                localStorage.removeItem('token');
+                setUser(null);
+            }
+        } catch (err) {
+            console.error("Erro na conexão:", err);
+            setUser(null);
+        } finally {
+            setLoading(false);
+        }
+    }, []);
+
+    // Pela primeira vez, verifica se está com token e se ele funciona
+    useEffect(() => {
+        const token = localStorage.getItem('token');
+        if (token) {
+            verificarSessao(token);
+        } else {
+            setLoading(false);
+        }
+    }, []);
+
+    // lida com o login
+    const login = async (email, password) => {
+        setError(null);
+        setLoading(true);
+        try {
+            const dados = await sendCredencials(email, password);
+            if (dados.access_token) {
+                localStorage.setItem('token', dados.access_token);
+                await verificarSessao(dados.access_token);
+                return true;
+            }
+        } catch (err) {
+            setError("E-mail ou senha inválidos");
+            setLoading(false);
+            throw err;
+        }
+    };
+
+    // Da logout
+    const logout = () => {
+        localStorage.removeItem('token');
+        setUser(null);
+    };
+
+    return (
+        <AuthContext.Provider value={{ user, loading, error, login, logout }}>
+            {children}
+        </AuthContext.Provider>
+    );
+};
+
+export const useAuth = () => useContext(AuthContext);

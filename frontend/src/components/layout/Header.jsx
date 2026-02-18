@@ -1,18 +1,17 @@
 // frontend\src\components\layout\Header.jsx
 import React from 'react'
 import { Box, IconButton, Button, Typography} from "@mui/material";
-import AppIcon from "../ui/AppIcon";
 import PerfilSvg from "../../assets/icon/iconPerfil.svg?react";
 import NotificationSvg from "../../assets/icon/iconNotify.svg?react";
 import AddSvg from "../../assets/icon/iconAdd.svg?react";
 import PeriodSelector from "../ui/PeriodSelector";
 import { useHeader } from "../../HeaderContext";
+import { useAuth } from '../../AuthContext';
 
 const Header = () => {
-    const nome = "Carlos Ribeiro";
+    const { user, logout } = useAuth();
+    const nome = user.nome;
     const { headerConfig } = useHeader();
-
-    
 
     return (
         <Box 
@@ -34,6 +33,7 @@ const Header = () => {
                         border: '1.5px solid',
                         borderColor: 'common.black'
                     }}
+                    onClick={() => logout()}
                 >
                     <PerfilSvg width={18} height={18}/>
                 </IconButton>
