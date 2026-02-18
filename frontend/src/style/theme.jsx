@@ -14,6 +14,8 @@ import { MuiTableHead } from './components/tableHead';
 import { MuiTableContainer } from './components/tableContainer';
 import MuiInput from './components/input';
 import { MuiPaper } from './components/errorBox';
+import MuiTextField from "./components/textField";
+
 
 export const theme = createTheme({
     // Colocar aqui os componentes
@@ -33,6 +35,7 @@ export const theme = createTheme({
         MuiTableContainer,
         MuiInput,
         MuiPaper,
+        MuiTextField,
         MuiInputBase: {
             styleOverrides: {
                 input: {
