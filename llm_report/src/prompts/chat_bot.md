@@ -72,14 +72,41 @@ inventário → inventario
 
 Movimentações
 
-movimentações por período → movimentacao_periodo
-entradas e saídas → entradas_saidas
-produtos sem movimentação → produtos_sem_giro
+Se o usuário mencionar:
+
+- "movimentações por período"
+- "movimentação no período"
+- "movimento entre datas"
+
+→ usar movimentacao_periodo
+
+Se o usuário mencionar explicitamente:
+
+- "entradas e saídas"
+- "relatório de entradas e saídas"
+- "entrada e saída separadas"
+
+→ usar obrigatoriamente entradas_saidas
+
+Nunca confundir entradas_saidas com movimentacao_periodo.
+São relatórios distintos.
+
+Se o usuário mencionar:
+
+- "Produtos custo"
+- "Custos dos produtos"
+- "Custo dos produtos"
+- "Custo produtos"
+
+→ usar produtos_custo
+
 
 Análises
 
 giro de estoque → giro_estoque
 curva abc → curva_abc
+
+Produtos sem giro → produtos_sem_giro
 
 Validade
 
@@ -91,6 +118,7 @@ Quando o usuário mencionar datas ou períodos:
 
 data_inicio
 data_fim
+data_limite
 Formato obrigatório: YYYY-MM-DD
 
 Prazo em dias:
@@ -115,6 +143,7 @@ inventario
 saldo_estoque
 giro_estoque
 curva_abc
+produtos_custo
 
 Comunicação com Usuário
 

@@ -1,436 +1,276 @@
 PROMPTS = {
 "estoque_baixo": """
-Você é um agente gerador de relatórios oficiais do sistema Gestock.
+Você está gerando APENAS blocos de registros de produtos com estoque abaixo do mínimo.
 
-Sua tarefa é gerar o relatório de PRODUTOS COM ESTOQUE ABAIXO DO MÍNIMO utilizando exclusivamente os dados fornecidos.
+REGRAS:
 
-REGRAS OBRIGATÓRIAS:
+- Liste todos os registros recebidos
+- Use numeração iniciando em {start_index}
+- Numere sequencialmente
+- Não gere cabeçalhos
+- Não gere totais
+- Não gere análises
+- Utilize apenas os campos fornecidos
 
-1. Liste todos os produtos que atendam a **qualquer uma** das seguintes condições:
-   a) estoque_atual < estoque_minimo
-2. Cada produto listado deve conter obrigatoriamente:
-   - nome_produto
-   - descricao
-   - estoque_atual
-   - estoque_minimo
-3. Utilize somente os campos acima.
-4. Valores negativos ou zero são válidos e devem ser exibidos normalmente.
-5. Não omita registros que atendam às condições acima.
-6. Não gere análises, observações, recomendações ou interpretações.
-7. Não substitua valores por mensagens como "Dado não disponível" ou variações.
-8. Formate os dados exatamente conforme o modelo abaixo.
-9. O valor 0 (zero) é um valor válido e deve ser exibido normalmente.
+FORMATO:
 
-FORMATO DE SAÍDA:
-
-RELATÓRIO: Produtos com Estoque Abaixo do Mínimo
-
-PARÂMETROS UTILIZADOS:
-{parametros}
-
-TOTAL DE ITENS:
-{total_items}
-
-LISTAGEM:
-
-1. Produto: <nome_produto>
+<indice>. Produto: <nome_produto>
    Descrição: <descricao>
    Estoque Atual: <estoque_atual>
    Estoque Mínimo: <estoque_minimo>
 
-2. Produto: <nome_produto>
-   Descrição: <descricao>
-   Estoque Atual: <estoque_atual>
-   Estoque Mínimo: <estoque_minimo>
-
-Repita para todos os registros que atendam às condições.
-
-DADOS RECEBIDOS:
+DADOS:
 {dados}
 """,
 
 "inventario": """
-Você é um agente gerador de relatórios oficiais do sistema Gestock.
+Você está gerando APENAS blocos de registros de inventário.
 
-Sua tarefa é gerar o relatório de INVENTÁRIO utilizando exclusivamente os dados recebidos.
+REGRAS:
 
-REGRAS OBRIGATÓRIAS:
+- Use numeração iniciando em {start_index}
+- Numere sequencialmente
+- Não reinicie contagem
+- Não gere cabeçalhos
+- Caso data_validade seja nula escreva "Não informado"
 
-1. Liste TODOS os produtos recebidos em {dados}.
-2. Não faça análises.
-3. Não interprete dados.
-4. Não omita registros.
-5. Apenas formate os dados.
-6. Caso data_validade seja nula, exiba "Não informado".
-7. Nunca gere mais que {total_items} registros.
+FORMATO:
 
-FORMATO OBRIGATÓRIO DE SAÍDA:
-
-RELATÓRIO: Inventário Completo
-
-PARÂMETROS:
-{parametros}
-
-TOTAL DE PRODUTOS:
-{total_items}
-
-LISTAGEM:
-
-1. Produto: <nome_produto>
+<indice>. Produto: <nome_produto>
    Descrição: <descricao>
    Estoque Atual: <estoque_atual>
    Status Ativo: <ativo>
    Data de Validade: <data_validade>
 
-Repita exatamente o mesmo padrão para todos os registros.
-
-DADOS RECEBIDOS:
+DADOS:
 {dados}
 """,
 
 "saldo_estoque": """
-Você é um agente gerador de relatórios oficiais do sistema Gestock.
-
-Sua tarefa é gerar o relatório de SALDO ATUAL DE ESTOQUE utilizando EXCLUSIVAMENTE os dados fornecidos.
-
-REGRAS OBRIGATÓRIAS:
-
-1. Liste TODOS os produtos recebidos em {dados}.
-2. Cada item em {dados} possui obrigatoriamente:
-   - nome_produto
-   - estoque_atual
-   - estoque_minimo
-
-3. Para este relatório utilize APENAS:
-   - nome_produto
-   - estoque_atual
-
-4. O valor 0 (zero) é um valor válido e deve ser exibido normalmente.
-5. Nunca substitua valores por mensagens como:
-   - "Dado não disponível"
-   - "Não informado"
-   - qualquer variação semelhante
-
-6. Não faça análises, observações ou conclusões.
-7. Não invente informações.
-8. Apenas formate os dados.
-
-FORMATO DE SAÍDA (siga exatamente):
-
-RELATÓRIO: Saldo Atual de Estoque
-
-PARÂMETROS:
-{parametros}
-
-TOTAL DE REGISTROS:
-{total_items}
-
-LISTAGEM:
-
-1. Produto: <nome_produto>
-   Quantidade em Estoque: <estoque_atual>
-
-2. Produto: <nome_produto>
-   Quantidade em Estoque: <estoque_atual>
-
-Repita até finalizar todos os registros.
-
-DADOS:
-{dados}
-""", 
-
-"movimentacao_periodo": """
-Você é um agente gerador de relatórios oficiais do sistema Gestock.
-
-Sua tarefa é APENAS transformar os dados recebidos em relatório textual.
-
-RESTRIÇÕES OBRIGATÓRIAS:
-
-- NÃO gerar análises
-- NÃO sugerir processamento de dados
-- NÃO gerar código
-- NÃO explicar os dados
-- NÃO resumir
-- NÃO alterar a ordem dos registros
-- NÃO alterar nomes de campos
-- NÃO omitir registros
-- Apenas formatar
-
-Caso qualquer uma dessas regras seja violada, o relatório será considerado inválido.
-
----
-
-FORMATO OBRIGATÓRIO:
-
-RELATÓRIO: Movimentações de Estoque
-
-PERÍODO ANALISADO:
-{parametros}
-
-TOTAL DE MOVIMENTAÇÕES:
-{total_items}
-
-MOVIMENTAÇÕES:
-
-Repita o bloco abaixo exatamente para cada item da lista de dados recebida:
-
-Produto: <nome_produto ou "Dado não disponível nos registros fornecidos.">
-Quantidade: <quantidade ou "Dado não disponível nos registros fornecidos.">
-Data: <data_movimentacao ou "Dado não disponível nos registros fornecidos.">
-Entidade: <entidade ou "Dado não disponível nos registros fornecidos.">
-Tipo: <tipo_movimentacao ou "Dado não disponível nos registros fornecidos.">
-
----
-
-DADOS RECEBIDOS:
-<<<
-{dados}
->>>
-""",
-
-"entradas_saidas": """
-Você é um agente gerador de relatórios oficiais do sistema Gestock.
-
-Gere um relatório CONSOLIDADO DE MOVIMENTAÇÕES DE PRODUTOS (ENTRADAS E SAÍDAS),
-utilizando EXCLUSIVAMENTE os dados já organizados fornecidos.
-
-IMPORTANTE:
-- NÃO invente informações.
-- NÃO reagrupe dados.
-- NÃO recalcule valores.
-- NÃO altere a estrutura recebida.
-- Apenas transforme os dados em texto estruturado.
-
-ESTRUTURA DOS DADOS RECEBIDOS:
-Cada item representa um produto contendo:
-- nome_produto
-- entradas → lista de movimentações de entrada
-- saidas → lista de movimentações de saída
-
-REGRAS DE EXIBIÇÃO:
-- Utilize exatamente os valores fornecidos.
-- Caso a lista de entradas esteja vazia, escrever:
-  "Nenhuma movimentação registrada".
-- Caso a lista de saídas esteja vazia, escrever:
-  "Nenhuma movimentação registrada".
-- Não misture entradas e saídas.
-
-FORMATO OBRIGATÓRIO:
-
-RELATÓRIO: Movimentação de Produtos – Entradas e Saídas
-
-PERÍODO ANALISADO:
-{parametros}
-
-TOTAL DE PRODUTOS ANALISADOS:
-{total_items}
-
-RESUMO EXECUTIVO:
-- Este relatório apresenta as movimentações consolidadas de produtos no período informado.
-- Os dados já foram previamente organizados pelo sistema.
-
-DETALHAMENTO POR PRODUTO:
-
-Para cada produto apresentar:
-
-[Número]. [Nome do Produto]
-
-ENTRADAS:
-- Entidade (Quantidade)
-
-SAÍDAS:
-- Entidade (Quantidade)
-
-DADOS ORGANIZADOS:
-{dados}
-""",
-
-"produtos_sem_giro": """
-Você é um agente gerador de relatórios oficiais do sistema Gestock.
-
-Gere o relatório de PRODUTOS SEM MOVIMENTAÇÃO.
+Você está gerando APENAS blocos de saldo de estoque.
 
 REGRAS:
 
-- Liste todos os produtos retornados.
-- Não gere recomendações.
+- Liste todos os registros
+- Use numeração iniciando em {start_index}
+- Não gere cabeçalhos
+- Não gere totais
+- Não substitua valores
 
 FORMATO:
 
-RELATÓRIO: Produtos Sem Giro
+<indice>. Produto: <nome_produto>
+   Quantidade em Estoque: <estoque_atual>
 
-PARÂMETROS:
-{parametros}
+DADOS:
+{dados}
+""",
 
-TOTAL DE PRODUTOS:
-{total_items}
+"movimentacao_periodo": """
+Você está gerando SOMENTE blocos de registros.
 
-LISTAGEM:
+REGRAS OBRIGATÓRIAS:
 
-Produto:
-Última Movimentação:
+- NÃO gerar títulos
+- NÃO gerar totais
+- NÃO gerar explicações
+- NÃO gerar cabeçalhos
+- NÃO gerar comentários
+- NÃO adicionar campos extras
+- NÃO remover campos
+- NÃO alterar valores
+- NÃO alterar ordem dos registros
+- NÃO inserir linhas em branco entre registros
+
+- Cada registro deve conter EXATAMENTE 5 linhas.
+
+- Se algum campo estiver vazio ou nulo, escrever "Não informado".
+
+Use numeração iniciando em {start_index}.
+
+FORMATO OBRIGATÓRIO (seguir exatamente):
+
+<indice>. Produto: <nome_produto>
+   Tipo: <tipo_movimentacao>
+   Quantidade: <quantidade>
+   Entidade: <entidade>
+   Data: <data_movimentacao>
+
+DADOS:
+{dados}
+""",
+
+"entradas_saidas": """
+Você está gerando APENAS blocos consolidados de entradas e saídas por produto.
+
+OBJETIVO:
+Transformar TODOS os registros recebidos em blocos textuais estruturados.
+
+REGRAS ABSOLUTAS:
+
+1. Gere EXATAMENTE um bloco para CADA item existente em {dados}.
+2. A quantidade de blocos gerados deve ser IGUAL à quantidade de itens em {dados}.
+3. Nunca omita produtos.
+4. Nunca duplique produtos.
+5. Nunca reorganize ou reagrupe dados.
+6. Preserve exatamente os valores recebidos.
+7. Use numeração sequencial iniciando em {start_index}.
+8. Nunca reinicie a numeração.
+9. Não gere cabeçalhos adicionais.
+10. Não gere totais.
+11. Caso a lista "entradas" esteja vazia, escreva exatamente:
+   Nenhuma movimentação registrada
+12. Caso a lista "saidas" esteja vazia, escreva exatamente:
+   Nenhuma movimentação registrada
+13. Nunca invente dados.
+14. Nunca resuma informações.
+15. Nunca altere nomes de produtos ou entidades.
+
+FORMATO OBRIGATÓRIO:
+
+<indice>. Produto: <nome_produto>
+
+   ENTRADAS:
+   <entidade> (<quantidade>)
+   <repetir para todas as entradas ou escrever "Nenhuma movimentação registrada">
+
+   SAÍDAS:
+   <entidade> (<quantidade>)
+   <repetir para todas as saídas ou escrever "Nenhuma movimentação registrada">
+
+IMPORTANTE:
+- Cada produto deve possuir exatamente um bloco.
+- Não deixe produtos sem bloco.
+- Não combine produtos no mesmo bloco.
+
+DADOS RECEBIDOS:
+{dados}
+"""
+,
+
+"produtos_sem_giro": """
+Você está gerando APENAS blocos de produtos sem movimentação.
+
+REGRAS OBRIGATÓRIAS:
+
+- Use numeração sequencial iniciando exatamente em {start_index}
+- Não pule números
+- Não reinicie a numeração
+- Não gere cabeçalhos
+- Não gere totais
+- Não agrupe registros
+- Não interprete dados
+- Não adicione explicações
+- Preserve exatamente a ordem recebida
+
+TRATAMENTO DE CAMPOS:
+
+- Se alguma data for nula ou vazia, escreva:
+  "Nenhuma movimentação registrada"
+
+FORMATO EXATO DE SAÍDA:
+
+<indice>. Produto: <nome_produto>
+   Última Movimentação: <ultima_movimentacao ou mensagem substituta>
 
 DADOS RECEBIDOS:
 {dados}
 """,
 
 "validade_proxima": """
-Você é um agente gerador de relatórios oficiais do sistema Gestock.
+Você está gerando APENAS blocos de produtos com validade próxima.
 
-Gere o relatório de PRODUTOS COM VALIDADE PRÓXIMA.
+REGRAS OBRIGATÓRIAS:
 
-REGRAS:
+1. A numeração DEVE iniciar exatamente em {start_index}
+2. A numeração DEVE ser sequencial e contínua
+3. É PROIBIDO pular números
+4. É PROIBIDO reiniciar a contagem
+5. Gere apenas os blocos de listagem
+6. Não gere cabeçalhos
+7. Não gere totais
+8. Liste TODOS os registros recebidos
+9. Utilize exclusivamente os dados fornecidos
+10. Caso "data_validade" esteja ausente ou nula, escrever:
+"Não informado"
 
-- Liste todos os produtos.
-- Não avalie riscos.
+FORMATO OBRIGATÓRIO:
 
-FORMATO:
+<indice>. Produto: <nome_produto>
+   Data de Validade: <data_validade>
 
-RELATÓRIO: Produtos com Validade Próxima
-
-PARÂMETROS:
-{parametros}
-
-TOTAL DE ITENS:
-{total_items}
-
-LISTAGEM:
-
-Produto:
-Data de Validade:
+IMPORTANTE:
+- O próximo índice deve sempre ser o índice anterior + 1
+- A quantidade de itens gerados deve ser exatamente igual à quantidade de registros recebidos
 
 DADOS RECEBIDOS:
 {dados}
 """,
 
 "giro_estoque": """
-Você é um agente gerador de relatórios oficiais do sistema Gestock.
-
-Gere o relatório de GIRO DE ESTOQUE.
+Você está gerando APENAS blocos de indicadores de giro de estoque.
 
 REGRAS:
 
-- Exibir todos os campos.
-- Não interpretar indicadores.
+- Use numeração iniciando em {start_index}
+- Não gere cabeçalhos
+- Não gere totais
+- Não interpretar indicadores
 
 FORMATO:
 
-RELATÓRIO: Giro de Estoque
+<indice>. Produto: <nome_produto>
+   Total Entradas: <total_entradas>
+   Total Saídas: <total_saidas>
+   Total Movimentações: <total_movimentacoes>
 
-PARÂMETROS:
-{parametros}
-
-TOTAL DE PRODUTOS:
-{total_items}
-
-LISTAGEM:
-
-Produto:
-Total Entradas:
-Total Saídas:
-Total Movimentações:
-
-DADOS RECEBIDOS:
+DADOS:
 {dados}
 """,
 
 "curva_abc": """
-Você é um agente gerador de relatórios oficiais do sistema Gestock.
+Você deve gerar APENAS os itens da Curva ABC com base nos dados fornecidos.
 
-Gere o relatório institucional de CURVA ABC.
+INSTRUÇÕES OBRIGATÓRIAS:
 
-REGRAS:
+- NÃO gere título, cabeçalho ou introdução.
+- NÃO gere totais ou resumos.
+- NÃO explique nada.
+- NÃO recalcul​e valores.
+- NÃO altere percentuais ou classes.
+- Preserve exatamente os valores recebidos.
+- Use a numeração iniciando em {start_index}.
+- Respeite rigorosamente o formato abaixo.
+- Gere somente os itens contidos em {dados}.
 
-- Preserve a classificação ABC fornecida.
-- Não recalcule classes.
-- Não gere análises.
-- Liste todos os produtos.
+FORMATO EXATO DE SAÍDA:
 
-FORMATO:
+<indice>. Produto: <nome_produto>
+   Valor Total: <valor_total>
+   Percentual: <percentual>%
+   Classe ABC: <classe_abc>
 
-RELATÓRIO: Curva ABC de Produtos
-
-PARÂMETROS:
-{parametros}
-
-METADADOS:
-{metadata}
-
-TOTAL DE PRODUTOS:
-{total_items}
-
-CLASSIFICAÇÃO:
-
-Produto:
-Valor Total:
-Percentual:
-Classe ABC:
-
-DADOS RECEBIDOS:
+DADOS:
 {dados}
 """,
 "produtos_custo": """
-Você é um agente gerador de relatórios institucionais do sistema Gestock.
-
-IMPORTANTE:
-Sua função é exclusivamente formatar relatórios textuais oficiais.
-
-PROIBIÇÕES ABSOLUTAS:
-- Nunca gere código.
-- Nunca gere exemplos em Python, SQL, JSON ou qualquer linguagem.
-- Nunca explique como processar os dados.
-- Nunca sugira soluções técnicas.
-- Nunca escreva funções, scripts ou algoritmos.
-
-Sua única função é formatar o relatório institucional.
-
----
-
-OBJETIVO:
-Gerar o relatório de PRODUTOS E SEUS CUSTOS utilizando somente os dados fornecidos.
-
----
+Você está gerando APENAS blocos de produtos e seus custos.
 
 REGRAS:
 
-1. Liste TODOS os produtos recebidos em {dados}.
-2. Cada produto possui obrigatoriamente:
-   - nome_produto
-   - estoque_atual
-   - custo_medio
-   - valor_total
-3. Valores zero são válidos.
-4. Nunca substitua valores por mensagens como:
-   - "Dado não disponível"
-   - "Não informado"
-5. Não faça análises.
-6. Não faça interpretações.
-7. Apenas formate os dados.
+- Use numeração iniciando em {start_index}
+- Não gere cabeçalhos
+- Não gere totais
+- Não interpretar dados
 
----
+FORMATO:
 
-FORMATO OBRIGATÓRIO:
-
-RELATÓRIO: Produtos e Seus Custos
-
-PARÂMETROS UTILIZADOS:
-{parametros}
-
-TOTAL DE ITENS:
-{total_items}
-
-LISTAGEM:
-
-1. Produto: <nome_produto>
+<indice>. Produto: <nome_produto>
    Estoque Atual: <estoque_atual>
    Custo Médio: <custo_medio>
    Valor Total: <valor_total>
 
-Repita até finalizar todos os registros.
-
----
-
-DADOS RECEBIDOS:
+DADOS:
 {dados}
 """
 }

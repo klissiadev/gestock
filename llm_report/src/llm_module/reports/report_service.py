@@ -1,11 +1,12 @@
 from enum import Enum
 from typing import Any, Dict, List, Callable
-from datetime import datetime
-from decimal import Decimal
+from datetime import datetime, date, timedelta
+from decimal import Decimal, ROUND_HALF_UP
 
 from llm_module.builders.analysis_builder import AnalysisBuilder
 from llm_module.builders.movement_builder import MovementBuilder
 from llm_module.reports.report_repository import ReportRepository
+from llm_module.utils.llm_normalizer import normalize_llm_data
 
 
 class ReportType(Enum):
@@ -105,7 +106,7 @@ class ReportService:
         }
 
     # --------------------------------------------------
-    # RELATÓRIOS
+    # estoque_baixo
     # --------------------------------------------------
 
     def _estoque_baixo(self, params):
@@ -113,12 +114,22 @@ class ReportService:
         data = self.repository.get_estoque_baixo(limite)
 
         return data, {}, "Produtos com estoque abaixo do mínimo"
+    
+    # --------------------------------------------------
+    # produtos_sem_giro
+    # --------------------------------------------------
 
     def _produtos_sem_giro(self, params):
-        dias = self._safe_int(params.get("dias"), 30)
-        data = self.repository.get_produtos_sem_giro(dias)
 
-        return data, {"dias_analisados": dias}, "Produtos sem giro"
+        if "data_limite" in params:
+            data_limite = date.fromisoformat(params["data_limite"])
+        else:
+            dias = max(self._safe_int(params.get("dias"), 30), 0)
+            data_limite = date.today() - timedelta(days=dias)
+
+        data = self.repository.get_produtos_sem_giro(data_limite)
+
+        return data, {"data_limite": data_limite.isoformat()}, "Produtos sem giro"
 
 
 
@@ -134,22 +145,12 @@ class ReportService:
             data_inicio, data_fim
         )
 
-        analise = {
-            "resumo_geral": AnalysisBuilder.resumo_movimentacao(registros),
-            "totais_por_produto": AnalysisBuilder.total_por_produto(registros),
-            "totais_por_tipo": AnalysisBuilder.total_por_tipo(registros)
-        }
-
         metadata = {
             "data_inicio": data_inicio,
             "data_fim": data_fim
         }
 
-        return {
-            "registros": registros,
-            "analise": analise
-        }, metadata, "Movimentações no período"
-
+        return registros, metadata, "Movimentações no período"
     # --------------------------------------------------
     # Entradas_saida
     # --------------------------------------------------
@@ -179,9 +180,20 @@ class ReportService:
         }
 
         return dados_agrupados, metadata, "Resumo de entradas e saídas"
+    
+    # --------------------------------------------------
+    # valdiade_proxima
+    # --------------------------------------------------
+
 
     def _validade_proxima(self, params):
-        dias = self._safe_int(params.get("dias"), 30)
+
+        if "data_limite" in params:
+            data_limite = date.fromisoformat(params["data_limite"])
+            dias = max((data_limite - date.today()).days, 0)
+        else:
+            dias = max(self._safe_int(params.get("dias"), 30), 0)
+
         data = self.repository.get_validade_proxima(dias)
 
         return data, {"dias_analisados": dias}, "Produtos com validade próxima"
@@ -213,7 +225,10 @@ class ReportService:
 
         total_valor = sum(p["valor_total"] for p in produtos)
 
-        acumulado = 0
+        if total_valor == 0:
+            return [], {"valor_total_estoque": 0}, "Relatório Curva ABC"
+
+        acumulado = Decimal("0")
         resultado = []
 
         produtos_ordenados = sorted(
@@ -226,16 +241,20 @@ class ReportService:
             percentual = p["valor_total"] / total_valor
             acumulado += percentual
 
-            if acumulado <= 0.8:
+            percentual_formatado = (percentual * 100).quantize(
+                Decimal("0.01"), rounding=ROUND_HALF_UP
+            )
+
+            if acumulado <= Decimal("0.8"):
                 classe = "A"
-            elif acumulado <= 0.95:
+            elif acumulado <= Decimal("0.95"):
                 classe = "B"
             else:
                 classe = "C"
 
             resultado.append({
                 **p,
-                "percentual": percentual,
+                "percentual": percentual_formatado,
                 "classe_abc": classe
             })
 

@@ -78,20 +78,19 @@ class ReportRepository:
     # RELATÓRIO – PRODUTOS SEM GIRO
     # =====================================================
 
-    def get_produtos_sem_giro(self, dias: int) -> List[Dict[str, Any]]:
-        data_limite = (date.today() - timedelta(days=dias)).isoformat()
+    def get_produtos_sem_giro(self, data_limite: date):
 
-        sql = f"""
+        sql = """
             SELECT
                 nome_produto,
                 ultima_movimentacao
             FROM app_core.v_ultima_movimentacao_produto
             WHERE ultima_movimentacao IS NULL
-               OR ultima_movimentacao < '{data_limite}'
+            OR ultima_movimentacao > %s
             ORDER BY ultima_movimentacao NULLS FIRST
         """
 
-        return self.db.fetch_all(query=sql)
+        return self.db.fetch_all(query=sql, params=[data_limite])
 
     # =====================================================
     # RELATÓRIO – MOVIMENTAÇÕES NO PERÍODO
