@@ -18,21 +18,26 @@ import UploadDialog from "../features/upload/UploadDialog";
 
 import AdminPage from "../features/admin/AdminPage";
 import LoginPage from "../features/auth/pages/LoginPage";
+import { ProtectedRoute } from "./ProtectedRoute";
 
 const AppRoutes = () => {
   return (
     <Routes>
-      <Route path='/' element={<LoginPage/>}/>
-      <Route element={<AppLayout />}>
-        <Route path='/home' element={<HomePage2/>}/>
-        <Route path='/upload' element={<UploadDialog />}/>
-        <Route path='/sheets' element={<TabelaProduto />}/>
-        <Route path='/notifications' element={<NotificationPage/>}/>
+      <Route path='/' element={<LoginPage />} />
+      <Route element={
+        <ProtectedRoute>
+          <AppLayout />
+        </ProtectedRoute>
+      }>
+        <Route path='/home' element={<HomePage2 />} />
+        <Route path='/upload' element={<UploadDialog />} />
+        <Route path='/sheets' element={<TabelaProduto />} />
+        <Route path='/notifications' element={<NotificationPage />} />
         <Route path="/movements" element={<TabelaMovimentacao />} />
-        <Route path='/ai' element={<LLMPage/>}/>
-        <Route path='/forecast' element={<ForecastPage/>}/>
-        <Route path='/reports' element={<ReportsPage/>}/>
-        <Route path='/requests' element={<RequestsPage/>}/>
+        <Route path='/ai' element={<LLMPage />} />
+        <Route path='/forecast' element={<ForecastPage />} />
+        <Route path='/reports' element={<ReportsPage />} />
+        <Route path='/requests' element={<RequestsPage />} />
         <Route path='/debug' element={<StockSheets />} />
         <Route path='/debug2' element={<AdminPage />} />
       </Route>

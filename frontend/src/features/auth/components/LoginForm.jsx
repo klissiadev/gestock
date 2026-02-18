@@ -4,30 +4,36 @@ import {
   TextField,
   Button,
   Typography,
-  InputAdornment
+  InputAdornment,
 } from "@mui/material";
+import { useNavigate } from "react-router-dom"; 
 import ErrorOutlineIcon from "../../../assets/icon/iconError.svg?react";
-import { sendCredencials } from "../service/loginService";
+import { useAuth } from "../../../AuthContext"
 
 const LoginForm = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [error, setError] = useState(false);
+  const [localValidationError, setLocalValidationError] = useState(false);
 
-  const handleSubmit = (e) => {
+  const { loading, error, login } = useAuth();
+  const navigate = useNavigate();
+
+  const handleSubmit = async (e) => {
     e.preventDefault();
-
     if (!email || !password) {
-      setError(true);
+      setLocalValidationError(true);
       return;
     }
+    setLocalValidationError(false);
 
-    setError(false);
-    console.log("Login:", { email, password });
-
-    sendCredencials(email, password);
-
-
+    try {
+      const success = await login(email, password);
+      if (success) {
+        navigate("/home"); 
+      }
+    } catch (err) {
+      console.error("Falha na autenticação", err);
+    }
   };
 
   return (
