@@ -20,6 +20,7 @@ export async function sendCredencials(email, password) {
     }
 
     const dados = await response.json();
+    alert("login feito com sucesso");
     return dados;
     // Dados é um dict com
     // access_token e token_type
