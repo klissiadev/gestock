@@ -33,7 +33,7 @@ const Header = () => {
                         border: '1.5px solid',
                         borderColor: 'common.black'
                     }}
-                    onClick={() => logout()}
+                    onClick={() => alert("perfil aqui")}
                 >
                     <PerfilSvg width={18} height={18}/>
                 </IconButton>
