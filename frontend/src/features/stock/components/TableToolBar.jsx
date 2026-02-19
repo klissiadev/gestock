@@ -9,7 +9,7 @@ import ChatSvg from "../../../assets/icon/iconChat.svg?react";
 import InvetorySvg from "../../../assets/icon/iconInventory.svg?react";
 import DownloadButton from "./DownloadButton.jsx";
 
-const TableToolBar = ({ titulo, filters, onFilterChange }) => {
+const TableToolBar = ({ titulo}) => {
   return (
     <Stack x={1}>
       <Stack direction="row" alignItems="center" pb={1}>
