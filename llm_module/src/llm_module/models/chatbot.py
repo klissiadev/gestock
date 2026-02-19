@@ -46,6 +46,7 @@ class ChatBotService:
         self.main_model = ChatOllama(model="qwen2.5:7B", temperature=0.0)
         self.summary_model = ChatOllama(model="gemma3:270m", temperature=0.0)
         self._initialized = False
+        self._lock = asyncio.Lock()
         
         self.tools = [
             buscar_produtos_a_vencer, tool_buscar_movimentacao, 
@@ -81,30 +82,33 @@ class ChatBotService:
         ]
         
     async def init(self):
-        """Inicializa conexões assíncronas e o agente."""
-        if self._initialized: # Adicione essa flag no seu __init__
+        """Inicializa conexões assíncronas e o agente de forma segura."""
+        async with self._lock: 
+            if self._initialized:
+                return self
+
+            try:
+                await self.memory_pool.open()
+            except Exception:
+                pass
+            
+            async with self.memory_pool.connection() as conn:
+                await conn.execute("SELECT 1")
+
+            async with self.memory_pool.connection() as conn:
+                checkpointer = AsyncPostgresSaver(conn)
+                await checkpointer.setup()
+
+            self.agent = create_agent(
+                model=self.main_model,
+                middleware=self.middleware,
+                tools=self.tools,
+                system_prompt=SystemMessage(content=self._load_system_prompt()),
+                checkpointer=checkpointer,
+            )
+
+            self._initialized = True
             return self
-        
-        await self.memory_pool.open()
-        
-        async with self.memory_pool.connection() as conn:
-            await conn.execute("SELECT 1")
-        
-        # Setup de Memoria do agente
-        conn = await self.memory_pool.getconn() 
-        checkpointer = AsyncPostgresSaver(conn)
-        await checkpointer.setup()
-        
-        # Criacao do agente
-        self.agent = create_agent(
-            model=self.main_model,
-            middleware=self.middleware,
-            tools=self.tools,
-            system_prompt=SystemMessage(content=self._load_system_prompt()),
-            checkpointer=checkpointer,
-        )
-        self._initialized = True
-        return self
     
     def _load_system_prompt(self) -> str:
         if not Config.SYSTEM_PROMPT_LOCATION:
@@ -162,7 +166,7 @@ class ChatBotService:
             await self.memory_pool.close()
             logger.info("Serviço encerrado com segurança.")
 
-    async def _generate_title(self, text: str) -> str:
+    async def generate_title(self, text: str) -> str:
         """Gera um título curto e objetivo usando Llama 3.2 1B."""
         # Usar um template de poucas palavras ajuda o modelo a entender o tom "etiqueta"
         prompt = (
@@ -193,17 +197,17 @@ class ChatBotService:
 
                 # 2. Tenta atualizar o título se ele for nulo
                 # Usamos COALESCE ou conferimos se a sessão existe
-                result = await conn.execute(
-                    "SELECT title FROM app_ai.conversation_sessions WHERE session_id = %s::uuid", # LangGraph usa thread_id
-                    (session_id,)
-                )
-                row = await result.fetchone()
-                if row and row['title'] is None:
-                    new_title = await self._generate_title(user_input)
-                    await conn.execute(
-                        "UPDATE app_ai.conversation_sessions SET title = %s WHERE session_id = %s::uuid",
-                        (new_title, session_id)
-                    )
+                # result = await conn.execute(
+                #     "SELECT title FROM app_ai.conversation_sessions WHERE session_id = %s::uuid", # LangGraph usa thread_id
+                #     (session_id,)
+                # )
+                # row = await result.fetchone()
+                # if row and row['title'] is None:
+                #     new_title = await self.generate_title(user_input)
+                #     await conn.execute(
+                #         "UPDATE app_ai.conversation_sessions SET title = %s WHERE session_id = %s::uuid",
+                #         (new_title, session_id)
+                #     )
 
         except Exception as e:
             # Aqui descobriremos se o '0' é um erro de conexão ou de lógica

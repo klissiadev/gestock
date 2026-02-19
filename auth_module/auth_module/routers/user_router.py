@@ -26,6 +26,7 @@ async def create_user(user: UserCreate):
     # Converte a senha para hash binário
     hashed_password_bytes = get_password_hash(user.password)
     
+    print("teste 123")
     new_user = UserDB(
         nome=user.nome,
         email=user.email,
@@ -69,7 +70,7 @@ async def login(form_data: Annotated[OAuth2PasswordRequestForm, Depends()]):
             headers={"WWW-Authenticate": "Bearer"},
         )
     
-    access_token = create_access_token(data={"sub": user.email})
+    access_token = create_access_token(data={"sub": str(user.id)})
     return {"access_token": access_token, "token_type": "bearer"}
 
 @router.get("/me", response_model=UserPublic)

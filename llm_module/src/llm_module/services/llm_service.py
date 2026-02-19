@@ -7,7 +7,7 @@ class LLMService:
         self._initialized = False
         self._init_lock = asyncio.Lock()
 
-    async def _ensure_init(self):
+    async def ensure_init(self):
         if not self._initialized:
             async with self._init_lock:
                 if not self._initialized:
@@ -15,8 +15,7 @@ class LLMService:
                     self._initialized = True
 
     async def send_message(self, message: str, session_id: str | None):
-
-        await self._ensure_init()
+        await self.ensure_init()
 
         if not session_id:
             raise ValueError("session_id obrigatório")
@@ -33,7 +32,7 @@ class LLMService:
         message: str,
         session_id: str | None = None,
     ):
-        await self._ensure_init()
+        await self.ensure_init()
 
         async for chunk in self.chatbot.stream_message(
             user_input=message,
@@ -47,6 +46,7 @@ class LLMService:
         - Cria se vier None
         - Cria se não existir no banco
         """
+        await self.ensure_init()
 
         if not session_id:
             return await self.create_session()
@@ -57,3 +57,20 @@ class LLMService:
             return await self.create_session()
 
         return session_id
+    
+    async def generate_title(self, text: str) -> str:
+        await self.ensure_init()
+        
+        """Gera um título curto usando o modelo de sumerização."""
+        prompt = (
+            "Você é um assistente de indexação. Resuma a intenção do usuário em um título de 2 a 4 palavras.\n"
+            "Regras: Responda APENAS o título. Sem pontuação. Sem explicações.\n\n"
+            f"Entrada: '{text[:300]}'\n"
+            "Título:"
+        )
+        try:
+            res = await self.chatbot.summary_model.ainvoke(prompt)
+            title = res.content.strip().split('\n')[0].replace('"', '').replace('.', '')
+            return title if len(title) > 2 else "Nova Conversa"
+        except Exception as e:
+            return "Nova Conversa"

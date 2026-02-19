@@ -5,6 +5,7 @@ import atexit
 from auth_module.utils.env_loader import load_env_from_root
 from pydantic import EmailStr
 from auth_module.models.User import UserDB
+from uuid import UUID
 
 load_env_from_root()
 
@@ -60,6 +61,16 @@ def get_user_by_email(email: EmailStr) -> UserDB | None:
     with get_db_connection() as conn:
         with conn.cursor(row_factory=dict_row) as cur:
             cur.execute("SELECT * FROM app_core.usuarios WHERE email = %s", (email,))
+            data = cur.fetchone()
+            if data:
+                return UserDB.model_validate(data)
+            return None
+        
+def get_user_by_id(id: UUID) -> UserDB | None:
+    """Busca usuario através do ID e retornar como objeto UserDB"""
+    with get_db_connection() as conn:
+        with conn.cursor(row_factory=dict_row) as cur:
+            cur.execute("SELECT * FROM app_core.usuarios WHERE id = %s", (id,))
             data = cur.fetchone()
             if data:
                 return UserDB.model_validate(data)

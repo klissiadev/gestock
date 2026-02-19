@@ -61,6 +61,7 @@ async def login(form_data: Annotated[OAuth2PasswordRequestForm, Depends()]):
         )
     
     user = get_user_by_email(user_info.email)
+    print(f"usario que achamo: {user}")
 
     if not user or not verify_password(user_info.password, user.senha_hash):
         raise HTTPException(
@@ -68,15 +69,15 @@ async def login(form_data: Annotated[OAuth2PasswordRequestForm, Depends()]):
             detail="E-mail ou senha incorretos",
             headers={"WWW-Authenticate": "Bearer"},
         )
-    
-    access_token = create_access_token(data={"sub": user.email})
+    print(f"esse usario é como? : {user}")
+    access_token = create_access_token(data={"sub": user.id})
     return {"access_token": access_token, "token_type": "bearer"}
 
 @auth_router.get("/me", response_model=UserPublic)
 async def read_users_me(current_user: Annotated[UserPublic, Depends(get_current_user)]):
     """
     Retorna os dados do usuário autenticado.
-    Dados: nome, email e papel
+    Dados: id, nome, papel
     A dependência get_current_user já filtra os dados sensíveis.
     """
     return current_user
