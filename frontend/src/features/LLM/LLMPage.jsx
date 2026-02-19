@@ -20,6 +20,8 @@ import { fetchTitle } from "./services/titleFetcher";
 import InitalPage from "./pages/InitalPage";
 import ChatModule from "./pages/ChatModule";
 
+import { useAuth } from "../../context/AuthContext";
+
 const LLMPage = () => {
   const [title, setTitle] = useState("Minerva");
   const [sessions, setSessions] = useState([]);
@@ -33,6 +35,8 @@ const LLMPage = () => {
   const [streamingId, setStreamingId] = useState(null);
   const [updateTrigger, setUpdateTrigger] = useState(false); // Novo estado para forçar atualização do título
 
+
+
   useEffect(() => {
     loadSessions();
   }, []);
@@ -41,9 +45,9 @@ const LLMPage = () => {
   useEffect(() => {
     const loadTitle = async () => {
       try {
-        if (!selectedSession) return;
-
-        const sessionTitle = await fetchTitle(selectedSession);
+        const token = localStorage.getItem('token');
+        if (!selectedSession || !token) return;
+        const sessionTitle = await fetchTitle(selectedSession, token);
         setTitle(sessionTitle || "Nova Conversa");
       } catch (error) {
         console.error("Falha ao recuperar título:", error);
@@ -72,9 +76,9 @@ const LLMPage = () => {
 
   useEffect(() => {
     const loadMessages = async () => {
-      if (!selectedSession) return;
-
-      const history = await fetchSessionMessages(selectedSession);
+      const token = localStorage.getItem('token');
+      if (!selectedSession || !token) return;
+      const history = await fetchSessionMessages(selectedSession, token);
 
       setMessages(
         history.map((msg) => ({
@@ -89,11 +93,13 @@ const LLMPage = () => {
   }, [selectedSession]);
 
 
-
   const loadSessions = async () => {
+    const token = localStorage.getItem('token');
+    if (!token) return;
+
     setLoadingSessions(true);
     try {
-      const data = await fetchSessions();
+      const data = await fetchSessions(token);
       setSessions(data || []);
     } catch (err) {
       console.error("Erro ao carregar sessões:", err);
@@ -103,13 +109,28 @@ const LLMPage = () => {
   };
 
   const handleCreateSession = async () => {
-    const sessionId = await createSession();
-    await loadSessions();
-    setSelectedSession(sessionId);
+    const token = localStorage.getItem('token');
+    if (!token) return null;
+
+    try {
+      const sessionId = await createSession(token);
+      await loadSessions();
+      setSelectedSession(sessionId);
+      return sessionId;
+    } catch (err) {
+      console.error("Erro ao criar sessão no Neon:", err);
+      return null;
+    }
   };
 
   const handleSend = async () => {
-    if (!input.trim() || !selectedSession) return;
+    const token = localStorage.getItem('token');
+    if (!input.trim() || !token) return;
+
+    if (!currentSessionId) {
+      currentSessionId = await handleCreateSession();
+      if (!currentSessionId) throw new Error("Não foi possível iniciar uma sessão.");
+    }
 
     const messageToSend = input;
     setInput("");
@@ -131,6 +152,7 @@ const LLMPage = () => {
       await streamMessageToLLM(
         messageToSend,
         selectedSession,
+        token,
         (chunk) => {
           fullMessage += chunk;
 
@@ -166,13 +188,17 @@ const LLMPage = () => {
 
   };
 
+  if (!user && !localStorage.getItem('token')) {
+    return <InitalPage />;
+  }
+
 
   return (
     <Box
       sx={{
         height: "80vh",
         display: "flex",
-        flexDirection: "row",   // 👈 AGORA É LADO A LADO
+        flexDirection: "row",
         width: "100%",
         overflow: "hidden",
       }}
@@ -244,7 +270,7 @@ const LLMPage = () => {
                   setInput={setInput}
                   handleSend={handleSend}
                   selectedSession={selectedSession}
-                  loading={loading}/>
+                  loading={loading} />
 
               )}
             </Box>

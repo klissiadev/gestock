@@ -117,9 +117,27 @@ async def chat_llm_stream(
     )
     
 @router.get("/sessions/{session_id}/title")
-async def get_session_title(session_id: str,
-                            user: Annotated[UserPublic, Depends(get_current_user)]):
+async def get_session_title(
+    session_id: str,
+    background_tasks: BackgroundTasks,
+    user: Annotated[UserPublic, Depends(get_current_user)]
+):
     if not await session_service.is_owner(session_id, user.id):
         raise HTTPException(status_code=403, detail="Acesso negado")
     
-    return await session_service.get_session_title(session_id)
+    current_title = await session_service.get_session_title(session_id)
+    
+    if current_title is None:
+        messages = await session_service.get_session_messages(session_id, limit=1)
+        
+        if messages:
+            first_msg_content = messages[0]["content"]
+            background_tasks.add_task(
+                task_generate_session_title, 
+                session_id, 
+                first_msg_content
+            )
+        
+        return "Nova Conversa" 
+    
+    return current_title
