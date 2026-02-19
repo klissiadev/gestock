@@ -26,6 +26,8 @@ import UploadSvg from "../../assets/icon/iconUpload.svg?react";
 import ChevronRightIcon from "@mui/icons-material/ChevronRight";
 import ChevronLeftIcon from "@mui/icons-material/ChevronLeft";
 
+import { useAuth } from "../../AuthContext";
+
 
 const menuItems = [
   { id: "home", icon: HomeSvg, title: "Home" },
@@ -41,6 +43,7 @@ const menuItems = [
 export default function SideBar({ active, onChange, expanded, onToggle }) {
   const COLLAPSED_WIDTH = 66;
   const EXPANDED_WIDTH = 180;
+  const {logout } = useAuth();
 
   return (
     <Drawer
@@ -161,6 +164,7 @@ export default function SideBar({ active, onChange, expanded, onToggle }) {
             px: expanded ? 1.4 : 2.4,
             py: 0.8,
           }}
+          onClick={() => logout()}
         >
           <ListItemIcon
             sx={{
