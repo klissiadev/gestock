@@ -1,6 +1,7 @@
 from typing import List, Dict
-from uuid import uuid4
+from uuid import uuid4, UUID
 from datetime import datetime
+from fastapi import HTTPException
 
 from llm_module.services.llm_service import LLMService
 
@@ -9,25 +10,30 @@ class LLMSessionService:
     def __init__(self, llm_service: LLMService):
         self.llm_service = llm_service
 
-    async def create_session(self) -> str:
-        await self.llm_service.chatbot.init()
+    async def create_session(self, id: UUID) -> str:
+        """
+        Recebe o id do usuario e cria uma sessão pra ele
+        """
+        await self.llm_service.ensure_init()
         session_id = str(uuid4())
 
         query = """
             INSERT INTO app_ai.conversation_sessions (
-                session_id, created_at, updated_at
+                id_usuario, session_id, created_at, updated_at
             )
-            VALUES (%s, NOW(), NOW())
+            VALUES (%s, %s, NOW(), NOW())
         """
 
         async with self.llm_service.chatbot.memory_pool.connection() as conn:
-            await conn.execute(query, (session_id,))
+            await conn.execute(query, (id, session_id,))
 
         return session_id
 
     async def session_exists(self, session_id: str) -> bool:
-        await self.llm_service.chatbot.init()
-
+        """
+        Verifica se a sessão existe com base no ID de sessão
+        """
+        await self.llm_service.ensure_init()
         query = """
             SELECT 1
             FROM app_ai.conversation_sessions
@@ -39,17 +45,20 @@ class LLMSessionService:
             cursor = await conn.execute(query, (session_id,))
             return await cursor.fetchone() is not None
 
-    async def list_sessions(self) -> List[Dict]:
-        await self.llm_service.chatbot.init()
-
+    async def list_sessions(self, id: UUID) -> List[Dict]:
+        """cl
+        Lista as sessões vinculadas a um id de usuario especifico
+        """
+        await self.llm_service.ensure_init()
         query = """
             SELECT session_id, title, updated_at
             FROM app_ai.conversation_sessions
-            ORDER BY updated_at DESC
+            WHERE id_usuario = %s
+            ORDER BY updated_at DESC 
         """
 
         async with self.llm_service.chatbot.memory_pool.connection() as conn:
-            cursor = await conn.execute(query)
+            cursor = await conn.execute(query, (id, ))
             rows = await cursor.fetchall()
 
         return [
@@ -67,7 +76,7 @@ class LLMSessionService:
             SET updated_at = NOW()
             WHERE session_id = %s
         """
-
+        await self.llm_service.ensure_init()
         async with self.llm_service.chatbot.memory_pool.connection() as conn:
             await conn.execute(query, (session_id,))
 
@@ -77,7 +86,7 @@ class LLMSessionService:
         limit: int = 100,
         offset: int = 0
     ) -> List[Dict]:
-
+        await self.llm_service.ensure_init()
         query = """
             SELECT id, user_message, bot_response, created_at
             FROM app_ai.conversation_logs
@@ -109,26 +118,26 @@ class LLMSessionService:
 
         return messages
     
-
-    
-    async def ensure_session(self, session_id: str | None) -> str:
+    async def ensure_session(self, session_id: str | None, user_id: UUID) -> str:
         """
-        Garante que sempre exista uma sessão válida.
-        - Cria se vier None
-        - Cria se não existir no banco
+        Garante que a sessão seja válida E pertença ao usuário.
         """
-
+        await self.llm_service.ensure_init()
+        # Se session_id é None: cria uma nova
         if not session_id:
-            return await self.create_session()
+            return await self.create_session(user_id)
 
-        exists = await self.session_exists(session_id)
+        # se é um dono valido
+        is_valid_owner = await self.is_owner(session_id, user_id)
 
-        if not exists:
-            return await self.create_session()
+        if not is_valid_owner:
+            raise HTTPException(status_code=404, detail="Acesso proibido")
 
         return session_id
+
     
     async def get_session_title(self, session_id: str) -> str | None:
+        await self.llm_service.ensure_init()
         query = "SELECT title FROM app_ai.conversation_sessions WHERE session_id = %s::uuid"
 
         async with self.llm_service.chatbot.memory_pool.connection() as conn:
@@ -139,3 +148,22 @@ class LLMSessionService:
             return row["title"]
 
         return None
+    
+    async def update_session_title(self, session_id: str, title: str):
+        await self.llm_service.ensure_init()
+        query = "UPDATE app_ai.conversation_sessions SET title = %s WHERE session_id = %s::uuid"
+        async with self.llm_service.chatbot.memory_pool.connection() as conn:
+            await conn.execute(query, (title, session_id))
+    
+    async def is_owner(self, session_id: str, user_id: UUID) -> bool:
+        await self.llm_service.ensure_init()
+        query = """
+                SELECT 1
+                FROM app_ai.conversation_sessions
+                WHERE session_id = %s AND id_usuario = %s
+                LIMIT 1
+                """ 
+        
+        async with self.llm_service.chatbot.memory_pool.connection() as conn:
+            cursor = await conn.execute(query, (session_id, user_id))
+            return await cursor.fetchone() is not None

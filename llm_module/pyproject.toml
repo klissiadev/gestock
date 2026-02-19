@@ -19,10 +19,14 @@ dependencies = [
     "pytest-asyncio>=1.3.0",
     "psycopg[binary]>=3.3.2",
     "langgraph-checkpoint-postgres>=3.0.3",
+    "auth-module",
 ]
 
 [tool.poetry]
 packages = [{include = "llm_module", from = "src"}]
+
+[tool.uv.sources]
+auth-module = { path = "../auth_module", editable = true }
 
 [build-system]
 requires = ["poetry-core>=2.0.0,<3.0.0"]

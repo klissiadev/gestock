@@ -1,5 +1,7 @@
 from enum import Enum
+from uuid import UUID
 from pydantic import EmailStr, BaseModel, Field, ConfigDict
+from typing import Optional
 
 class UserRole(str, Enum):
     ADMIN = "admin"
@@ -19,14 +21,15 @@ class UserLogin(BaseModel):
 
 # Retorno da API
 class UserPublic(BaseModel):
+    id: UUID
     nome: str
-    email: EmailStr 
     papel: UserRole
 
     model_config = ConfigDict(from_attributes=True)
 
 # Modelo Interno
 class UserDB(BaseModel):
+    id: Optional[UUID] = None
     nome: str
     email: EmailStr
     senha_hash: bytes

@@ -6,10 +6,11 @@ import jwt
 from pwdlib import PasswordHash
 from fastapi import Depends, HTTPException, status
 from auth_module.models.User import UserPublic
-from auth_module.utils.database import get_user_by_email
+from auth_module.utils.database import get_user_by_email, get_user_by_id
 import os
 from auth_module.utils.env_loader import load_env_from_root
 from fastapi.security import OAuth2PasswordBearer
+from uuid import UUID
 
 load_env_from_root()
 
@@ -39,16 +40,16 @@ def get_current_user(token: Annotated[str, Depends(oauth_scheme)]) -> UserPublic
         detail="Credenciais inválidas",
         headers={"WWW-Authenticate": "Bearer"},
     )
-    
+
     try:
         payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
-        email: str = payload.get("sub")
-        if email is None:
+        id_usr = payload.get("sub")
+        if id_usr is None:
             raise credentials_exception
+        id_usr_uuid = UUID(id_usr)
     except jwt.PyJWTError:
         raise credentials_exception
-
-    user = get_user_by_email(email)
+    user = get_user_by_id(id=id_usr_uuid)
     if user is None:
         raise credentials_exception
     
