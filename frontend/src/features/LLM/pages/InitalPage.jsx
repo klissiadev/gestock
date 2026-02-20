@@ -24,7 +24,7 @@ const InitalPage = ({ input, setInput, handleSend, loading }) => {
                 disabled={loading}
             />
             <FAQSuggestions
-                onSelectSuggestion={(text) => handleSend(text)}
+                onSelectSuggestion={(text) => setInput(text)}
             />
         </Box>
     )
