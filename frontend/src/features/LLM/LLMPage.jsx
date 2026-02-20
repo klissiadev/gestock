@@ -16,9 +16,10 @@ const LLMPage = () => {
   const [historyOpen, setHistoryOpen] = useState(false);
 
 
+
   const {
     sessions, selectedSession, setSelectedSession,
-    messages, loading, title, updateTrigger,
+    messages, setMessages, setTitle, loading, setLoading, title, updateTrigger,
     loadSessions, createNewSession, loadMessages,
     handleSend, input, setInput
   } = useMinerva();
@@ -28,28 +29,45 @@ const LLMPage = () => {
     loadSessions();
   }, [loadSessions, updateTrigger]);
 
+  useEffect(() => {
+    // SÓ cria se não houver uma sessão selecionada E não houver ID vindo da navegação
+
+    if (!selectedSession && !location.state?.sessionId) {
+      createNewSession();
+    }
+  }, []);
+
   // Navegação: Se vier de outro lugar com um ID de sessão
   useEffect(() => {
     const { sessionId } = location.state || {};
+
     if (sessionId) {
       setSelectedSession(sessionId);
-      loadSessions();
+      loadMessages(sessionId, true);
+    } else {
+      setSelectedSession("");
+      setMessages([]);
+      setTitle("Minerva");
     }
-  }, [location.state, setSelectedSession, loadSessions]);
+
+    loadSessions();
+  }, [location.state]); 
 
   // Sincronização: Carrega mensagens sempre que a sessão mudar
   useEffect(() => {
-    if (selectedSession) {
-      loadMessages(selectedSession);
+    setLoading(true)
+    if (selectedSession && !loading) {
+      loadMessages(selectedSession, true);
     }
-  }, [selectedSession, loadMessages]);
+    setLoading(false)
+  }, [selectedSession]);
 
 
-useEffect(() => {
-  if (!user && !localStorage.getItem('token')) {
-    navigate("/"); 
-  }
-}, [user]);
+  useEffect(() => {
+    if (!user && !localStorage.getItem('token')) {
+      navigate("/");
+    }
+  }, [user]);
 
 
   return (
@@ -109,7 +127,7 @@ useEffect(() => {
                 flexDirection: "column",
               }}
             >
-              {messages.length === 0 ? (
+              {messages.length === 0 && !loading ? (
                 // LAYOUT INICIAL PARA QUANDO NÃO HOUVER MENSAGENS
                 <InitalPage
                   input={input}

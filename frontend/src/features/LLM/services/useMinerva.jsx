@@ -36,18 +36,24 @@ export const useMinerva = () => {
   };
 
   // Carrega as mensagens de uma sessão específica
-  const loadMessages = useCallback(async (sid) => {
+  const loadMessages = useCallback(async (sid, isManual = false) => {
     if (!sid) return;
-
     try {
       const history = await llmAPI.fetchMessages(sid);
-      setMessages(history.map(msg => ({
-        id: crypto.randomUUID(),
-        role: msg.role,
-        content: msg.content
-      })));
 
-      // Busca o título atualizado
+      // SÓ limpamos se o usuário clicou manualmente no histórico
+      if (isManual) setMessages([]);
+
+      // 💡 ESCUDO: Só atualiza as mensagens se o banco tiver dados OU for clique manual.
+      // Isso impede que o banco "vazio" apague sua mensagem otimista no início.
+      if (isManual || (history && history.length > 0)) {
+        setMessages(history.map(msg => ({
+          id: msg.id || crypto.randomUUID(),
+          role: msg.role,
+          content: msg.content
+        })));
+      }
+
       const sessionTitle = await llmAPI.fetchTitle(sid);
       setTitle(sessionTitle || "Nova Conversa");
     } catch (err) {
@@ -59,11 +65,7 @@ export const useMinerva = () => {
   const sendMessage = async (input) => {
     if (!input.trim()) return;
 
-    // Criar nova sessão se nao tiver
-    let currentId = selectedSession;
-    if (!currentId) {
-      currentId = await createNewSession();
-    }
+    setLoading(true);
 
     const assistantId = crypto.randomUUID();
     setMessages(prev => [
@@ -72,7 +74,12 @@ export const useMinerva = () => {
       { id: assistantId, role: "assistant", content: "" }
     ]);
 
-    setLoading(true);
+    // Criar nova sessão se nao tiver
+    let currentId = selectedSession;
+    if (!currentId) {
+      currentId = await createNewSession();
+    }
+    
     try {
       let fullText = "";
       await llmAPI.streamMessage(input, currentId, (chunk) => {
@@ -95,21 +102,19 @@ export const useMinerva = () => {
   };
 
   // Botao "enviar mensagem"
-  const handleSend = async () => {
-    if (!input.trim() || loading) return;
+  const handleSend = async (manualText = null) => {
 
-    const messageToSend = input;
+    const messageToSend = (typeof manualText === 'string') ? manualText : input;
+    if (!messageToSend || !messageToSend.trim() || loading) return;
     setInput("");
 
     await sendMessage(messageToSend);
-
-
   };
 
 
   return {
     sessions, selectedSession, setSelectedSession,
-    messages, loading, title, updateTrigger,
+    messages, setMessages, setTitle, loading, setLoading, title, updateTrigger,
     loadSessions, createNewSession, loadMessages, sendMessage,
     handleSend, input, setInput
   };

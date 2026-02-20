@@ -37,7 +37,7 @@ const FAQSuggestions = ({ onSelectSuggestion }) => {
           >
             <Chip
               label={text}
-              onClick={() => onSelectSuggestion?.(text)}
+              onClick={() => onSelectSuggestion(text)}
               sx={{ width: "100%", borderRadius: 2, cursor: "pointer" }}
             />
           </Box>
