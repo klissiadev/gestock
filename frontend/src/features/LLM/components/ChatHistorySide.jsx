@@ -8,6 +8,7 @@ import SessionItem from "./SessionItem";
 const ChatHistorySide = ({
   open,
   onClose,
+  setMessages,
   sessions,
   selectedSession,
   onSelectSession,
@@ -63,6 +64,7 @@ const ChatHistorySide = ({
             color="primary"
             startIcon={<AddSvg width={18} height={18} />}
             onClick={() => {
+              setMessages([]);
               onCreateSession();
               onClose();
             }}

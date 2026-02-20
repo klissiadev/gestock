@@ -27,7 +27,7 @@ export const useMinerva = () => {
       const sessionId = data.session_id;
       await loadSessions();
       setSelectedSession(sessionId);
-      setMessages([]);
+      //setMessages([]);
       setTitle("Nova Conversa");
       return sessionId;
     } catch (err) {
@@ -41,12 +41,14 @@ export const useMinerva = () => {
     try {
       const history = await llmAPI.fetchMessages(sid);
 
-      // SÓ limpamos se o usuário clicou manualmente no histórico
+      // 💡 SÓ limpamos a tela se for um clique manual no histórico lateral
       if (isManual) setMessages([]);
 
-      // 💡 ESCUDO: Só atualiza as mensagens se o banco tiver dados OU for clique manual.
-      // Isso impede que o banco "vazio" apague sua mensagem otimista no início.
-      if (isManual || (history && history.length > 0)) {
+      // 💡 A TRAVA DE SEGURANÇA:
+      // Só atualizamos o estado se o banco de dados tiver mensagens.
+      // Se o histórico vier vazio (o que acontece na primeira mensagem),
+      // nós NÃO fazemos nada. Isso mantém a sua mensagem otimista na tela!
+      if (history && history.length > 0) {
         setMessages(history.map(msg => ({
           id: msg.id || crypto.randomUUID(),
           role: msg.role,
@@ -79,7 +81,7 @@ export const useMinerva = () => {
     if (!currentId) {
       currentId = await createNewSession();
     }
-    
+
     try {
       let fullText = "";
       await llmAPI.streamMessage(input, currentId, (chunk) => {
