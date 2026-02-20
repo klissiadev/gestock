@@ -20,7 +20,7 @@ import { fetchTitle } from "./services/titleFetcher";
 import InitalPage from "./pages/InitalPage";
 import ChatModule from "./pages/ChatModule";
 
-import { useAuth } from "../../context/AuthContext";
+import { useAuth } from "../../AuthContext";
 
 const LLMPage = () => {
   const [title, setTitle] = useState("Minerva");

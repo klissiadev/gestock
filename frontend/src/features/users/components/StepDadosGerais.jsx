@@ -68,7 +68,7 @@ export default function StepDadosGerais({ onNext }) {
       </Box>
 
        <Box display="flex" flexDirection="row" gap={2} justifySelf={"flex-end"} mt={10} mr={4} width={"70%"} >
-          <Button sx={cancel_button} >Cancelar</Button>
+          <Button sx={cancel_button}>Cancelar</Button>
           <Button sx={accept_button} onClick={handleNext}>
             Próximo
           </Button>

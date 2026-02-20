@@ -5,7 +5,6 @@ export default function StepContainer({ children }) {
     <Box
       sx={{
         width: 520,
-        height:"100%",
         backgroundColor: (theme) => theme.palette.uploadBox.main,
         borderRadius: 2,
         p: 4,
