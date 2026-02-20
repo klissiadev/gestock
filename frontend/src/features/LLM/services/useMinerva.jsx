@@ -49,9 +49,7 @@ export const useMinerva = () => {
 
       // Busca o título atualizado
       const sessionTitle = await llmAPI.fetchTitle(sid);
-      console.log("Titulo achado: ", sessionTitle);
       setTitle(sessionTitle || "Nova Conversa");
-      console.log("Titulo definido: ", title);
     } catch (err) {
       console.error("Erro ao carregar mensagens:", err);
     }
@@ -85,9 +83,12 @@ export const useMinerva = () => {
       });
 
       // Se for uma conversa nova, avisa para atualizar o título na lateral
-      if (title === "Minerva" || title === "Nova Conversa") {
+      setUpdateTrigger(prev => !prev);
+      setTimeout(async () => {
+        await loadSessions();
         setUpdateTrigger(prev => !prev);
-      }
+      }, 1500);
+
     } finally {
       setLoading(false);
     }
@@ -101,6 +102,8 @@ export const useMinerva = () => {
     setInput("");
 
     await sendMessage(messageToSend);
+
+
   };
 
 

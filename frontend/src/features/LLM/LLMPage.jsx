@@ -1,20 +1,9 @@
 import { useEffect, useState } from "react";
 import { Box } from "@mui/material";
-import { useLocation } from "react-router-dom";
-
-
-
-import {
-  fetchSessions,
-  createSession,
-  fetchSessionMessages,
-  streamMessageToLLM
-} from "../../api/LLMAPI";
+import { useLocation, useNavigate } from "react-router-dom";
 
 import ChatHeader from "./components/ChatHeader";
 import ChatHistorySide from "./components/ChatHistorySide";
-
-import { fetchTitle } from "./services/titleFetcher";
 import InitalPage from "./pages/InitalPage";
 import ChatModule from "./pages/ChatModule";
 
@@ -30,14 +19,14 @@ const LLMPage = () => {
   const {
     sessions, selectedSession, setSelectedSession,
     messages, loading, title, updateTrigger,
-    loadSessions, createNewSession, loadMessages, sendMessage,
+    loadSessions, createNewSession, loadMessages,
     handleSend, input, setInput
   } = useMinerva();
 
   // Inicialização: Carrega sessões ao montar a página
   useEffect(() => {
     loadSessions();
-  }, [loadSessions]);
+  }, [loadSessions, updateTrigger]);
 
   // Navegação: Se vier de outro lugar com um ID de sessão
   useEffect(() => {
@@ -55,10 +44,12 @@ const LLMPage = () => {
     }
   }, [selectedSession, loadMessages]);
 
-  // Proteção de rota simples
+
+useEffect(() => {
   if (!user && !localStorage.getItem('token')) {
-    return <InitalPage />;
+    navigate("/"); 
   }
+}, [user]);
 
 
   return (
@@ -123,8 +114,8 @@ const LLMPage = () => {
                 <InitalPage
                   input={input}
                   setInput={setInput}
-                  handleSend={sendMessage}
                   loading={loading}
+                  handleSend={handleSend}
                 />
               ) : (
                 // LAYOUT DO CHAT PROPRIAMENTE DITO
@@ -145,7 +136,6 @@ const LLMPage = () => {
       <ChatHistorySide
         open={historyOpen}
         onClose={() => setHistoryOpen(false)}
-
         sessions={sessions}
         selectedSession={selectedSession}
         onSelectSession={setSelectedSession}

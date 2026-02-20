@@ -6,7 +6,7 @@ const getHeaders = (token) => ({
 });
 
 // Fetch autenticado principal
-async function apiFetch( endpoint, options = {}) {
+async function apiFetch(endpoint, options = {}) {
   const token = localStorage.getItem('token');
   const headers = {
     "Content-Type": "application/json",
@@ -18,8 +18,10 @@ async function apiFetch( endpoint, options = {}) {
 
   if (!response.ok) {
     if (response.status === 401) {
-      // Opcional: Redirecionar para login ou disparar logout do context
-      console.warn("Sessão expirada");
+      localStorage.removeItem('token');
+      window.location.href = "/";
+
+      throw new Error("Sessão expirada");
     }
     throw new Error(`Erro na API: ${response.statusText}`);
   }
@@ -29,11 +31,11 @@ async function apiFetch( endpoint, options = {}) {
 
 export const llmAPI = {
   fetchSessions: () => apiFetch("/llm/sessions").then(r => r.json()),
-  
+
   createSession: () => apiFetch("/llm/sessions", { method: "POST" }).then(r => r.json()),
-  
+
   fetchMessages: (sid) => apiFetch(`/llm/sessions/${sid}/messages`).then(r => r.json()),
-  
+
   fetchTitle: (sid) => apiFetch(`/llm/sessions/${sid}/title`).then(r => r.json()),
 
   // O stream continua especial por causa do reader

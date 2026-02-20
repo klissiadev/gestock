@@ -13,7 +13,6 @@ from langgraph.checkpoint.postgres.aio import AsyncPostgresSaver
 from psycopg_pool import AsyncConnectionPool
 from psycopg.rows import dict_row
 from langchain_core.messages import SystemMessage, HumanMessage, AIMessageChunk
-
 from llm_module.tools.sql_tools import (
     tool_buscar_produto,
     tool_listar_produtos,
@@ -23,22 +22,11 @@ from llm_module.tools.sql_tools import (
     buscar_produtos_a_vencer,
     buscar_produtos_abaixo_estoque,
 )
+from llm_module.utils.config import Config
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.WARNING)
 load_env_from_root()
-
-class Config:
-    """Centraliza as configurações do ambiente."""
-    SYSTEM_PROMPT_LOCATION = os.getenv("SYSTEM_PROMPT_LOCATION")
-    MAX_INPUT_SIZE = int(os.getenv("MAX_INPUT_LENGTH", "4000"))
-    
-    # Adicione ?sslmode=require ao final da URL
-    DB_URI = (
-        f"postgres://{os.getenv('DB_LLM_USER')}:{os.getenv('DB_LLM_PASSWORD')}"
-        f"@{os.getenv('DB_HOST')}:{os.getenv('DB_PORT')}/{os.getenv('DB_NAME')}"
-        f"?sslmode=require&channel_binding=require"
-    )
 
     
 class ChatBotService:
@@ -46,31 +34,13 @@ class ChatBotService:
         self.main_model = ChatOllama(model="qwen2.5:7B", temperature=0.0)
         self.summary_model = ChatOllama(model="gemma3:270m", temperature=0.0)
         self._initialized = False
-        self._lock = asyncio.Lock()
-        
+        self.agent = None
         self.tools = [
             buscar_produtos_a_vencer, tool_buscar_movimentacao, 
             tool_buscar_produto, tool_listar_produtos, 
             tool_calcular_validade, tool_listar_movimentacoes, 
             buscar_produtos_abaixo_estoque
         ]
-        
-        self.agent = None
-        self.memory_pool = self._prepare_db_pool()
-        self.middleware = self._setup_middleware()
-        self._background_tasks = set()
-        
-    def _prepare_db_pool(self) -> AsyncConnectionPool:
-        return AsyncConnectionPool(
-            conninfo=Config.DB_URI,
-            max_size=20,
-            kwargs={
-                "autocommit": True,
-                "prepare_threshold": 0,
-                "row_factory": dict_row,
-            },
-            open=False
-        )
         
     def _setup_middleware(self) -> List[SummarizationMiddleware]:
         return [
@@ -81,34 +51,18 @@ class ChatBotService:
             )
         ]
         
-    async def init(self):
-        """Inicializa conexões assíncronas e o agente de forma segura."""
-        async with self._lock: 
-            if self._initialized:
-                return self
+    async def init(self, checkpointer: AsyncPostgresSaver):
+        """Inicializa o agente de forma segura."""
+        if self._initialized: return self
 
-            try:
-                await self.memory_pool.open()
-            except Exception:
-                pass
-            
-            async with self.memory_pool.connection() as conn:
-                await conn.execute("SELECT 1")
-
-            async with self.memory_pool.connection() as conn:
-                checkpointer = AsyncPostgresSaver(conn)
-                await checkpointer.setup()
-
-            self.agent = create_agent(
-                model=self.main_model,
-                middleware=self.middleware,
-                tools=self.tools,
-                system_prompt=SystemMessage(content=self._load_system_prompt()),
-                checkpointer=checkpointer,
-            )
-
-            self._initialized = True
-            return self
+        self.agent = create_agent(
+            model=self.main_model,
+            tools=self.tools,
+            system_prompt=SystemMessage(content=self._load_system_prompt()),
+            checkpointer=checkpointer, # 💡 Recebe o checkpointer pronto
+        )
+        self._initialized = True
+        return self
     
     def _load_system_prompt(self) -> str:
         if not Config.SYSTEM_PROMPT_LOCATION:
@@ -116,108 +70,21 @@ class ChatBotService:
         
         loader = TextLoader(Config.SYSTEM_PROMPT_LOCATION, encoding='utf-8')
         return loader.load()[0].page_content
-    
-    def _validate_input(self, text: str):
-        if not isinstance(text, str) or not text.strip():
-            raise ValueError("A entrada deve ser uma string não vazia.")
-        
-        if len(text.strip()) > Config.MAX_INPUT_SIZE:
-            raise RuntimeError(f"Entrada excede o limite de {Config.MAX_INPUT_SIZE} caracteres.")
 
     async def send_message(self, user_input: str, session_id: str = "guest") -> Any:
         if not self.agent:
             raise RuntimeError("Serviço não inicializado. Execute 'await service.init()'.")
 
-        try:
-            self._validate_input(user_input)
-
-            result = await self.agent.ainvoke(
-                {"messages": [HumanMessage(content=user_input)]},
-                {"configurable": {"thread_id": session_id}},
-            )
-            
-            bot_response = result["messages"][-1].content
-            
-            # Agenda o armazenamento de logs no banco de dados e protege de ser morto pelo GC
-            task = asyncio.create_task(
-                self._save_log(session_id, user_input, bot_response)
-            )
-            self._background_tasks.add(task)
-            task.add_done_callback(self._background_tasks.discard)
-            
-            return result["messages"][-1].content
-
-        except Exception as e:
-            logger.error(f"Erro na sessão {session_id}: {str(e)}", exc_info=True)
-            return {
-                "status": "error",
-                "session_id": session_id,
-                "response": "Desculpe, ocorreu um erro interno.",
-                "details": str(e)
-            }
-            
-    async def close(self):
-        """Fecha as conexões e aguarda tarefas pendentes."""
-        if self._background_tasks:
-            # Aguarda todas as tarefas de log pendentes terminarem
-            await asyncio.gather(*self._background_tasks, return_exceptions=True)
-
-        if self.memory_pool:
-            await self.memory_pool.close()
-            logger.info("Serviço encerrado com segurança.")
-
-    async def generate_title(self, text: str) -> str:
-        """Gera um título curto e objetivo usando Llama 3.2 1B."""
-        # Usar um template de poucas palavras ajuda o modelo a entender o tom "etiqueta"
-        prompt = (
-            "Você é um assistente de indexação. Resuma a intenção do usuário em um título de 2 a 4 palavras.\n"
-            "Regras: Responda APENAS o título. Sem pontuação. Sem explicações.\n\n"
-            f"Entrada: '{text[:300]}'\n"
-            "Título:"
+        resultado = await self.agent.ainvoke(
+            {"messages": [HumanMessage(content=user_input)]},
+            {"configurable": {"thread_id": session_id}},
         )
 
-        try:
-            res = await self.summary_model.ainvoke(prompt)
-            title = res.content.strip().split('\n')[0].replace('"', '').replace('.', '')
-            return title if len(title) > 2 else "Nova Conversa"
-            
-        except Exception as e:
-            logger.error(f"Erro ao gerar título: {e}")
-            return "Nova Conversa"
-
-    async def _save_log(self, session_id: str, user_input: str, bot_output: str):
-    # Melhore o log de erro para investigar o "0"
-        try:
-            async with self.memory_pool.connection() as conn:
-                # 1. Salva o log da conversa
-                await conn.execute(
-                    "INSERT INTO app_ai.conversation_logs (session_id, user_message, bot_response) VALUES (%s, %s, %s)",
-                    (session_id, user_input, bot_output)
-                )
-
-                # 2. Tenta atualizar o título se ele for nulo
-                # Usamos COALESCE ou conferimos se a sessão existe
-                # result = await conn.execute(
-                #     "SELECT title FROM app_ai.conversation_sessions WHERE session_id = %s::uuid", # LangGraph usa thread_id
-                #     (session_id,)
-                # )
-                # row = await result.fetchone()
-                # if row and row['title'] is None:
-                #     new_title = await self.generate_title(user_input)
-                #     await conn.execute(
-                #         "UPDATE app_ai.conversation_sessions SET title = %s WHERE session_id = %s::uuid",
-                #         (new_title, session_id)
-                #     )
-
-        except Exception as e:
-            # Aqui descobriremos se o '0' é um erro de conexão ou de lógica
-            logger.error(f"Erro detalhado no log: {type(e).__name__}: {e}", exc_info=True)
-
+        return resultado["messages"][-1].content
+    
     async def stream_message(self, user_input: str, session_id: str = "guest"):
         if not self.agent:
             raise RuntimeError("Agente não inicializado.")
-
-        self._validate_input(user_input)
         
         full_response = []
         async for token, metadata in self.agent.astream(
@@ -225,7 +92,6 @@ class ChatBotService:
             {"configurable": {"thread_id": session_id}},
             stream_mode="messages" 
         ):
-            # ignorar tokens que não são do modelo (ex: tool calls)
             if not isinstance(token, AIMessageChunk):
                 continue
             text = token.text
@@ -233,41 +99,6 @@ class ChatBotService:
                 full_response.append(text)
                 yield text
 
-        # resposta completa
-        complete_text = "".join(full_response)
-
-        # salvar em background
-        task = asyncio.create_task(
-            self._save_log(session_id, user_input, complete_text)
-        )
-        self._background_tasks.add(task)
-        task.add_done_callback(self._background_tasks.discard)
-
-"""
-Bloco de testes, um exemplo de como chamar a Minerva
-"""
-async def main():
-    chatbot = ChatBotService()
-    await chatbot.init()
-    try:
-        user_input = "Quais produtos estão a vencer nos próximos 30 dias?"
-        print("Enviando mensagem para o chatbot: Titulo Papo de Maluco")
-        resposta = await chatbot.send_message(user_input, session_id="301bc7d2-891a-4c06-a178-c5fea5dd0c61")
-        print("Resposta do chatbot:")
-        print(resposta)
-
-    finally:
-        await chatbot.close()
-        
-if __name__ == "__main__":
-    # Detecta se é Windows para aplicar a correção de loop
-    if os.name == 'nt':
-        asyncio.set_event_loop_policy(asyncio.WindowsSelectorEventLoopPolicy())
-    
-    try:
-        asyncio.run(main())
-    except KeyboardInterrupt:
-        print("\nBot desligado pelo usuário.")
     
 
 
