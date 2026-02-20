@@ -1,27 +1,32 @@
-import { useState, useEffect } from 'react'
 import { Box, Typography } from "@mui/material";
+import { useEffect, useState, memo } from "react";
 import { fetchTitle } from "../services/titleFetcher";
 
-const SessionItem = ({ id, isSelected, onSelect, updateTrigger }) => {
-    const [title, setTitle] = useState(null);
+const SessionItem = ({ id, title, isSelected, onSelect, updateTrigger }) => {
+    const [titulo, setTitulo] = useState(title);
 
     useEffect(() => {
         const loadTitle = async () => {
+            if (title && !updateTrigger) return;
+
+            const token = localStorage.getItem('token');
+            if (!id || !token) return;
+
             try {
-                const data = await fetchTitle(id);
-                setTitle(data);
+                const data = await fetchTitle(id, token);
+                console.log("Titulo definido: ", data);
+                setTitulo(data);
             } catch (error) {
-                console.error("Erro no título:", error);
+                console.error("Erro ao buscar título:", error);
             }
         };
 
-        if (id) loadTitle();
+        loadTitle();
+    }, [id, updateTrigger]);
 
-    }, [updateTrigger]);
-
-
-
-    const displayTitle = title || "Nova conversa";
+    useEffect(() => {
+        if (title) setTitulo(title);
+    }, [title]);
 
     return (
         <Box
@@ -49,10 +54,10 @@ const SessionItem = ({ id, isSelected, onSelect, updateTrigger }) => {
                     fontWeight: isSelected ? 600 : 400,
                 }}
             >
-                {displayTitle}
+                {titulo || "Nova conversa"}
             </Typography>
         </Box>
     );
 };
 
-export default SessionItem
+export default memo(SessionItem);

@@ -12,12 +12,8 @@ const ChatHistorySide = ({
   selectedSession,
   onSelectSession,
   onCreateSession,
-  updateTrigger,
+  updateTrigger
 }) => {
-
-
-
-
 
   return (
     <Box
@@ -94,6 +90,7 @@ const ChatHistorySide = ({
                 id={id}
                 isSelected={id === selectedSession}
                 onSelect={onSelectSession}
+                title={s.title}
                 updateTrigger={updateTrigger}
               />
             );

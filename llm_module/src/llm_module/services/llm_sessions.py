@@ -146,6 +146,8 @@ class LLMSessionService:
 
         if row:
             return row["title"]
+        else:
+            self.update_session_title
 
         return None
     

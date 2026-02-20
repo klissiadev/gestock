@@ -2,6 +2,8 @@ import { useEffect, useState } from "react";
 import { Box } from "@mui/material";
 import { useLocation } from "react-router-dom";
 
+
+
 import {
   fetchSessions,
   createSession,
@@ -10,10 +12,6 @@ import {
 } from "../../api/LLMAPI";
 
 import ChatHeader from "./components/ChatHeader";
-import ChatContainer from "./components/ChatContainer";
-import ChatInput from "./components/ChatInput";
-import FAQSuggestions from "./components/FAQSuggestions";
-import InitialChatLayout from "./components/InitialChatLayout";
 import ChatHistorySide from "./components/ChatHistorySide";
 
 import { fetchTitle } from "./services/titleFetcher";
@@ -21,173 +19,43 @@ import InitalPage from "./pages/InitalPage";
 import ChatModule from "./pages/ChatModule";
 
 import { useAuth } from "../../AuthContext";
+import { useMinerva } from "./services/useMinerva";
 
 const LLMPage = () => {
-  const [title, setTitle] = useState("Minerva");
-  const [sessions, setSessions] = useState([]);
-  const [selectedSession, setSelectedSession] = useState("");
-  const [messages, setMessages] = useState([]);
-  const [input, setInput] = useState("");
-  const [loading, setLoading] = useState(false);
-  const [loadingSessions, setLoadingSessions] = useState(false);
   const location = useLocation();
+  const { user } = useAuth();
   const [historyOpen, setHistoryOpen] = useState(false);
-  const [streamingId, setStreamingId] = useState(null);
-  const [updateTrigger, setUpdateTrigger] = useState(false); // Novo estado para forçar atualização do título
 
 
+  const {
+    sessions, selectedSession, setSelectedSession,
+    messages, loading, title, updateTrigger,
+    loadSessions, createNewSession, loadMessages, sendMessage,
+    handleSend, input, setInput
+  } = useMinerva();
 
+  // Inicialização: Carrega sessões ao montar a página
   useEffect(() => {
     loadSessions();
-  }, []);
+  }, [loadSessions]);
 
-  // Gerador de titulo
+  // Navegação: Se vier de outro lugar com um ID de sessão
   useEffect(() => {
-    const loadTitle = async () => {
-      try {
-        const token = localStorage.getItem('token');
-        if (!selectedSession || !token) return;
-        const sessionTitle = await fetchTitle(selectedSession, token);
-        setTitle(sessionTitle || "Nova Conversa");
-      } catch (error) {
-        console.error("Falha ao recuperar título:", error);
-        setTitle("Nova Conversa");
-      }
-    };
-
-    loadTitle();
-  }, [selectedSession]);
-
-
-  useEffect(() => {
-    const initFromNavigation = async () => {
-      const { sessionId } = location.state || {};
-      if (!sessionId) return;
-
+    const { sessionId } = location.state || {};
+    if (sessionId) {
       setSelectedSession(sessionId);
+      loadSessions();
+    }
+  }, [location.state, setSelectedSession, loadSessions]);
 
-      // ESSENCIAL
-      await loadSessions();
-    };
-
-    initFromNavigation();
-  }, [location.state]);
-
-
+  // Sincronização: Carrega mensagens sempre que a sessão mudar
   useEffect(() => {
-    const loadMessages = async () => {
-      const token = localStorage.getItem('token');
-      if (!selectedSession || !token) return;
-      const history = await fetchSessionMessages(selectedSession, token);
-
-      setMessages(
-        history.map((msg) => ({
-          id: crypto.randomUUID(),
-          role: msg.role,
-          content: msg.content,
-        }))
-      );
-    };
-
-    loadMessages();
-  }, [selectedSession]);
-
-
-  const loadSessions = async () => {
-    const token = localStorage.getItem('token');
-    if (!token) return;
-
-    setLoadingSessions(true);
-    try {
-      const data = await fetchSessions(token);
-      setSessions(data || []);
-    } catch (err) {
-      console.error("Erro ao carregar sessões:", err);
-    } finally {
-      setLoadingSessions(false);
+    if (selectedSession) {
+      loadMessages(selectedSession);
     }
-  };
+  }, [selectedSession, loadMessages]);
 
-  const handleCreateSession = async () => {
-    const token = localStorage.getItem('token');
-    if (!token) return null;
-
-    try {
-      const sessionId = await createSession(token);
-      await loadSessions();
-      setSelectedSession(sessionId);
-      return sessionId;
-    } catch (err) {
-      console.error("Erro ao criar sessão no Neon:", err);
-      return null;
-    }
-  };
-
-  const handleSend = async () => {
-    const token = localStorage.getItem('token');
-    if (!input.trim() || !token) return;
-
-    if (!currentSessionId) {
-      currentSessionId = await handleCreateSession();
-      if (!currentSessionId) throw new Error("Não foi possível iniciar uma sessão.");
-    }
-
-    const messageToSend = input;
-    setInput("");
-    setLoading(true);
-
-    const assistantId = crypto.randomUUID();
-
-
-    // adiciona user + assistant vazio juntos (importante)
-    setMessages((prev) => [
-      ...prev,
-      { role: "user", content: messageToSend },
-      { id: assistantId, role: "assistant", content: "" },
-    ]);
-
-    let fullMessage = "";
-
-    try {
-      await streamMessageToLLM(
-        messageToSend,
-        selectedSession,
-        token,
-        (chunk) => {
-          fullMessage += chunk;
-
-          setMessages((prev) =>
-            prev.map((msg) =>
-              msg.id === assistantId
-                ? { ...msg, content: fullMessage }
-                : msg
-            )
-          );
-        }
-      );
-
-      // Atualiza o título após a resposta completa (se o titulo for nulo)
-      if (title === "Nova Conversa") {
-        setTimeout(async () => {
-          const newTitle = await fetchTitle(selectedSession);
-
-          if (newTitle) { setTitle(newTitle); setUpdateTrigger(prev => !prev); }
-        }, 1000);
-      }
-
-
-
-    } catch {
-      setMessages((prev) => [
-        ...prev,
-        { role: "assistant", content: "Erro ao comunicar com a LLM." },
-      ]);
-    } finally {
-      setLoading(false);
-    }
-
-  };
-
+  // Proteção de rota simples
   if (!user && !localStorage.getItem('token')) {
     return <InitalPage />;
   }
@@ -216,10 +84,6 @@ const LLMPage = () => {
       >
         {/* Cabecalho do chat */}
         <ChatHeader
-          sessions={sessions}
-          selectedSession={selectedSession}
-          onSelectSession={setSelectedSession}
-          onCreateSession={handleCreateSession}
           onToggleHistory={() => setHistoryOpen((prev) => !prev)}
           title={title}
         />
@@ -259,7 +123,7 @@ const LLMPage = () => {
                 <InitalPage
                   input={input}
                   setInput={setInput}
-                  handleSend={handleSend}
+                  handleSend={sendMessage}
                   loading={loading}
                 />
               ) : (
@@ -271,13 +135,9 @@ const LLMPage = () => {
                   handleSend={handleSend}
                   selectedSession={selectedSession}
                   loading={loading} />
-
               )}
             </Box>
-
-
           </Box>
-
         </Box>
       </Box>
 
@@ -285,10 +145,11 @@ const LLMPage = () => {
       <ChatHistorySide
         open={historyOpen}
         onClose={() => setHistoryOpen(false)}
+
         sessions={sessions}
         selectedSession={selectedSession}
         onSelectSession={setSelectedSession}
-        onCreateSession={handleCreateSession}
+        onCreateSession={createNewSession}
         updateTrigger={updateTrigger}
       />
     </Box>
