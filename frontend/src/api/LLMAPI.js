@@ -5,6 +5,58 @@ const getHeaders = (token) => ({
   "Authorization": `Bearer ${token}`
 });
 
+// Fetch autenticado principal
+async function apiFetch( endpoint, options = {}) {
+  const token = localStorage.getItem('token');
+  const headers = {
+    "Content-Type": "application/json",
+    ...(token && { "Authorization": `Bearer ${token}` }),
+    ...options.headers,
+  };
+
+  const response = await fetch(`${BASE_URL}${endpoint}`, { ...options, headers });
+
+  if (!response.ok) {
+    if (response.status === 401) {
+      // Opcional: Redirecionar para login ou disparar logout do context
+      console.warn("Sessão expirada");
+    }
+    throw new Error(`Erro na API: ${response.statusText}`);
+  }
+  return response;
+};
+
+
+export const llmAPI = {
+  fetchSessions: () => apiFetch("/llm/sessions").then(r => r.json()),
+  
+  createSession: () => apiFetch("/llm/sessions", { method: "POST" }).then(r => r.json()),
+  
+  fetchMessages: (sid) => apiFetch(`/llm/sessions/${sid}/messages`).then(r => r.json()),
+  
+  fetchTitle: (sid) => apiFetch(`/llm/sessions/${sid}/title`).then(r => r.json()),
+
+  // O stream continua especial por causa do reader
+  streamMessage: async (message, session_id, onChunk) => {
+    const response = await apiFetch("/llm/chat/stream", {
+      method: "POST",
+      body: JSON.stringify({ message, session_id }),
+    });
+
+    const reader = response.body.getReader();
+    const decoder = new TextDecoder("utf-8");
+    while (true) {
+      const { done, value } = await reader.read();
+      if (done) break;
+      onChunk(decoder.decode(value, { stream: true }));
+    }
+  }
+};
+
+
+
+
+
 
 export async function fetchSessions(token) {
   const response = await fetch(`${BASE_URL}/llm/sessions`, {
