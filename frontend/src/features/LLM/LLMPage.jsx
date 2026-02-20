@@ -29,14 +29,6 @@ const LLMPage = () => {
     loadSessions();
   }, [loadSessions, updateTrigger]);
 
-  useEffect(() => {
-    // SÓ cria se não houver uma sessão selecionada E não houver ID vindo da navegação
-
-    if (!selectedSession && !location.state?.sessionId) {
-      createNewSession();
-    }
-  }, []);
-
   // Navegação: Se vier de outro lugar com um ID de sessão
   useEffect(() => {
     const { sessionId } = location.state || {};
@@ -55,12 +47,10 @@ const LLMPage = () => {
 
   // Sincronização: Carrega mensagens sempre que a sessão mudar
   useEffect(() => {
-    setLoading(true)
-    if (selectedSession && !loading) {
-      loadMessages(selectedSession, true);
-    }
-    setLoading(false)
-  }, [selectedSession]);
+  if (selectedSession && !loading && messages.length === 0) {
+    loadMessages(selectedSession);
+  }
+}, [selectedSession, loading, messages.length]);
 
 
   useEffect(() => {
@@ -154,6 +144,7 @@ const LLMPage = () => {
       <ChatHistorySide
         open={historyOpen}
         onClose={() => setHistoryOpen(false)}
+        setMessages={setMessages}
         sessions={sessions}
         selectedSession={selectedSession}
         onSelectSession={setSelectedSession}
