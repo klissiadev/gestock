@@ -4,18 +4,27 @@ from uuid import UUID
 
 from backend.services.file_service import file_hash_exists, save_file_hash
 from backend.utils.file_hash import generate_file_hash_stream
-
+from typing import Annotated
 from backend.database.base import get_db
 from backend.services.import_service import process_import
 from backend.services.log_importacao_service import LogImportacaoService
 from backend.utils.file_validation import validate_upload_file
 
-router = APIRouter(prefix="/upload", tags=["upload"])
+from auth_module.utils.security import get_current_user
+from auth_module.models.User import UserPublic
+
+router = APIRouter(prefix="/upload", tags=["upload"], dependencies=[Depends(get_current_user)])
 
 
 @router.post("/{tipo}")
-def upload_file(tipo: str, file: UploadFile, db=Depends(get_db)):
+def upload_file(tipo: str, 
+                file: UploadFile, 
+                user: Annotated[UserPublic, Depends(get_current_user)],
+                db=Depends(get_db)
+            ):
     tipo = tipo.lower().strip()
+
+    print(f"id do usr: {user.id}")
 
     # 1. Validação do arquivo
     validate_upload_file(file)
@@ -35,7 +44,7 @@ def upload_file(tipo: str, file: UploadFile, db=Depends(get_db)):
             "qntd_registros": 0,
             "status": "ERRO",
             "msg_erro": "Arquivo já importado anteriormente",
-            "user_id": UUID('fc39eb14-b0fe-4c9d-9381-37f241475c8f')
+            "user_id": UUID(f'{user.id}')
         })
 
         raise HTTPException(
@@ -58,7 +67,7 @@ def upload_file(tipo: str, file: UploadFile, db=Depends(get_db)):
         "qntd_registros": total_processados,
         "status": "SUCESSO" if not result.get("errors") else "ERRO",
         "msg_erro": None if not result.get("errors") else "Importação com erros",
-        "user_id": UUID('fc39eb14-b0fe-4c9d-9381-37f241475c8f')
+        "user_id": UUID(f'{user.id}')
     })
 
     print(log)
