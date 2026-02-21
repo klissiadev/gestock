@@ -5,7 +5,7 @@ from typing import Literal
 from admin_module.models.logs_fetcher import LogFetcher
 from admin_module.pydantic.logs_model import MinervaLogsRequest, ImportLogsRequest
 
-router = APIRouter(tags=["Módulo de Administração"], prefix="/admin")
+router = APIRouter(prefix="/admin")
 log_fetcher = LogFetcher()
 
 

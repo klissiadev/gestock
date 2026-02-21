@@ -1,6 +1,6 @@
 #app.py
 import os
-from fastapi import FastAPI, Request, status
+from fastapi import FastAPI, Request, status, Depends
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 from fastapi.exceptions import RequestValidationError
@@ -56,10 +56,8 @@ app_logger_instance = get_logger()
 # CRIA UM POOL GLOBAL DE CONEXOES COM O BANCO DE DADOS
 # =========================
 load_env_from_root()
-
 async def check_conn(conn):
     await conn.execute("SELECT 1")
-
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     # =========================
@@ -102,9 +100,9 @@ async def lifespan(app: FastAPI):
 # CRIA A APLICAÇÃO
 # =========================
 app = FastAPI(
-    title="Backend API",
+    title="API Geral do Gestock",
     description="API com sistema de logging",
-    version="1.0.0",
+    version="2.0.0",
     lifespan=lifespan
 )
 
@@ -172,7 +170,11 @@ def print_routes():
     for route in app.routes:
         print(f"Rota encontrada: {route.path}")
 
-
+# =========================
+# DEPENDENCIA
+# Ideal é proteger todos os routers com get_current_user!!
+# =========================
+from auth_module.utils.security import get_current_user
 
 # =========================
 # REGISTRO DOS ROUTERS
@@ -187,8 +189,8 @@ app.include_router(notification_router)
 app.include_router(llm_router)
 app.include_router(analytics_router, prefix="/analytics", tags=["Analytics"])
 
-app.include_router(health_router)
-app.include_router(status_router)
-app.include_router(logs_router)
+app.include_router(health_router, dependencies=[Depends(get_current_user)], tags=["Módulo de Administração"])
+app.include_router(status_router, dependencies=[Depends(get_current_user)], tags=["Módulo de Administração"])
+app.include_router(logs_router, dependencies=[Depends(get_current_user)], tags=["Módulo de Administração"])
 
 app.include_router(auth_router)

@@ -1,7 +1,7 @@
 from fastapi import APIRouter, HTTPException
 from admin_module.models.hardware_monitor import HardwareMonitor
 
-router = APIRouter(tags=["Módulo de Adminstração"], prefix="/admin")
+router = APIRouter(prefix="/admin")
 
 hardware_checker = HardwareMonitor()
 
