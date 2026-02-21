@@ -3,7 +3,7 @@
 from fastapi import HTTPException
 from typing import Optional, List, Dict, Any, Tuple, Union
 import re
-from psycopg2.extras import RealDictCursor, execute_values
+from psycopg2.extras import RealDictCursor, execute_values, register_uuid
 
 
 class Repository:
@@ -11,6 +11,7 @@ class Repository:
     def __init__(self, conn):
         self.conn = conn
         self.cursor = conn.cursor(cursor_factory=RealDictCursor)
+        register_uuid()
     # =================================================
     # MÉTODOS AUXILIARES
     # =================================================

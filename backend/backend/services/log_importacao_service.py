@@ -24,9 +24,9 @@ class LogImportacaoService:
             self.repo.commit()
 
             log = self.repo.fetch_one(
-                self.TABLE_NAME,
-                "id",
-                new_id
+                table=self.TABLE_NAME,
+                conditions="id",
+                value=new_id
             )
 
             return log
@@ -39,20 +39,33 @@ class LogImportacaoService:
         return self.repo.fetch_all(self.TABLE_NAME)
 
     def buscar_por_id(self, log_id: int):
-        log = self.repo.fetch_one(self.TABLE_NAME, "id", log_id)
+        log = self.repo.fetch_one(
+            table=self.TABLE_NAME, 
+            conditions="id", 
+            value=log_id
+        )
         if not log:
             raise HTTPException(status_code=404, detail="Log não encontrado")
         return log
 
     def atualizar_log(self, log_id: int, dados_atualizacao: dict):
-        ok = self.repo.update(self.TABLE_NAME, "id", log_id, dados_atualizacao)
+        ok = self.repo.update(
+            table=self.TABLE_NAME, 
+            key_or_conditions="id", 
+            value_or_data=log_id, 
+            data=dados_atualizacao
+        )
         if not ok:
             raise HTTPException(status_code=400, detail="Erro ao atualizar log")
         self.repo.commit()
         return {"message": "Log atualizado com sucesso"}
 
     def deletar_log(self, log_id: int):
-        ok = self.repo.delete(self.TABLE_NAME, "id", log_id)
+        ok = self.repo.delete(
+            table=self.TABLE_NAME, 
+            key_or_conditions="id", 
+            value=log_id
+        )
         if not ok:
             raise HTTPException(status_code=400, detail="Erro ao deletar log")
         self.repo.commit()
