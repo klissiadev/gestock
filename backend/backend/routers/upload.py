@@ -1,5 +1,6 @@
 from fastapi import APIRouter, UploadFile, Depends, HTTPException
 from datetime import date
+from uuid import UUID
 
 from backend.services.file_service import file_hash_exists, save_file_hash
 from backend.utils.file_hash import generate_file_hash_stream
@@ -34,7 +35,7 @@ def upload_file(tipo: str, file: UploadFile, db=Depends(get_db)):
             "qntd_registros": 0,
             "status": "ERRO",
             "msg_erro": "Arquivo já importado anteriormente",
-            "usuario_id": 1
+            "user_id": UUID('fc39eb14-b0fe-4c9d-9381-37f241475c8f')
         })
 
         raise HTTPException(
@@ -57,8 +58,10 @@ def upload_file(tipo: str, file: UploadFile, db=Depends(get_db)):
         "qntd_registros": total_processados,
         "status": "SUCESSO" if not result.get("errors") else "ERRO",
         "msg_erro": None if not result.get("errors") else "Importação com erros",
-        "usuario_id": 1
+        "user_id": UUID('fc39eb14-b0fe-4c9d-9381-37f241475c8f')
     })
+
+    print(log)
     
     # 8. Retorno
     return {
