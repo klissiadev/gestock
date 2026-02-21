@@ -15,7 +15,8 @@ const UploadDialog = () => {
   const [showSuccess, setShowSuccess] = useState(false);
 
   useEffect(() => {
-    if (response && !response.error) {
+    console.log("Response foi: ", response)
+    if (response && response.log && response.log.status === "SUCESSO") {
       setShowSuccess(true);
     }
   }, [response]);

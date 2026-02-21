@@ -1,3 +1,4 @@
+const BASE_URL = "http://localhost:8000";
 const allowedExtensions = ["csv", "xlsx"];
 const allowedMimeTypes = [
     "text/csv",
@@ -5,6 +6,45 @@ const allowedMimeTypes = [
     "application/vnd.ms-excel"
 ];
 
+// FETCH GERAL 
+export async function apiFetch(endpoint, options = {}) {
+    const token = localStorage.getItem('token');
+
+    const headers = {
+        ...(token && { "Authorization": `Bearer ${token}` }),
+        ...options.headers,
+    };
+
+    if (options.body && !(options.body instanceof FormData)) {
+        headers["Content-Type"] = "application/json";
+    }
+
+    const response = await fetch(`${BASE_URL}${endpoint}`, { ...options, headers });
+
+    if (!response.ok) {
+        if (response.status === 401) {
+            localStorage.removeItem('token');
+            window.location.href = "/";
+            throw new Error("Sessão expirada");
+        }
+        let backendError = "";
+        try {
+            const errorData = await response.json();
+            if (errorData.detail) {
+                backendError = errorData.detail; // Captura "Arquivo duplicado. Este arquivo já foi importado."
+            }
+        } catch (e) {
+            // ignora
+        }
+
+        throw new Error(backendError || `Erro na API: ${response.statusText}`);
+    }
+
+    return response;
+}
+
+
+//
 function validateFile(file) {
     if (!file) return { valid: false, error: "Nenhum arquivo selecionado." };
 
@@ -35,44 +75,15 @@ export async function uploadFile(file, tipo) {
     formData.append("file", file);
 
     try {
-        const response = await fetch(
-            `http://localhost:8000/upload/${tipo}`,
-            {
-                method: "POST",
-                body: formData,
-            }
-        );
+        const response = await apiFetch(`/upload/${tipo}`, {
+            method: "POST",
+            body: formData,
+        });
         return await response.json();
-    } catch {
-        return { error: "Erro ao enviar o arquivo" };
+    } catch (err) {
+        console.log("Erro capturado:", err.message);
+        return {error: err.message || "Erro de conexão ao enviar o arquivo." };
     }
 }
 
-export const handleFileSelect = (
-    event,
-    setFile,
-    setFileName,
-    setFileInfo
-) => {
-    const files = event.target.files;
-
-    if (files && files.length > 0) {
-        const file = files[0];
-
-        setFile(file);
-        setFileName(file.name);
-
-        setFileInfo({
-            size: file.size,
-            lastModified: new Date(file.lastModified),
-            type: file.type,
-        });
-
-        return;
-    }
-
-    setFile(null);
-    setFileName("Nenhum arquivo selecionado");
-    setFileInfo(null);
-};
 

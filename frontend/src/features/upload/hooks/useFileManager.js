@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { uploadFile, handleFileSelect } from "../services/uploadFile"
+import { uploadFile } from "../services/uploadFile"
 
 export const useFileUpload = (initialTipo = "produtos") => {
     const [file, setFile] = useState(null);
@@ -10,7 +10,6 @@ export const useFileUpload = (initialTipo = "produtos") => {
     const [response, setResponse] = useState(null);
     const [error, setError] = useState(null);
 
-    // Dentro do useFileUpload.js
     const handleFile = (selectedFile) => {
         if (selectedFile) {
             setFile(selectedFile);
@@ -45,8 +44,12 @@ export const useFileUpload = (initialTipo = "produtos") => {
 
         const result = await uploadFile(file, tipo);
 
-        if (result.error) {
-            setError(result.error);
+        if (result.error || result.detail) {
+            let mensagem = result.error || result.detail;
+            if (typeof mensagem === 'object') {
+                mensagem = mensagem.error || mensagem.detail || "Erro desconhecido";
+            }
+            setError(mensagem);
         } else {
             setResponse(result);
         }
