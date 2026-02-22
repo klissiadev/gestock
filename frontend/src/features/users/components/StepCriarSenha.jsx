@@ -12,21 +12,24 @@ import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import StepContainer from "./StepContainer";
 import { useState, useMemo } from "react";
 import { cancel_button, accept_button } from "../styles/style";
+import { useAuth } from "../../../AuthContext";
 
-export default function StepCriarSenha({ onNext, onBack }) {
-  const [senha, setSenha] = useState("");
+
+export default function StepCriarSenha({data, updateData, onNext, onBack }) 
+{
+  const { register } = useAuth();
   const [confirmSenha, setConfirmSenha] = useState("");
   const [showSenha, setShowSenha] = useState(false);
   const [showConfirmSenha, setShowConfirmSenha] = useState(false);
 
   const validations = useMemo(() => {
     return {
-      length: senha.length >= 8 && senha.length <= 12,
-      uppercase: /[A-Z]/.test(senha),
-      number: /[0-9]/.test(senha),
-      match: senha === confirmSenha && senha !== "",
+      length: data.password.length >= 8 && data.password.length <= 12,
+      uppercase: /[A-Z]/.test(data.password),
+      number: /[0-9]/.test(data.password),
+      match: data.password === confirmSenha && data.password !== "",
     };
-  }, [senha, confirmSenha]);
+  }, [data.password, confirmSenha]);
 
   const senhaValida =
     validations.length &&
@@ -34,9 +37,14 @@ export default function StepCriarSenha({ onNext, onBack }) {
     validations.number &&
     validations.match;
 
-  const handleNext = () => {
+  const handleNext = async () => {
     if (!senhaValida) return;
-    onNext();
+    const result = await register(data.nome, data.email, data.password);
+    if (result.success) {
+      onNext();
+    } else {
+      console.error(result.error);
+    }
   };
 
   return (
@@ -72,8 +80,8 @@ export default function StepCriarSenha({ onNext, onBack }) {
         <TextField
           type={showSenha ? "text" : "password"}
           size="small"
-          value={senha}
-          onChange={(e) => setSenha(e.target.value)}
+          value={data.password}
+          onChange={(e) => updateData({ password: e.target.value })}
           sx={{ mb: 2, height: "26px"}}
           InputProps={{
             endAdornment: (

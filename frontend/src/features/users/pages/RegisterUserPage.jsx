@@ -15,6 +15,17 @@ const RegisterUserPage = () => {
   const handleNext = () => setActiveStep((prev) => prev + 1);
   const handleBack = () => setActiveStep((prev) => prev - 1);
 
+  const [formData, setFormData] = useState({
+    nome: "",
+    email: "",
+    matricula: "",
+    password: "",
+  });
+
+  const updateFormData = (newData) => {
+    setFormData((prev) => ({ ...prev, ...newData }));
+  };
+
   return (
     <Stack
       direction="column"
@@ -27,23 +38,33 @@ const RegisterUserPage = () => {
         width: "100%",
       }}
     >
-        <RegisterUserBar
-          titulo={"Adicionar Usuário"}
-        />
-         
-        <StepProgress activeStep={activeStep} />
-        <Box 
-            sx={{
-                alignContent:'center',
-                height:"100%"
-            }}
-        >
-            {activeStep === 1 && <StepDadosGerais onNext={handleNext} />}
-            {activeStep === 2 && (
-                <StepCriarSenha onNext={handleNext} onBack={handleBack} />
-            )}
-            {activeStep === 3 && <StepConcluido />}
-        </Box>
+      <RegisterUserBar
+        titulo={"Adicionar Usuário"}
+      />
+
+      <StepProgress activeStep={activeStep} />
+      <Box
+        sx={{
+          alignContent: 'center',
+          height: "100%"
+        }}
+      >
+        {activeStep === 1 && 
+        <StepDadosGerais
+          data={formData}
+          updateData={updateFormData}
+          onNext={handleNext} 
+          />}
+
+        {activeStep === 2 && (
+          <StepCriarSenha 
+          data={formData} 
+          updateData={updateFormData}
+          onNext={handleNext} 
+          onBack={handleBack} />
+        )}
+        {activeStep === 3 && <StepConcluido />}
+      </Box>
     </Stack>
   )
 }
