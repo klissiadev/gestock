@@ -21,7 +21,7 @@ export default function StepConcluido() {
         </Typography>
 
         <Box mt={4}  width={"100%"} align={'center'} >
-            <Button sx={accept_button} >
+            <Button sx={accept_button}>
                 Voltar para usuários
             </Button>
         </Box>

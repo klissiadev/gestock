@@ -1,5 +1,5 @@
 import { createContext, useContext, useState, useEffect, useCallback } from "react";
-import { sendCredencials } from "./api/loginService";
+import { sendCredencials, registerUser } from "./api/loginService";
 
 const AuthContext = createContext({});
 
@@ -54,8 +54,9 @@ export const AuthProvider = ({ children }) => {
             }
         } catch (err) {
             setError("E-mail ou senha inválidos");
-            setLoading(false);
             throw err;
+        } finally {
+            setLoading(false);
         }
     };
 
@@ -65,8 +66,26 @@ export const AuthProvider = ({ children }) => {
         setUser(null);
     };
 
+    // Responsavel pelo registro do usuario
+    const register = async (nome, email, password) => {
+        setError(null);
+        setLoading(true);
+        try {
+            //const token = localStorage.getItem('token');
+            const resposta = await registerUser(nome, email, password);
+            // Geralmente redirecionamos para o login ou exibimos uma mensagem verde.
+            console.log("Usuário registrado:", resposta.message);
+            return { success: true };
+        } catch (err) {
+            setError(err.message);
+            return { success: false, error: err.message };
+        } finally {
+            setLoading(false);
+        }
+    };
+
     return (
-        <AuthContext.Provider value={{ user, loading, error, login, logout }}>
+        <AuthContext.Provider value={{ user, loading, error, login, logout, register}}>
             {children}
         </AuthContext.Provider>
     );
