@@ -44,6 +44,7 @@ from admin_module.routers.logs_router import router as logs_router
 # IMPORT DO MODULO AUTH
 # =========================
 from auth_module.routers.user_router import router as auth_router
+from auth_module.routers.recovery_router import router as recovery_router
 
 # =========================
 # CONFIGURA LOGGING (1x)
@@ -194,3 +195,4 @@ app.include_router(status_router, dependencies=[Depends(get_current_user)], tags
 app.include_router(logs_router, dependencies=[Depends(get_current_user)], tags=["Módulo de Administração"])
 
 app.include_router(auth_router)
+app.include_router(recovery_router)

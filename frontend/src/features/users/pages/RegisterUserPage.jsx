@@ -61,7 +61,9 @@ const RegisterUserPage = () => {
           data={formData} 
           updateData={updateFormData}
           onNext={handleNext} 
-          onBack={handleBack} />
+          onBack={handleBack} 
+          mode="register"/>
+          
         )}
         {activeStep === 3 && <StepConcluido />}
       </Box>

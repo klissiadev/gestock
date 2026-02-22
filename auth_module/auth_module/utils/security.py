@@ -5,7 +5,7 @@ from typing import Annotated
 import jwt
 from pwdlib import PasswordHash
 from fastapi import Depends, HTTPException, status
-from auth_module.models.User import UserPublic
+from auth_module.models.User import UserPublic, UserDB
 from auth_module.utils.database import get_user_by_email, get_user_by_id
 import os
 from auth_module.utils.env_loader import load_env_from_root
@@ -65,3 +65,44 @@ def verify_password(plain_password: str, hashed_password: bytes) -> bool:
 def get_password_hash(password: str) -> bytes:
     hash_str = password_hash.hash(password)
     return hash_str.encode('utf-8')
+
+# Para o recovery
+def create_password_reset_token(user: UserDB):
+    """
+    Função para criar o token de recuperação. Usa o hash da senha atual como base do segredo.
+    Se a senha mudou, o token é invalido
+    """
+    dynamic_secret = SECRET_KEY + str(user.senha_hash)
+    expire = datetime.now(tz=ZoneInfo('UTC')) + timedelta(
+        minutes=ACCESS_TOKEN_EXPIRE_MINUTES
+    )
+    to_encode = {"exp": expire, "sub": str(user.id)}
+    return jwt.encode(to_encode, dynamic_secret, algorithm=ALGORITHM)
+
+import jwt # PyJWT
+from datetime import datetime, timedelta, timezone
+
+# No seu security.py
+def verify_reset_token(token: str):
+    try:
+        # 1. Decodificamos SEM validar a assinatura apenas para pegar o 'sub' (user_id)
+        unverified_payload = jwt.decode(token, options={"verify_signature": False})
+        user_id = unverified_payload.get("sub")
+        
+        if not user_id:
+            return None
+
+        user = get_user_by_id(user_id)
+        if not user:
+            return None
+
+        dynamic_secret = SECRET_KEY + str(user.senha_hash)
+        payload = jwt.decode(token, dynamic_secret, algorithms=[ALGORITHM])
+        return payload.get("sub")
+
+    except jwt.ExpiredSignatureError:
+        print("Token expirou!")
+        return None
+    except (jwt.InvalidTokenError, Exception) as e:
+        print(f"Token inválido: {e}")
+        return None
