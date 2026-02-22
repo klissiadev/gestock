@@ -84,8 +84,47 @@ export const AuthProvider = ({ children }) => {
         }
     };
 
+    // Resetando a senha: pega nova senha e cadastra la
+    const resetPassword = async (token, newPassword) => {
+        try {
+            const response = await fetch('http://127.0.0.1:8000/auth/reset-password', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ token, new_password: newPassword }) // Bate com o seu backend Python
+            });
+            return response.ok;
+        } catch (err) {
+            alert("Erro: ", err);
+        }
+    };
+
+    // enviando email de recuperacao
+    const sendRecoveryEmail = async (email) => {
+        setLoading(true);
+        setError(null);
+        try {
+            const response = await fetch('http://127.0.0.1:8000/auth/forgot-password', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ email })
+            });
+
+            if (!response.ok) {
+                const data = await response.json();
+                throw new Error(data.detail || "E-mail não encontrado.");
+            }
+
+            return true; // Sucesso
+        } catch (err) {
+            setError(err.message);
+            return false;
+        } finally {
+            setLoading(false);
+        }
+    };
+
     return (
-        <AuthContext.Provider value={{ user, loading, error, login, logout, register}}>
+        <AuthContext.Provider value={{ user, loading, error, login, logout, register, resetPassword, sendRecoveryEmail }}>
             {children}
         </AuthContext.Provider>
     );

@@ -1,0 +1,27 @@
+# Configurações de Estoque (que você já tinha)
+title: "Aviso de Estoque Baixo - Gestock"
+body: "Produtos abaixo do estoque mínimo:\n{lista_produtos}"
+
+
+recovery_title: "Recuperação de Senha - Gestock"
+# mail_config.yaml
+
+recovery_title: "Recuperação de Senha - Gestock"
+recovery_body_html: |
+  <!DOCTYPE html>
+  <html>
+    <body style="font-family: sans-serif; line-height: 1.6; color: #333;">
+      <div style="max-width: 600px; margin: auto; border: 1px solid #eee; padding: 20px;">
+        <h2 style="color: #007bff;">Olá, Gestor!</h2>
+        <p>Você solicitou a redefinição de senha para sua conta no <strong>Gestock</strong>.</p>
+        <p>Clique no botão abaixo para prosseguir:</p>
+        <div style="text-align: center; margin: 30px 0;">
+          <a href="{link}" 
+             style="background-color: #007bff; color: white; padding: 12px 25px; text-decoration: none; border-radius: 5px; font-weight: bold;">
+            Redefinir Senha
+          </a>
+        </div>
+        <p style="font-size: 0.8em; color: #777;">Este link é válido por 15 minutos. Se você não solicitou isso, pode ignorar este e-mail.</p>
+      </div>
+    </body>
+  </html>

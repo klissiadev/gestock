@@ -77,6 +77,21 @@ def get_user_by_id(id: UUID) -> UserDB | None:
             return None
         
 
+def change_user_password(id: UUID, senha: bytes) -> bool:
+    """Busca usuario através do ID e retornar como objeto UserDB"""
+    with get_db_connection() as conn:
+        with conn.cursor(row_factory=dict_row) as cur:
+            cur.execute(
+                "UPDATE app_core.usuarios SET senha_hash = %s WHERE id = %s", 
+                (senha, id,)
+            )
+        conn.commit()
+        return True 
+    
+
+
+        
+
 
 
 

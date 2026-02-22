@@ -17,6 +17,7 @@ import HomePage from "../features/home/HomePage";
 import UploadDialog from "../features/upload/UploadDialog";
 import RegisterUserPage from "../features/users/pages/RegisterUserPage";
 
+import ResetPassword from "../features/users/pages/ResetPassword";
 import AdminPage from "../features/admin/AdminPage";
 import LoginPage from "../features/auth/pages/LoginPage";
 import { ProtectedRoute } from "./ProtectedRoute";
@@ -26,6 +27,7 @@ const AppRoutes = () => {
     <Routes>
       <Route path='/' element={<LoginPage />} />
       <Route path='/register-user' element={<RegisterUserPage/>}/>
+      <Route path="/reset-password" element={<ResetPassword/>}/> 
       <Route element={
         <ProtectedRoute>
           <AppLayout />
