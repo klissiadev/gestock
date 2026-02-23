@@ -2,7 +2,7 @@ import { Box, Typography } from "@mui/material";
 import CheckCircleIcon from "@mui/icons-material/CheckCircle";
 
 const STEPS = [
-  { id: 1, label: "Dados Gerais" },
+  { id: 1, label: "Dados Pessoais" },
   { id: 2, label: "Criar senha" },
   { id: 3, label: "Concluído" },
 ];

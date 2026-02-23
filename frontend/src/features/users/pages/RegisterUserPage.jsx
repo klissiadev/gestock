@@ -18,7 +18,6 @@ const RegisterUserPage = () => {
   const [formData, setFormData] = useState({
     nome: "",
     email: "",
-    matricula: "",
     password: "",
   });
 
