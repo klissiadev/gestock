@@ -3,7 +3,6 @@ from datetime import date
 from typing import Optional
 
 class ProductSchema(BaseModel):
-    id: int
     nome: str
     tipo: str
     descricao: Optional[str]
