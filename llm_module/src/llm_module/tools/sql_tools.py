@@ -219,8 +219,6 @@ def buscar_produtos_a_vencer(data: str = None, termo: str = ""):
     rows = database.fetch_all(query=query)
     return _wrap_rows(rows)
 
-
-
 @tool
 def buscar_produtos_abaixo_estoque(termo: str = ""):
     """
@@ -249,8 +247,159 @@ def buscar_produtos_abaixo_estoque(termo: str = ""):
     rows = database.fetch_all(query=query)
     return _wrap_rows(rows)
 
+@tool
+def buscar_movimentacoes_por_periodo(data_inicio: str, data_fim: str, tipo: str = None):
+    """
+    Busca movimentações no sistema que tenham uma data de movimentação entre 'data_inicio' e 'data_fim'
+    e permite filtro por tipo de movimentação (entrada ou saída).
+    Retorna os campos: nome_produto, quantidade, data_movimentacao, entidade, tipo_movimentacao, adicionado_em
+    """
+    filtro_tipo = ""
+    if tipo in ("entrada", "saida"):
+        filtro_tipo = f"AND tipo_movimentacao = '{tipo}'"
+
+    query = f"""
+    SELECT
+        nome_produto,
+        quantidade,
+        data_movimentacao,
+        entidade,
+        tipo_movimentacao,
+        adicionado_em
+    FROM app_core.v_movimentacao
+    WHERE data_movimentacao BETWEEN '{data_inicio}' AND '{data_fim}' {filtro_tipo}
+    ORDER BY data_movimentacao DESC;
+    """
+    
+    rows = database.fetch_all(query=query)
+    return _wrap_rows(rows)
+
+@tool
+def buscar_produtos_por_descricao(termo: str):
+    """
+    Busca produtos no sistema que tenham o termo fornecido na descrição.
+    Retorna os campos: nome_produto, descricao, estoque_atual, estoque_minimo, ativo, data_validade
+    """
+    where_ilike = " OR ".join(
+        f"descricao ILIKE '%{v}%'"
+        for v in _normalizar_variacoes(termo)
+    )
+
+    query = f"""
+        SELECT
+            nome_produto,
+            descricao,
+            estoque_atual,
+            estoque_minimo,
+            ativo,
+            data_validade
+        FROM app_core.v_produtos
+        WHERE {where_ilike}
+        ORDER BY nome_produto;
+    """
+
+    return _wrap_rows(database.fetch_all(query=query))
 
 
+from typing import Literal, Optional
+from datetime import datetime
+
+@tool
+def buscar_movimentacoes_por_data(data: str, tipo: str = None):
+    """
+    Consulta o histórico de movimentações (entradas/saídas) para uma data específica. Converta termos como 'hoje', 'ontem' ou 'dia 10 de maio' para o formato 'YYYY-MM-DD'.
+    - Parametro data: string no formato 'YYYY-MM-DD'.
+    - O parâmetro 'tipo' só aceita 'entrada' ou 'saida'. Se o usuário não especificar, deixe None.
+    """
+    
+    # 1. Validação e Normalização da Data
+    # Isso garante que a query não quebre se a LLM enviar "25/12/2023"
+    try:
+        data_formatada = datetime.strptime(data.replace("/", "-"), "%Y-%m-%d").date()
+    except ValueError:
+        return f"Erro: O formato da data '{data}' é inválido. Use 'YYYY-MM-DD'."
+
+    filtro_tipo = ""
+    if tipo:
+        tipo = tipo.lower().strip()
+        if tipo in ["entrada", "saida"]:
+            filtro_tipo = f"AND tipo_movimentacao = '{tipo}'"
+        else:
+            pass 
+        
+    print(f"Data formatada: {data_formatada}, Filtro tipo: '{filtro_tipo}'")  # Debug
+
+    # 3. Montagem da Query
+    query = f"""
+    SELECT
+        nome_produto,
+        quantidade,
+        data_movimentacao,
+        entidade,
+        tipo_movimentacao,
+        adicionado_em
+    FROM app_core.v_movimentacao
+    WHERE data_movimentacao = '{data_formatada}' {filtro_tipo}
+    ORDER BY adicionado_em DESC;
+    """
+    
+    rows = database.fetch_all(query=query)
+    
+    if not rows:
+        return f"Não encontrei nenhuma movimentação no dia {data_formatada}."
+        
+    return _wrap_rows(rows)
+
+
+def teste(data: str, tipo: str = None):
+    """
+    Consulta o histórico de movimentações (entradas/saídas) para uma data específica.
+    - Converta termos como 'hoje', 'ontem' ou 'dia 10 de maio' para o formato 'YYYY-MM-DD'.
+    - O parâmetro 'tipo' só aceita 'entrada' ou 'saida'. Se o usuário não especificar, deixe None.
+    """
+    
+    # 1. Validação e Normalização da Data
+    # Isso garante que a query não quebre se a LLM enviar "25/12/2023"
+    try:
+        data_formatada = datetime.strptime(data.replace("/", "-"), "%Y-%m-%d").date()
+    except ValueError:
+        return f"Erro: O formato da data '{data}' é inválido. Use 'YYYY-MM-DD'."
+
+    filtro_tipo = ""
+    if tipo:
+        tipo = tipo.lower().strip()
+        if tipo in ["entrada", "saida"]:
+            filtro_tipo = f"AND tipo_movimentacao = '{tipo}'"
+        else:
+            pass 
+        
+    
+
+    # 3. Montagem da Query
+    query = f"""
+    SELECT
+        nome_produto,
+        quantidade,
+        data_movimentacao,
+        entidade,
+        tipo_movimentacao,
+        adicionado_em
+    FROM app_core.v_movimentacao
+    WHERE data_movimentacao = '{data_formatada}' {filtro_tipo}
+    ORDER BY adicionado_em DESC;
+    """
+    
+    rows = database.fetch_all(query=query)
+    
+    if not rows:
+        return f"Não encontrei nenhuma movimentação no dia {data_formatada}."
+        
+    return _wrap_rows(rows)
+
+
+if __name__ == "__main__":
+    resultado = teste("01-06-2026")
+    print(resultado)
 
     
     
