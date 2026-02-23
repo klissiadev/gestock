@@ -63,6 +63,20 @@ export const useMinerva = () => {
     }
   }, []);
 
+  // Ao mudar de sessão pelo histórico lateral, carregamos as mensagens daquela sessão
+  const handleSessionChange = async (sid) => {
+    setLoading(true);
+    try {
+      setSelectedSession(sid);
+      setMessages([]); 
+      await loadMessages(sid, true);
+    } catch (error) {
+      console.error("Erro ao mudar de sessão:", error);
+    } finally {
+      setLoading(false);
+    }
+  }
+
   // Fluxo de envio de mensagem
   const sendMessage = async (input) => {
     if (!input.trim()) return;
@@ -117,7 +131,7 @@ export const useMinerva = () => {
   return {
     sessions, selectedSession, setSelectedSession,
     messages, setMessages, setTitle, loading, setLoading, title, updateTrigger,
-    loadSessions, createNewSession, loadMessages, sendMessage,
+    loadSessions, createNewSession, loadMessages, sendMessage, handleSessionChange,
     handleSend, input, setInput
   };
 

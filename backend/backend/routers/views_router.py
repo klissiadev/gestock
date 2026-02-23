@@ -43,7 +43,7 @@ PRODUCT_HEADERS = {
 }
 
 
-@router.post("/product", response_model=List[ProductSchema])
+@router.post("/product")
 async def exibir_tabela_produto(filter: product_filters, db=Depends(get_db)):
     direcao = "ASC" if filter.isAsc else "DESC"
     
