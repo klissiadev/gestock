@@ -19,7 +19,7 @@ const LLMPage = () => {
 
   const {
     sessions, selectedSession, setSelectedSession,
-    messages, setMessages, setTitle, loading, setLoading, title, updateTrigger,
+    messages, setMessages, setTitle, loading, handleSessionChange, title, updateTrigger,
     loadSessions, createNewSession, loadMessages,
     handleSend, input, setInput
   } = useMinerva();
@@ -110,7 +110,7 @@ const LLMPage = () => {
             <Box
               sx={{
                 width: "100%",
-                maxWidth: messages.length === 0 ? 900 : "100%", // Tamanho condicional: Tela inicial -> 900px, Chat -> 100%
+                maxWidth: (messages.length === 0 && !loading) ? 900 : "100%", // Tamanho condicional: Tela inicial -> 900px, Chat -> 100%
                 height: "100%",
                 overflowY: "auto",
                 display: "flex",
@@ -147,10 +147,12 @@ const LLMPage = () => {
         setMessages={setMessages}
         sessions={sessions}
         selectedSession={selectedSession}
-        onSelectSession={setSelectedSession}
+        onSelectSession={handleSessionChange}
         onCreateSession={createNewSession}
         updateTrigger={updateTrigger}
       />
+
+
     </Box>
   );
 };

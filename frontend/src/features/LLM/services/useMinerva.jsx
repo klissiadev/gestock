@@ -1,5 +1,5 @@
 import { useState, useCallback } from "react";
-import { llmAPI } from "../../../api/LLMAPI"
+import { llmAPI } from "../services/llmAPI"
 
 export const useMinerva = () => {
   const [input, setInput] = useState("");
@@ -21,14 +21,20 @@ export const useMinerva = () => {
   }, []);
 
   // Cria uma nova sessão e marca ela
-  const createNewSession = async () => {
+  const createNewSession = async (shouldClearMessages = true) => {
     try {
+      setSelectedSession("");
+      if (shouldClearMessages) {
+        setMessages([]);
+        setTitle("Nova Conversa");
+      }
+
       const data = await llmAPI.createSession();
       const sessionId = data.session_id;
+
       await loadSessions();
       setSelectedSession(sessionId);
-      //setMessages([]);
-      setTitle("Nova Conversa");
+
       return sessionId;
     } catch (err) {
       console.error("Erro ao criar sessão:", err);
@@ -40,20 +46,16 @@ export const useMinerva = () => {
     if (!sid) return;
     try {
       const history = await llmAPI.fetchMessages(sid);
-
-      // 💡 SÓ limpamos a tela se for um clique manual no histórico lateral
       if (isManual) setMessages([]);
 
-      // 💡 A TRAVA DE SEGURANÇA:
-      // Só atualizamos o estado se o banco de dados tiver mensagens.
-      // Se o histórico vier vazio (o que acontece na primeira mensagem),
-      // nós NÃO fazemos nada. Isso mantém a sua mensagem otimista na tela!
       if (history && history.length > 0) {
         setMessages(history.map(msg => ({
           id: msg.id || crypto.randomUUID(),
           role: msg.role,
           content: msg.content
         })));
+      } else {
+        setMessages([]);
       }
 
       const sessionTitle = await llmAPI.fetchTitle(sid);
@@ -68,7 +70,7 @@ export const useMinerva = () => {
     setLoading(true);
     try {
       setSelectedSession(sid);
-      setMessages([]); 
+      setMessages([]);
       await loadMessages(sid, true);
     } catch (error) {
       console.error("Erro ao mudar de sessão:", error);
@@ -93,7 +95,7 @@ export const useMinerva = () => {
     // Criar nova sessão se nao tiver
     let currentId = selectedSession;
     if (!currentId) {
-      currentId = await createNewSession();
+      currentId = await createNewSession(false);
     }
 
     try {
