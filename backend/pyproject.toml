@@ -12,9 +12,22 @@ dependencies = [
     "fastapi[standard] (>=0.123.5,<0.124.0)",
     "psycopg2 (>=2.9.11,<3.0.0)",
     "scikit-learn (>=1.7.2,<2.0.0)",
-    "langchain (>=1.1.0,<2.0.0)"
+    "langchain (>=1.1.0,<2.0.0)",
+    "sqlalchemy (>=2.0.44,<3.0.0)",
+    "pandas (>=2.3.3,<3.0.0)",
+    "openpyxl (>=3.1.5,<4.0.0)",
+    "psycopg2-binary (>=2.9.11,<3.0.0)",
+    "charset-normalizer (>=3.4.4,<4.0.0)",
+    "fpdf2 (>=2.8.5,<3.0.0)",
+    "admin-module",
+    "llm_module",
+    "auth_module",
 ]
 
+[tool.poetry.dependencies]
+llm_module = { path = "../llm_module", develop = true }
+admin-module = { path = "../admin_module", develop = true }
+auth_module = { path = "../auth_module", develop = true }
 
 [build-system]
 requires = ["poetry-core>=2.0.0,<3.0.0"]

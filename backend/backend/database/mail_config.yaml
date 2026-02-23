@@ -1,0 +1,15 @@
+# GESTOCK: Arquivo de configuração do template de E-MAIL disparado automaticamente
+# Por enquanto: Possivel personalizar TITULO e CORPO do e-mail
+
+title: "[Aviso Automático] Produtos abaixo do estoque mínimo"
+body: |
+  Prezados(as),
+  Este é um aviso gerado automaticamente pelo GESTOCK.
+  Os seguintes produtos encontram-se abaixo do nível mínimo estabelecido e necessitam de reposição:
+
+  {lista_produtos}
+
+  Solicita-se que o setor financeiro providencie a liberação necessária para a reposição.
+  Este e-mail é automático e não requer resposta.
+  Atenciosamente,
+  GESTOCK
