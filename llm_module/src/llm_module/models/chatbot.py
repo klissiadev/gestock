@@ -3,6 +3,7 @@ import logging
 import asyncio
 import token
 from typing import Optional, List, Dict, Any
+from datetime import datetime
 
 from llm_module.utils.env_loader import load_env_from_root
 from langchain_ollama import ChatOllama
@@ -21,6 +22,9 @@ from llm_module.tools.sql_tools import (
     tool_listar_movimentacoes,
     buscar_produtos_a_vencer,
     buscar_produtos_abaixo_estoque,
+    buscar_movimentacoes_por_periodo,
+    buscar_movimentacoes_por_data,
+    buscar_produtos_por_descricao
 )
 from llm_module.utils.config import Config
 
@@ -39,7 +43,8 @@ class ChatBotService:
             buscar_produtos_a_vencer, tool_buscar_movimentacao, 
             tool_buscar_produto, tool_listar_produtos, 
             tool_calcular_validade, tool_listar_movimentacoes, 
-            buscar_produtos_abaixo_estoque
+            buscar_produtos_abaixo_estoque, buscar_movimentacoes_por_periodo,
+            buscar_movimentacoes_por_data, buscar_produtos_por_descricao
         ]
         
     def _setup_middleware(self) -> List[SummarizationMiddleware]:
@@ -67,9 +72,23 @@ class ChatBotService:
     def _load_system_prompt(self) -> str:
         if not Config.SYSTEM_PROMPT_LOCATION:
             raise ValueError("Caminho do System Prompt não configurado no .env")
-        
         loader = TextLoader(Config.SYSTEM_PROMPT_LOCATION, encoding='utf-8')
-        return loader.load()[0].page_content
+        raw_content = loader.load()[0].page_content
+
+        agora = datetime.now()
+        data_hoje = agora.strftime('%Y-%m-%d')
+        dias_semana = {
+            0: "Segunda-feira", 1: "Terça-feira", 2: "Quarta-feira",
+            3: "Quinta-feira", 4: "Sexta-feira", 5: "Sábado", 6: "Domingo"
+        }
+        dia_nome = dias_semana[agora.weekday()]
+        
+        print(f"Data atual: {data_hoje}, Dia da semana: {dia_nome}")
+
+        content_atualizado = raw_content.replace("{{DATA_HOJE}}", data_hoje)
+        content_atualizado = content_atualizado.replace("{{DIA_SEMANA}}", dia_nome)
+
+        return content_atualizado
 
     async def send_message(self, user_input: str, session_id: str = "guest") -> Any:
         if not self.agent:
@@ -79,6 +98,11 @@ class ChatBotService:
             {"messages": [HumanMessage(content=user_input)]},
             {"configurable": {"thread_id": session_id}},
         )
+        
+        print("=============================")
+        print("Resposta completa do agente:")
+        print(resultado)
+        print("=============================")
 
         return resultado["messages"][-1].content
     
