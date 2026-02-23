@@ -38,9 +38,6 @@ class UserDB(BaseModel):
     
     model_config = ConfigDict(from_attributes=True)
 
-class ResetRequest(BaseModel):
-    email: EmailStr
-
 
 
 
