@@ -6,7 +6,7 @@ import {
   Typography,
   InputAdornment,
 } from "@mui/material";
-import { useNavigate } from "react-router-dom"; 
+import { useNavigate } from "react-router-dom";
 import ErrorOutlineIcon from "../../../assets/icon/iconError.svg?react";
 import { useAuth } from "../../../AuthContext"
 
@@ -29,7 +29,7 @@ const LoginForm = () => {
     try {
       const success = await login(email, password);
       if (success) {
-        navigate("/home"); 
+        navigate("/home");
       }
     } catch (err) {
       console.error("Falha na autenticação", err);
@@ -72,36 +72,46 @@ const LoginForm = () => {
         onChange={(e) => setEmail(e.target.value)}
         error={error}
         InputProps={{
-            endAdornment: error && (
+          endAdornment: error && (
             <InputAdornment position="end">
-                <ErrorOutlineIcon width={18} height={18} />
+              <ErrorOutlineIcon width={18} height={18} />
             </InputAdornment>
-            ),
+          ),
         }}
-        />
+      />
 
 
-        <Typography variant="body2">Senha</Typography>
-        <TextField
-            placeholder="Insira sua senha"
-            type="password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            error={error}
-            InputProps={{
-                endAdornment: error && (
-                <InputAdornment position="end">
-                    <ErrorOutlineIcon width={18} height={18} />
-                </InputAdornment>
-                ),
-            }}
-        />
+      <Typography variant="body2">Senha</Typography>
+      <TextField
+        placeholder="Insira sua senha"
+        type="password"
+        value={password}
+        onChange={(e) => setPassword(e.target.value)}
+        error={error}
+        InputProps={{
+          endAdornment: error && (
+            <InputAdornment position="end">
+              <ErrorOutlineIcon width={18} height={18} />
+            </InputAdornment>
+          ),
+        }}
+      />
 
       {error && (
         <Typography fontSize={11} color="red">
           Usuário ou Senha incorretos. Tente novamente ou entre em contato com o ADM.
         </Typography>
       )}
+
+      <Typography fontSize={11} color="black" sx={{
+        mt: 1, cursor: "pointer", alignSelf: "flex-end", ":hover": {
+          textDecoration: "underline",
+        }
+      }} onClick={() => navigate("/forgot-password")}>
+        Esqueceu sua senha? Clique Aqui
+      </Typography>
+
+
 
       <Button
         type="submit"
@@ -113,7 +123,7 @@ const LoginForm = () => {
           fontWeight: 500,
           textTransform: "none",
           backgroundColor: "#6b6b6b",
-          borderRadius:"8px",
+          borderRadius: "8px",
           "&:hover": {
             backgroundColor: "#555",
           },
