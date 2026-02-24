@@ -1,39 +1,36 @@
 import React, { useEffect, useState, useCallback } from 'react';
 import { 
     Box, CircularProgress, Typography, Paper, 
-    Divider, Chip, Stack, Grid, IconButton, Tooltip 
-} from '@mui/material';
-import RefreshIcon from '@mui/icons-material/Refresh';
-import SignalCellularAltIcon from '@mui/icons-material/SignalCellularAlt';
-import StorageIcon from '@mui/icons-material/Storage';
-
-import { fetchHealth, fetchHardware } from './services/fetchHealth';
+    Divider, Chip, Stack 
+} from '@mui/material'; // Adicionado Stack aqui
+import { fetchHardware } from './services/fetchHardware';
+import { fetchHealth } from './services/fetchHealth';
 import UsageBox from './components/UsageBox';
 import { HARDWARE_FIELDS } from './constants/hardwareConstants';
+import SignalCellularAltIcon from '@mui/icons-material/SignalCellularAlt';
 
-// --- UTILITÁRIOS ---
 const getLatencyColor = (ms) => {
-    if (ms < 200) return 'success';
-    if (ms < 800) return 'warning';
-    return 'error';
+    if (ms < 200) return 'success.main';
+    if (ms < 800) return 'warning.main';
+    return 'error.main';
 };
 
 const AdminPage = () => {
     const [info, setInfo] = useState(null);
     const [healthInfo, setHealthInfo] = useState(null);
     const [loading, setLoading] = useState(true);
-    const [lastSync, setLastSync] = useState(new Date());
 
+    // Unificamos a busca para garantir que o dashboard atualize em sincronia
     const refreshDashboard = useCallback(async () => {
         try {
+            // Promise.all executa ambas as chamadas simultaneamente (mais rápido)
             const [hwData, healthData] = await Promise.all([
                 fetchHardware(),
                 fetchHealth()
             ]);
+            
             setInfo(hwData);
             setHealthInfo(healthData);
-            console.log("Dashboard atualizado com sucesso:", hwData, healthData);
-            setLastSync(new Date());
         } catch (error) {
             console.error("Erro ao atualizar dashboard:", error);
         } finally {
@@ -47,128 +44,105 @@ const AdminPage = () => {
         return () => clearInterval(intervalId);
     }, [refreshDashboard]);
 
-    if (loading) return (
-        <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100%' }}>
-            <CircularProgress />
-        </Box>
-    );
+    if (loading) return <Box sx={{ p: 5, textAlign: 'center' }}><CircularProgress /></Box>;
+    if (!info) return null;
 
     return (
-        <Box sx={{ p: 3, maxWidth: 1800, margin: '0 auto' }}>
+        <Box sx={{ p: 3 }}>
+            <Typography variant="h5" sx={{ mb: 3, fontWeight: 'bold' }}>
+                Dashboard do Sistema
+            </Typography>
             
-            {/* CABEÇALHO DINÂMICO */}
-            <Stack direction="row" justifyContent="space-between" alignItems="center" sx={{ mb: 4 }}>
-                <Box>
-                    <Typography variant="h4" fontWeight="800" color="primary">
-                        Status do Sistema
-                    </Typography>
-                    <Typography variant="body2" color="textSecondary">
-                        Monitoramento em tempo real da infraestrutura Gestock
-                    </Typography>
+            {/* --- SEÇÃO 1: MÉTRICAS PRINCIPAIS --- */}
+            <Box sx={{ display: 'flex', gap: 2, mb: 4, flexWrap: 'wrap' }}>
+                <UsageBox name={HARDWARE_FIELDS.cpu} usage={info.cpu} />
+                <UsageBox name={HARDWARE_FIELDS.ram} usage={info.ram} />
+            </Box>
+
+            {/* --- SEÇÃO 2: GPU --- */}
+            {info.gpu && (
+                <Box sx={{ mb: 4 }}>
+                    <Typography variant="h6" sx={{ mb: 2 }}>GPU Info</Typography>
+                    <Box sx={{ display: 'flex', gap: 2, flexWrap: 'wrap', alignItems: 'center' }}>
+                        {Object.entries(info.gpu).map(([subKey, subValue]) => {
+                            if (subKey === 'usage') {
+                                return (
+                                    <UsageBox 
+                                        key={subKey} 
+                                        name={HARDWARE_FIELDS.gpu[subKey]} 
+                                        usage={subValue} 
+                                    />
+                                );
+                            }
+                            return (
+                                <Paper key={subKey} elevation={0} sx={{ p: 2, bgcolor: '#f5f5f5', borderRadius: 2, minWidth: '130px' }}>
+                                    <Typography variant="caption" color="textSecondary" display="block">
+                                        {HARDWARE_FIELDS.gpu[subKey] || subKey.toUpperCase()}
+                                    </Typography>
+                                    <Typography variant="body1" fontWeight="bold">
+                                        {subValue}
+                                    </Typography>
+                                </Paper>
+                            );
+                        })}
+                    </Box>
                 </Box>
-                <Tooltip title="Atualizar agora">
-                    <IconButton onClick={refreshDashboard} color="primary">
-                        <RefreshIcon />
-                    </IconButton>
-                </Tooltip>
-            </Stack>
+            )}
 
-            {/* SEÇÃO 1: HARDWARE (CPU, RAM, GPU) */}
-            <Typography variant="overline" color="textSecondary" sx={{ fontWeight: 'bold' }}>Hardware Principal</Typography>
-            <Grid container spacing={3} sx={{ mt: 0.5, mb: 5 }}>
-                <Grid item xs={12} sm={6} md={3}>
-                    <UsageBox name={HARDWARE_FIELDS.cpu} usage={info.cpu} />
-                </Grid>
-                <Grid item xs={12} sm={6} md={3}>
-                    <UsageBox name={HARDWARE_FIELDS.ram} usage={info.ram} />
-                </Grid>
-                {info.gpu && (
-                    <Grid item xs={12} sm={6} md={3}>
-                        <UsageBox 
-                            name={HARDWARE_FIELDS.gpu.usage} 
-                            usage={info.gpu.usage} 
-                        />
-                    </Grid>
-                )}
-                <Grid item xs={12} sm={6} md={3}>
-                    <Paper elevation={0} sx={{ p: 2, bgcolor: 'primary.light', color: 'white', borderRadius: 3, height: '100%' }}>
-                        <Typography variant="caption" sx={{ opacity: 0.8 }}>Tempo de Atividade</Typography>
-                        <Typography variant="h6" fontWeight="bold">{info.uptime}</Typography>
+            <Divider sx={{ my: 4 }} />
 
-                        <Divider sx={{ my: 2, borderColor: 'rgba(255,255,255,0.3)' }} />
+            {/* --- SEÇÃO 3: STATUS DOS SERVIÇOS --- */}
+            {healthInfo && (
+                <Box sx={{ mb: 4 }}>
+                    <Typography variant="h6" sx={{ mb: 2 }}>Status dos Serviços</Typography>
+                    <Box sx={{ display: 'flex', gap: 2, flexWrap: 'wrap' }}>
+                        {Object.entries(healthInfo).map(([serviceName, details]) => (
+                            <Paper 
+                                key={serviceName} 
+                                elevation={0} 
+                                sx={{ 
+                                    p: 2, 
+                                    border: '1px solid #e0e0e0', 
+                                    borderRadius: 2,
+                                    minWidth: '220px',
+                                    flex: '1 1 calc(33.333% - 16px)'
+                                }}
+                            >
+                                <Stack direction="row" justifyContent="space-between" alignItems="center">
+                                    <Typography variant="subtitle1" sx={{ fontWeight: 'bold', textTransform: 'capitalize' }}>
+                                        {serviceName.replace('_', ' ')}
+                                    </Typography>
+                                    <Chip 
+                                        label={details.status} 
+                                        size="small" 
+                                        color={details.status === 'Online' ? 'success' : 'error'}
+                                    />
+                                </Stack>
 
-                        <Stack direction="column" alignItems="center" spacing={1}>
-                            <Typography variant="body2" sx={{ ml: 'auto', fontWeight: '700' }}>
-                                {info.gpu ? `GPU: ${info.gpu.name}` : 'Sem GPU Detectada'}
-                            </Typography>
-                            <Typography variant="body2" sx={{ ml: 'auto', fontWeight: '700' }}>
-                                {info.gpu ? `VRAM em uso: ${info.gpu.vram_used_mb}` : 'VRAM indisponível'}
-                            </Typography>
-                            <Typography variant="body2" sx={{ ml: 'auto', fontWeight: '700' }}>
-                                {info.gpu ? `VRAM total: ${info.gpu.vram_total_mb}` : 'VRAM indisponível'}
-                            </Typography>
-                            <Typography variant="body2" sx={{ ml: 'auto', fontWeight: '700' }}>
-                                {info.gpu ? `Temperatura: ${info.gpu.temp} ºC` : 'Temperatura indisponível'}
-                            </Typography>
-                        </Stack>
-                    </Paper>
-                </Grid>
-            </Grid>
+                                <Box sx={{ mt: 2, display: 'flex', alignItems: 'center', gap: 1 }}>
+                                    <SignalCellularAltIcon sx={{ fontSize: 16, color: getLatencyColor(details.latency) }} />
+                                    <Typography variant="body2" color="textSecondary">
+                                        Latência: 
+                                        <Box component="span" sx={{ fontWeight: 'bold', ml: 0.5, color: getLatencyColor(details.latency) }}>
+                                            {details.latency?.toFixed(2)} ms
+                                        </Box>
+                                    </Typography>
+                                </Box>
+                            </Paper>
+                        ))}
+                    </Box>
+                </Box>
+            )}
 
-            {/* SEÇÃO 2: GRID DE SERVIÇOS */}
-            <Typography variant="overline" color="textSecondary" sx={{ fontWeight: 'bold' }}>Microserviços & API</Typography>
-            <Grid container spacing={2} sx={{ mt: 0.5, mb: 4 }}>
-                {healthInfo && Object.entries(healthInfo).map(([service, details]) => (
-                    <Grid item xs={12} sm={6} md={4} key={service}>
-                        <Paper 
-                            variant="outlined" 
-                            sx={{ 
-                                p: 2, 
-                                borderRadius: 3, 
-                                transition: '0.3s',
-                                '&:hover': { boxShadow: '0 4px 20px rgba(0,0,0,0.08)' }
-                            }}
-                        >
-                            <Stack direction="row" justifyContent="space-between" alignItems="center" mb={2}>
-                                <Typography variant="subtitle1" fontWeight="700" sx={{ textTransform: 'capitalize' }}>
-                                    {service.replace('_', ' ')}
-                                </Typography>
-                                <Chip 
-                                    label={details.status} 
-                                    size="small" 
-                                    color={details.status === 'Online' ? 'success' : 'error'}
-                                    sx={{ fontWeight: 'bold', borderRadius: '6px' }}
-                                />
-                            </Stack>
-                            
-                            <Stack direction="row" spacing={1} alignItems="center">
-                                <SignalCellularAltIcon 
-                                    color={getLatencyColor(details.latency)} 
-                                    sx={{ fontSize: 18 }} 
-                                />
-                                <Typography variant="body2" color="textSecondary">
-                                    Latência: 
-                                    <Box component="span" sx={{ ml: 1, fontWeight: '700', color: `${getLatencyColor(details.latency)}.main` }}>
-                                        {details.latency?.toFixed(2)} ms
-                                    </Box>
-                                </Typography>
-                            </Stack>
-                        </Paper>
-                    </Grid>
-                ))}
-            </Grid>
-
-            <Divider sx={{ mb: 3 }} />
-
-            {/* RODAPÉ TÉCNICO */}
-            <Stack direction="row" justifyContent="flex-end" spacing={2}>
-                <Typography variant="caption" color="textDisabled">
-                    Sincronizado às: {lastSync.toLocaleTimeString()}
+            {/* --- RODAPÉ: INFORMAÇÕES DO SISTEMA --- */}
+            <Paper elevation={0} sx={{ p: 2, bgcolor: '#e3f2fd', borderRadius: 2, display: 'inline-block' }}>
+                <Typography variant="body2" color="primary.main" fontWeight="500">
+                    <strong>Uptime:</strong> {info.uptime}
                 </Typography>
-                <Typography variant="caption" color="textDisabled">
-                    Versão do Sistema: v1.0.4-beta
+                <Typography variant="caption" color="textSecondary">
+                    Sincronizado em: {new Date().toLocaleTimeString()}
                 </Typography>
-            </Stack>
+            </Paper>
         </Box>
     );
 };
