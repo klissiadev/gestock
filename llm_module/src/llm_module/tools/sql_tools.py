@@ -308,12 +308,10 @@ from datetime import datetime
 def buscar_movimentacoes_por_data(data: str, tipo: str = None):
     """
     Consulta o histórico de movimentações (entradas/saídas) para uma data específica. Converta termos como 'hoje', 'ontem' ou 'dia 10 de maio' para o formato 'YYYY-MM-DD'.
-    - Parametro data: string no formato 'YYYY-MM-DD'.
+    - Parametro data: string no formato 'YYYY-MM-DD'. Faça adaptações caso o usuário use termos como 'hoje', 'ontem' ou 'dia 10 de maio' ou outros formatos comuns. Se a data for inválida, avise o usuário.
     - O parâmetro 'tipo' só aceita 'entrada' ou 'saida'. Se o usuário não especificar, deixe None.
     """
     
-    # 1. Validação e Normalização da Data
-    # Isso garante que a query não quebre se a LLM enviar "25/12/2023"
     try:
         data_formatada = datetime.strptime(data.replace("/", "-"), "%Y-%m-%d").date()
     except ValueError:
@@ -349,57 +347,6 @@ def buscar_movimentacoes_por_data(data: str, tipo: str = None):
         return f"Não encontrei nenhuma movimentação no dia {data_formatada}."
         
     return _wrap_rows(rows)
-
-
-def teste(data: str, tipo: str = None):
-    """
-    Consulta o histórico de movimentações (entradas/saídas) para uma data específica.
-    - Converta termos como 'hoje', 'ontem' ou 'dia 10 de maio' para o formato 'YYYY-MM-DD'.
-    - O parâmetro 'tipo' só aceita 'entrada' ou 'saida'. Se o usuário não especificar, deixe None.
-    """
-    
-    # 1. Validação e Normalização da Data
-    # Isso garante que a query não quebre se a LLM enviar "25/12/2023"
-    try:
-        data_formatada = datetime.strptime(data.replace("/", "-"), "%Y-%m-%d").date()
-    except ValueError:
-        return f"Erro: O formato da data '{data}' é inválido. Use 'YYYY-MM-DD'."
-
-    filtro_tipo = ""
-    if tipo:
-        tipo = tipo.lower().strip()
-        if tipo in ["entrada", "saida"]:
-            filtro_tipo = f"AND tipo_movimentacao = '{tipo}'"
-        else:
-            pass 
-        
-    
-
-    # 3. Montagem da Query
-    query = f"""
-    SELECT
-        nome_produto,
-        quantidade,
-        data_movimentacao,
-        entidade,
-        tipo_movimentacao,
-        adicionado_em
-    FROM app_core.v_movimentacao
-    WHERE data_movimentacao = '{data_formatada}' {filtro_tipo}
-    ORDER BY adicionado_em DESC;
-    """
-    
-    rows = database.fetch_all(query=query)
-    
-    if not rows:
-        return f"Não encontrei nenhuma movimentação no dia {data_formatada}."
-        
-    return _wrap_rows(rows)
-
-
-if __name__ == "__main__":
-    resultado = teste("01-06-2026")
-    print(resultado)
 
     
     
