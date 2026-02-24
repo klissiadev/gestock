@@ -6,10 +6,10 @@ export const PRODUCT_HEADER_NAMES = {
     descricao: "Descrição",
     estoque_atual: "Estoque Atual",
     estoque_minimo: "Estoque Mínimo",
-    baixo_estoque: "Estoque Baixo",
-    vencido: "Vencido",
+    baixo_estoque: "Estoque Baixo?",
+    vencido: "Vencido?",
     data_validade: "Validade",
-    ativo: "Ativo"
+    ativo: "Ativo?"
 };
 
 // Filtros originais
