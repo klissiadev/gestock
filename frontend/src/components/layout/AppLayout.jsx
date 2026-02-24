@@ -12,7 +12,7 @@ import Header from "./Header";
 
 
 
-export default function AppLayout() {
+export default function AppLayout(isAdmin = false) {
     const location = useLocation();
     const navigate = useNavigate();
     const [expanded, setExpanded] = useState(false);
@@ -41,6 +41,7 @@ export default function AppLayout() {
                     onChange={handleChange}
                     expanded={expanded}
                     onToggle={toggleSidebar}
+                    isAdmin={isAdmin}
                 />
                 
                 {/* Conteúdo da página */}
