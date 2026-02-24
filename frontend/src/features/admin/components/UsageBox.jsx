@@ -14,7 +14,7 @@ const UsageBox = ({ name, usage }) => {
                 endAngle={90}
 
                 height={200}
-                width={200}
+                width={300}
             
                 text={({ value }) => `${value}%`}
             />

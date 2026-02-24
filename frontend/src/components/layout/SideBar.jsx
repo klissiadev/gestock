@@ -23,43 +23,27 @@ import LogOutSvg from "../../assets/icon/iconOut.svg?react";
 import MovSvg from "../../assets/icon/iconMove.svg?react";
 import UploadSvg from "../../assets/icon/iconUpload.svg?react";
 
-import MonitorHeartOutlinedIcon from '@mui/icons-material/MonitorHeartOutlined';
-import AddCircleOutlineOutlinedIcon from '@mui/icons-material/AddCircleOutlineOutlined';
-import ManageAccountsOutlinedIcon from '@mui/icons-material/ManageAccountsOutlined';
-import AutoAwesomeOutlinedIcon from '@mui/icons-material/AutoAwesomeOutlined';
-import ImportExportOutlinedIcon from '@mui/icons-material/ImportExportOutlined';
-
 import ChevronRightIcon from "@mui/icons-material/ChevronRight";
 import ChevronLeftIcon from "@mui/icons-material/ChevronLeft";
 
 import { useAuth } from "../../AuthContext";
 
 
-const GestorMenuItems = [
+const menuItems = [
   { id: "home", icon: HomeSvg, title: "Home" },
-  { id: "ai", icon: ChatSvg, title: "Chat" },
+  { id: "ai", icon: ChatSvg, title: "Chat"},
   { id: "upload", icon: UploadSvg, title: "Upload" },
   { id: "sheets", icon: InvetorySvg, title: "Inventory" },
   { id: "movements", icon: MovSvg, title: "Movements" },
   { id: "requests", icon: ShoppingSvg, title: "Request" },
-  { id: "forecast", icon: ChartSvg, title: "Forecast" },
+  { id: "forecast", icon: ChartSvg, title: "Forecast"},
   { id: "reports", icon: ReportsSvg, title: "Reports" },
 ];
 
-const adminMenuItems = [
-  { id: "health", icon: MonitorHeartOutlinedIcon, title: "Saúde do Sistema" },
-  { id: "add-user", icon: AddCircleOutlineOutlinedIcon, title: "Adicionar Usuário" },
-  { id: "manage-users", icon: ManageAccountsOutlinedIcon, title: "Gerenciar Usuários" },
-  { id: "minerva-log", icon: AutoAwesomeOutlinedIcon, title: "Log de Minerva" },
-  { id: "import-log", icon: ImportExportOutlinedIcon, title: "Log de Importação" },
-]
-
-export default function SideBar({ active, onChange, expanded, onToggle, isAdmin = false }) {
+export default function SideBar({ active, onChange, expanded, onToggle }) {
   const COLLAPSED_WIDTH = 66;
-  const EXPANDED_WIDTH = isAdmin ? 230 : 180 ;
-  const { logout } = useAuth();
-
-  const menuItems = isAdmin ? adminMenuItems : GestorMenuItems;
+  const EXPANDED_WIDTH = 180;
+  const {logout } = useAuth();
 
   return (
     <Drawer
@@ -74,8 +58,8 @@ export default function SideBar({ active, onChange, expanded, onToggle, isAdmin 
           overflow: "visible",
           position: "relative",
 
-          display: "flex",
-          flexDirection: "column",
+          display: "flex",         
+          flexDirection: "column", 
         },
       }}
     >
@@ -108,65 +92,65 @@ export default function SideBar({ active, onChange, expanded, onToggle, isAdmin 
       </Box>
 
 
-      {/* Logo */}
+       {/* Logo */}
       <Box display="flex" justifyContent="center">
         <IconButton>
           <img src="/logo.svg" width={28} />
         </IconButton>
       </Box>
 
-      <Divider sx={{ mt: 2, mb: 1, borderWidth: 1.3 }} />
+      <Divider sx={{ mt: 2, mb: 1, borderWidth: 1.3}} />
 
       {/* Menu */}
       <Box sx={{ flex: 1 }}>
         <List sx={{ px: 1, mt: 3 }}>
-          {menuItems.map((item) => {
-            const button = (
-              <ListItemButton
-                key={item.id}
-                selected={active === item.id}
-                onClick={() => onChange(item.id)}
+        {menuItems.map((item) => {
+          const button = (
+            <ListItemButton
+              key={item.id}
+              selected={active === item.id}
+              onClick={() => onChange(item.id)}
+              sx={{
+                justifyContent: expanded ? "left" : "center",
+                gap: 1,
+                width: expanded ? "100%" : "80%",
+                minHeight: 40,
+                px: expanded ? 1.4 : 2.4,
+                py: 0.8,
+              }}
+            >
+              <ListItemIcon
                 sx={{
-                  justifyContent: expanded ? "left" : "center",
-                  gap: 1,
-                  width: expanded ? "100%" : "80%",
-                  minHeight: 40,
-                  px: expanded ? 1.4 : 2.4,
-                  py: 0.8,
+                  minWidth: 0,
+                  mr: expanded ? 1 : 0,
+                  justifyContent: "center",
                 }}
               >
-                <ListItemIcon
-                  sx={{
-                    minWidth: 0,
-                    mr: expanded ? 1 : 0,
-                    justifyContent: "center",
+                <AppIcon component={item.icon} />
+              </ListItemIcon>
+
+              {expanded && (
+                <ListItemText
+                  primary={item.title}
+                  sx={{ 
+                    whiteSpace: "nowrap",
+                    maxWidth: expanded ? "100%" : 0,
+                    transition: "opacity 0.2s",
                   }}
-                >
-                  <AppIcon component={item.icon} />
-                </ListItemIcon>
+                />
+              )}
+            </ListItemButton>
+          );
 
-                {expanded && (
-                  <ListItemText
-                    primary={item.title}
-                    sx={{
-                      whiteSpace: "nowrap",
-                      maxWidth: expanded ? "100%" : 0,
-                      transition: "opacity 0.2s",
-                    }}
-                  />
-                )}
-              </ListItemButton>
-            );
-
-            return expanded ? (
-              <Box key={item.id}>{button}</Box>
-            ) : (
-              <Tooltip key={item.id} title={item.title} placement="right">
-                {button}
-              </Tooltip>
-            );
-          })}
-        </List>
+          return expanded ? (
+            <Box key={item.id}>{button}</Box>
+          ) : (
+            <Tooltip key={item.id}  title={item.title} placement="right">
+              {button}
+            </Tooltip>
+          );
+        })}
+      </List>
       </Box>
 
       {/* Logout */}
@@ -195,7 +179,7 @@ export default function SideBar({ active, onChange, expanded, onToggle, isAdmin 
           {expanded && (
             <ListItemText
               primary="Logout"
-              sx={{
+              sx={{ 
                 whiteSpace: "nowrap",
                 maxWidth: expanded ? "100%" : 0,
                 transition: "opacity 0.2s",
