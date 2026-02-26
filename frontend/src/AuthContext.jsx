@@ -19,6 +19,7 @@ export const AuthProvider = ({ children }) => {
             if (response.ok) {
                 const dadosUsuario = await response.json();
                 setUser(dadosUsuario);
+                console.log("Sessão verificada, usuário:", dadosUsuario);
             } else {
                 localStorage.removeItem('token');
                 setUser(null);

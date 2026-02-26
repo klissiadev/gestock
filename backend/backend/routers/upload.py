@@ -10,16 +10,16 @@ from backend.services.import_service import process_import
 from backend.services.log_importacao_service import LogImportacaoService
 from backend.utils.file_validation import validate_upload_file
 
-from auth_module.utils.security import get_current_user
+from auth_module.utils.security import require_role
 from auth_module.models.User import UserPublic
 
-router = APIRouter(prefix="/upload", tags=["upload"], dependencies=[Depends(get_current_user)])
+router = APIRouter(prefix="/upload", tags=["upload"])
 
 
 @router.post("/{tipo}")
 def upload_file(tipo: str, 
                 file: UploadFile, 
-                user: Annotated[UserPublic, Depends(get_current_user)],
+                user: Annotated[UserPublic, Depends(require_role(["gestor"]))],
                 db=Depends(get_db)
             ):
     tipo = tipo.lower().strip()
