@@ -1,8 +1,9 @@
+#database/repository.py
 # camada padrão de acesso ao banco de dados
 from fastapi import HTTPException
 from typing import Optional, List, Dict, Any, Tuple, Union
 import re
-from psycopg2.extras import RealDictCursor
+from psycopg2.extras import RealDictCursor, execute_values, register_uuid
 
 
 class Repository:
@@ -10,6 +11,7 @@ class Repository:
     def __init__(self, conn):
         self.conn = conn
         self.cursor = conn.cursor(cursor_factory=RealDictCursor)
+        register_uuid()
     # =================================================
     # MÉTODOS AUXILIARES
     # =================================================
@@ -21,6 +23,10 @@ class Repository:
         - "Tabela".coluna AS alias
         - "Tabela"
         """
+        # Se funcao
+        if "(" in identifier and ")" in identifier:
+            return identifier
+
         # Usuario.nome AS nome_usuario
         if " AS " in identifier.upper():
             left, alias = identifier.split(" AS ", 1)
@@ -108,12 +114,13 @@ class Repository:
         """
         Monta a query para buscar um 'term' em uma lista de colunas determinadas
         Retorna uma tupla (sql_string, lista_valores).
+        Ativei uma extensão no BD chamado 'unaccent' -> ela remove acentos. Ajuda na busca
         """
         # Se vazio
         if not term or not cols:
             return None, []
         
-        clauses = [f"{self._quote_identifier(c)} ILIKE %s" for c in cols]
+        clauses = [f"unaccent({self._quote_identifier(c)}) ILIKE %s" for c in cols]
 
         if not clauses:
             return None, []
@@ -163,6 +170,20 @@ class Repository:
         except Exception as e:
             self.conn.rollback()
             raise
+    
+    def get_table_columns(self, table_name: str):
+        sql = """
+            SELECT column_name
+            FROM information_schema.columns
+            WHERE table_schema = %s AND table_name = %s
+            ORDER BY ordinal_position
+        """
+        schema, table = table_name.split(".")
+
+        cursor = self.cursor
+        cursor.execute(sql, (schema, table))
+
+        return [row["column_name"] for row in cursor.fetchall()]
 
     # =================================================
     # SELECT
@@ -171,19 +192,59 @@ class Repository:
     def fetch_one(
         self,
         table: str,
-        key_or_conditions: Union[str, Dict[str, Any]],
-        value: Any = None
+        type_join: str = None,
+        join_tables: List[Tuple[str, str]] = None,
+        conditions: Union[Dict[str, Any], str, None] = None,
+        value: Any = None,
+        order_by: str = None,
+        direction: str = None,
+        columns: List[str] = None,
+        search_term: str = None,
+        search_cols: List[str] = None
     ) -> Optional[Dict]:
         try:
+            # 1. Monta SELECT
             table_q = self._quote_identifier(table)
-            where_clause, values = self._build_where_clause(key_or_conditions, value)
-            sql = f"SELECT * FROM {table_q}{where_clause} LIMIT 1"
-            self.cursor.execute(sql, values)
-            row = self.cursor.fetchone()
-            return dict(row) if row else None
+            col_q = ", ".join(self._quote_identifier(c) for c in columns) if columns else "*"
+            
+            # 2. Monta o JOIN
+            join_sql = ""
+            if type_join and join_tables:
+                for join_table, join_condition in join_tables:
+                    join_table_q = self._quote_identifier(join_table)
+                    join_sql += f" {type_join} {join_table_q} ON {join_condition}"
+    
+            # 3. Filtros exatos e Busca (Reutilizando sua lógica do fetch_all)
+            where_parts, query_values = self._build_conditions(conditions, value)
+            search_part, search_values = self._build_search_clause(search_term, search_cols)
+    
+            if search_part:
+                where_parts.append(search_part)    
+                query_values.extend(search_values)  
+            
+            where_sql = (" WHERE " + " AND ".join(where_parts)) if where_parts else ""
+    
+            # 4. Monta ORDER BY
+            order_sql = ""
+            if order_by:
+                # Garante que a direção seja válida para evitar SQL Injection manual
+                dir_sql = direction if direction in ["ASC", "DESC"] else "ASC"
+                order_q = ", ".join(self._quote_identifier(c.strip()) for c in order_by.split(","))
+                order_sql = f" ORDER BY {order_q} {dir_sql}"
+    
+            # 5. Executa com LIMIT 1
+            # O LIMIT 1 é o que diferencia o fetch_one
+            sql = f"SELECT {col_q} FROM {table_q}{join_sql}{where_sql}{order_sql} LIMIT 1"
+            print(f"One: {sql}")
 
+            self.cursor.execute(sql, query_values)
+            row = self.cursor.fetchone()
+            
+            return dict(row) if row else None
+    
         except Exception as e:
-            raise HTTPException(status_code=500, detail=f"Erro ao buscar: {str(e)}")
+            # Lembre-se que agora o seu app.py captura isso e loga o traceback!
+            raise HTTPException(status_code=500, detail=f"Erro ao buscar registro único: {str(e)}")
 
     def fetch_all(
         self,
@@ -269,7 +330,9 @@ class Repository:
 
             sql = f"UPDATE {table_q} SET {set_clause}{where_clause}"
             self.cursor.execute(sql, values)
+            self.conn.commit()
             return self.cursor.rowcount
+
 
         except Exception as e:
             self.conn.rollback()
@@ -329,3 +392,47 @@ class Repository:
             self.cursor.close()
         except:
             pass
+
+
+    # bulk insert para a otimização de importação
+    def bulk_insert(self, table: str, rows: list[dict]):
+        if not rows:
+            return {"success": 0, "failed": []}
+
+        try:
+            # quote da tabela
+            table_q = self._quote_identifier(table)
+
+            # quote das colunas
+            columns = list(rows[0].keys())
+            cols_q = ", ".join(self._quote_identifier(col) for col in columns)
+
+            # valores
+            values = [
+                tuple(row[col] for col in columns)
+                for row in rows
+            ]
+
+            sql = f"""
+                INSERT INTO {table_q} ({cols_q})
+                VALUES %s
+            """
+
+            execute_values(self.cursor, sql, values)
+            return {"success": len(rows), "failed": []}
+        
+        except psycopg2.errors.ForeignKeyViolation as e:
+            return {
+                "success": 0,
+                "failed": [{"index": i, "error": "Chave estrangeira inválida"}]
+            }
+        
+        except Exception as e:
+            self.conn.rollback()
+            return {
+                "success": 0,
+                "failed": [
+                    {"index": i, "error": str(e)}
+                    for i in range(len(rows))
+                ]
+            }
