@@ -24,30 +24,37 @@ const AppRoutes = () => {
   return (
     <Routes>
       <Route path='/' element={<LoginPage />} />
+
       <Route path='/login' element={<LoginPage />} />
-      <Route path="/reset-password" element={<ResetPassword/>}/> 
-      <Route path="/forgot-password" element={<ForgotPassword/>}/> 
-      <Route element={
-        <ProtectedRoute>
-          <AppLayout />
-        </ProtectedRoute>
-      }>
-        <Route path='/home' element={<HomePage2 />} />
-        <Route path='/upload' element={<UploadDialog />} />
-        <Route path='/sheets' element={<TabelaProduto />} />
-        <Route path='/notifications' element={<NotificationPage />} />
-        <Route path="/movements" element={<TabelaMovimentacao />} />
-        <Route path='/ai' element={<LLMPage />} />
-        <Route path='/forecast' element={<ForecastPage />} />
-        <Route path='/reports' element={<ReportsPage />} />
-        <Route path='/requests' element={<RequestsPage />} />
-        <Route path='/debug' element={<StockSheets />} />
-        <Route path='/debug2' element={<AdminPage />} />
-        <Route path="/users" element={<UsersPage/>}/>
-        <Route path='/register-user' element={<RegisterUserPage/>}/>
-        <Route path='/log-imports' element={<LogImportPage/>}/>
+      <Route path="/reset-password" element={<ResetPassword />} />
+      <Route path="/forgot-password" element={<ForgotPassword />} />
+
+      <Route element={<ProtectedRoute allowedRoles={['admin', 'gestor']} />}>
+        <Route element={<AppLayout />}>
+        
+          <Route element={<ProtectedRoute allowedRoles={['gestor']} />}>
+            <Route path='/home' element={<HomePage2 />} />
+            <Route path='/upload' element={<UploadDialog />} />
+            <Route path='/sheets' element={<TabelaProduto />} />
+            <Route path='/notifications' element={<NotificationPage />} />
+            <Route path="/movements" element={<TabelaMovimentacao />} />
+            <Route path='/ai' element={<LLMPage />} />
+            <Route path='/forecast' element={<ForecastPage />} />
+            <Route path='/reports' element={<ReportsPage />} />
+            <Route path='/requests' element={<RequestsPage />} />
+            <Route path='/debug' element={<StockSheets />} />
+          </Route>
+
+          <Route element={<ProtectedRoute allowedRoles={['admin']} />}>
+            <Route path='/debug2' element={<AdminPage />} />
+            <Route path="/users" element={<UsersPage/>}/>
+            <Route path='/register-user' element={<RegisterUserPage/>}/>
+            <Route path='/log-imports' element={<LogImportPage/>}/>
+          </Route>
+        </Route>
       </Route>
-    </Routes>
+
+    </Routes >
   )
 }
 

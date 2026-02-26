@@ -21,6 +21,7 @@ export const AuthProvider = ({ children }) => {
             if (response.ok) {
                 const dadosUsuario = await response.json();
                 setUser(dadosUsuario);
+                console.log("Sessão verificada, usuário:", dadosUsuario);
             } else {
                 localStorage.removeItem('token');
                 setUser(null);
@@ -69,12 +70,12 @@ export const AuthProvider = ({ children }) => {
     };
 
     // Responsavel pelo registro do usuario
-    const register = async (nome, email, password) => {
+    const register = async (nome, email, password, papel) => {
         setError(null);
         setLoading(true);
         try {
             //const token = localStorage.getItem('token');
-            const resposta = await registerUser(nome, email, password);
+            const resposta = await registerUser(nome, email, password, papel);
             // Geralmente redirecionamos para o login ou exibimos uma mensagem verde.
             console.log("Usuário registrado:", resposta.message);
             return { success: true };

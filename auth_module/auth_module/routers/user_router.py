@@ -26,7 +26,6 @@ async def create_user(user: UserCreate):
     # Converte a senha para hash binário
     hashed_password_bytes = get_password_hash(user.password)
     
-    print("teste 123")
     new_user = UserDB(
         nome=user.nome,
         email=user.email,
@@ -77,7 +76,7 @@ async def login(form_data: Annotated[OAuth2PasswordRequestForm, Depends()]):
 async def read_users_me(current_user: Annotated[UserPublic, Depends(get_current_user)]):
     """
     Retorna os dados do usuário autenticado.
-    Dados: nome, email e papel
+    Dados: id, nome e papel
     A dependência get_current_user já filtra os dados sensíveis.
     """
     return current_user
