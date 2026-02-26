@@ -44,7 +44,7 @@ const AdminPage = () => {
         return () => clearInterval(intervalId);
     }, [refreshDashboard]);
 
-    if (loading) return <Box sx={{ p: 5, textAlign: 'center' }}><CircularProgress /></Box>;
+    if (loading) return <Box sx={{ p: 5, textAlign: 'center' }}>Carregando...</Box>;
     if (!info) return null;
 
     return (

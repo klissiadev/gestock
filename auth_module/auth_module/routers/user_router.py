@@ -76,7 +76,7 @@ async def login(form_data: Annotated[OAuth2PasswordRequestForm, Depends()]):
 async def read_users_me(current_user: Annotated[UserPublic, Depends(get_current_user)]):
     """
     Retorna os dados do usuário autenticado.
-    Dados: nome, email e papel
+    Dados: id, nome e papel
     A dependência get_current_user já filtra os dados sensíveis.
     """
     return current_user
