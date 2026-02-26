@@ -26,7 +26,6 @@ async def create_user(user: UserCreate):
     # Converte a senha para hash binário
     hashed_password_bytes = get_password_hash(user.password)
     
-    print("teste 123")
     new_user = UserDB(
         nome=user.nome,
         email=user.email,
