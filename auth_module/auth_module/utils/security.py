@@ -1,7 +1,7 @@
 # auth_module/utils/security.py
 from datetime import datetime, timedelta
 from zoneinfo import ZoneInfo
-from typing import Annotated
+from typing import Annotated, Literal
 import jwt
 from pwdlib import PasswordHash
 from fastapi import Depends, HTTPException, status
@@ -79,13 +79,9 @@ def create_password_reset_token(user: UserDB):
     to_encode = {"exp": expire, "sub": str(user.id)}
     return jwt.encode(to_encode, dynamic_secret, algorithm=ALGORITHM)
 
-import jwt # PyJWT
-from datetime import datetime, timedelta, timezone
 
-# No seu security.py
 def verify_reset_token(token: str):
     try:
-        # 1. Decodificamos SEM validar a assinatura apenas para pegar o 'sub' (user_id)
         unverified_payload = jwt.decode(token, options={"verify_signature": False})
         user_id = unverified_payload.get("sub")
         
