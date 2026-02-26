@@ -1,9 +1,11 @@
 import { Box, Typography, Button } from "@mui/material";
+import { useNavigate } from "react-router-dom";
 import CheckCircleIcon from "@mui/icons-material/CheckCircle";
 import StepContainer from "./StepContainer";
 import { accept_button} from "../styles/style";
 
 export default function StepConcluido() {
+  const navigate = useNavigate();
   return (
     <StepContainer>
       <Box display="flex" flexDirection="column" alignItems="center" justifyContent="center" gap={2} height={"100%"}>
@@ -21,8 +23,8 @@ export default function StepConcluido() {
         </Typography>
 
         <Box mt={4}  width={"100%"} align={'center'} >
-            <Button sx={accept_button}>
-                Voltar para usuários
+            <Button sx={accept_button} onClick={() => navigate("/users")}>
+              Voltar para usuários
             </Button>
         </Box>
       </Box>

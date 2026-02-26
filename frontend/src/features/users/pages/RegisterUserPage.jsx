@@ -34,7 +34,7 @@ const RegisterUserPage = () => {
         backgroundColor: (theme) => theme.palette.common.white,
         padding: 2,
         flex: 1,
-        height: "100vh",
+        height: "80vh",
         width: "100%",
       }}
     >

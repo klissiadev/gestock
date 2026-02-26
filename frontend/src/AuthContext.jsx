@@ -7,6 +7,8 @@ export const AuthProvider = ({ children }) => {
     const [user, setUser] = useState(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
+    const isAdmin = true;
+
 
     // Da um ping pra verificar sessão e pega informacoes basicas do usuario
     const verificarSessao = useCallback(async (token) => {
@@ -123,8 +125,9 @@ export const AuthProvider = ({ children }) => {
         }
     };
 
+
     return (
-        <AuthContext.Provider value={{ user, loading, error, login, logout, register, resetPassword, sendRecoveryEmail }}>
+        <AuthContext.Provider value={{ user, loading, error, login, logout, register, resetPassword, sendRecoveryEmail, isAdmin}}>
             {children}
         </AuthContext.Provider>
     );
