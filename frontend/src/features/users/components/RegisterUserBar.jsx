@@ -7,9 +7,7 @@ import AddUserSvg from "../../../assets/icon/iconAddUser.svg?react";
 const RegisterUserBar = ({titulo}) => {
   return (
     <Stack x={1}>
-      <Stack direction="row" alignItems="center" pb={1}>
-        <Box sx={{ flex: 1 }} />
-
+      <Stack direction="row" alignItems="center" pb={2}>
         <Box
           sx={{
             flex: 1,
@@ -23,20 +21,6 @@ const RegisterUserBar = ({titulo}) => {
           <Typography fontSize={20} fontWeight={500}>
             {titulo}
           </Typography>
-        </Box>
-
-        <Box
-          sx={{
-            flex: 1,
-            display: "flex",
-            justifyContent: "flex-end",
-          }}
-        >
-          <ExpandableIconButton
-            icon={<ChatSvg width={16} height={16} />}
-            origin="register-user"
-            initialMessage="Olá Minerva, me ajude em como adicionar novo usuário."
-          />
         </Box>
       </Stack>
       <Divider variant="middle" />  
