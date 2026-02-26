@@ -3,8 +3,8 @@ import CheckIcon from "@mui/icons-material/Check";
 
 export default function FuncaoSelector({ value, onChange }) {
   const options = [
-    { label: "Administrador", value: "Administrador" },
-    { label: "PCP", value: "PCP" },
+    { label: "Administrador", value: "admin" },
+    { label: "PCP", value: "gestor" },
   ];
 
   return (

@@ -90,8 +90,8 @@ export default function StepDadosGerais({ data, updateData, onNext }) {
           }
         />
         <FuncaoSelector
-          value={data.funcao}
-          onChange={(value) => updateData({ funcao: value })}
+          value={data.papel}
+          onChange={(value) => updateData({ papel: value })}
         />
       </Box>
 

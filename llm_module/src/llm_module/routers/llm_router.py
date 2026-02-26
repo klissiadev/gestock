@@ -5,14 +5,14 @@ from llm_module.services.llm_service import LLMService
 from llm_module.services.llm_sessions import LLMSessionService
 from fastapi.responses import StreamingResponse
 
-from auth_module.utils.security import get_current_user
+from auth_module.utils.security import require_role
 from auth_module.models.User import UserPublic
 
 class ChatRequest(BaseModel):
     message: str
     session_id: str | None = None
 
-router = APIRouter(tags=["LLM"], prefix="/llm", dependencies=[Depends(get_current_user)])
+router = APIRouter(tags=["LLM"], prefix="/llm", dependencies=[Depends(require_role(["gestor"]))])
 
 def get_llm_services(request: Request):
     llm_service = request.app.state.llm_service
@@ -38,7 +38,7 @@ async def task_generate_session_title(
 # -------------------------
 @router.post("/chat")
 async def chat_llm(payload: ChatRequest,
-                   user: Annotated[UserPublic, Depends(get_current_user)],
+                   user: Annotated[UserPublic, Depends(require_role(["gestor"]))],
                    services: Annotated[tuple, Depends(get_llm_services)],
                    background_tasks: BackgroundTasks
                    ):
@@ -71,7 +71,7 @@ async def chat_llm(payload: ChatRequest,
 @router.post("/chat/stream")
 async def chat_llm_stream(
     payload: ChatRequest,
-    user: Annotated[UserPublic, Depends(get_current_user)],
+    user: Annotated[UserPublic, Depends(require_role(["gestor"]))],
     services: Annotated[tuple, Depends(get_llm_services)],
     background_tasks: BackgroundTasks
 ):
@@ -106,14 +106,14 @@ async def chat_llm_stream(
 # GESTÃO DE SESSÕES E TÍTULOS
 # -------------------------
 @router.get("/sessions")
-async def list_sessions(user: Annotated[UserPublic, Depends(get_current_user)],
+async def list_sessions(user: Annotated[UserPublic, Depends(require_role(["gestor"]))],
                         services: Annotated[tuple, Depends(get_llm_services)]
                         ):
     session_service = services[1]
     return await session_service.list_sessions(user.id)
 
 @router.post("/sessions")
-async def new_session(user: Annotated[UserPublic, Depends(get_current_user)],
+async def new_session(user: Annotated[UserPublic, Depends(require_role(["gestor"]))],
                       services: Annotated[tuple, Depends(get_llm_services)]):
     _, session_service = services
     session_id = await session_service.create_session(user.id)
@@ -121,7 +121,7 @@ async def new_session(user: Annotated[UserPublic, Depends(get_current_user)],
 
 @router.get("/sessions/{session_id}/messages")
 async def get_session_messages(session_id: str,
-                               user: Annotated[UserPublic, Depends(get_current_user)],
+                               user: Annotated[UserPublic, Depends(require_role(["gestor"]))],
                                services: Annotated[tuple, Depends(get_llm_services)], 
                                limit: int = 100, 
                                offset: int = 0):
@@ -134,7 +134,7 @@ async def get_session_messages(session_id: str,
 
 @router.get("/sessions/{session_id}/title")
 async def get_session_title(session_id: str,
-                            user: Annotated[UserPublic, Depends(get_current_user)],
+                            user: Annotated[UserPublic, Depends(require_role(["gestor"]))],
                             services: Annotated[tuple, Depends(get_llm_services)]):
     _, session_service = services
     if not await session_service.is_owner(session_id, user.id):

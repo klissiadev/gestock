@@ -25,7 +25,7 @@ export async function sendCredencials(email, password) {
     // access_token e token_type
 };
 
-export async function registerUser(nome, email, senha, token=null) {
+export async function registerUser(nome, email, senha, papel, token=null) {
     const response = await fetch('http://127.0.0.1:8000/auth/register',
         {
             method: 'POST',
@@ -37,6 +37,7 @@ export async function registerUser(nome, email, senha, token=null) {
                 "nome": nome,
                 "email": email,
                 "password": senha, 
+                "papel": papel
             })
         });
 
