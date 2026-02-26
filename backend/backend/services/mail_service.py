@@ -1,7 +1,7 @@
 import smtplib
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
-from dotenv import load_dotenv
+from backend.utils.env_loader import load_env_from_root
 import os
 import logging
 import yaml
@@ -13,7 +13,7 @@ logging.basicConfig(
 )
 
 # Carrega o .env + inicializa suas constantes
-load_dotenv()
+load_env_from_root()
 SMTP_SERVER = os.getenv("SMTP_SERVER", "smtp.gmail.com")
 TLS_PORT = int(os.getenv("TLS_PORT", 587))
 EMAIL = os.getenv("EMAIL", "")

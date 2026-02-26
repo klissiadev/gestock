@@ -17,3 +17,8 @@ def criar_produto(produto: dict, service: ProdutoService = Depends(get_service))
 @router.get("/")
 def listar_produtos(service: ProdutoService = Depends(get_service)):
     return service.listar_produtos()
+
+
+@router.get("/{produto_id}/nome")
+def buscar_produto(produto_id: int, service: ProdutoService = Depends(get_service)):
+    return service.get_nome_produto(produto_id)

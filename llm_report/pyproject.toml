@@ -1,0 +1,29 @@
+[project]
+name = "module-chat"
+version = "0.1.0"
+description = ""
+authors = [
+    {name = "Thais Carolina Braga de Magalhães",email = "tcbdma.snf24@uea.edu.br"}
+]
+readme = "README.md"
+requires-python = ">=3.13"
+dependencies = [
+    "fastapi>=0.110.0",
+    "uvicorn[standard]>=0.27.0",
+    "python-dotenv>=1.0.1",
+    "langchain>=0.2.3",
+    "langchain-community>=0.2.1",
+    "langchain-mcp-adapters>=0.2.1",
+    "langchain-ollama>=0.1.0",
+    "pytest>=9.0.2",
+    "pytest-asyncio>=1.3.0",
+    "psycopg[binary]>=3.3.2",
+    "langgraph-checkpoint-postgres>=3.0.3",
+]
+
+[tool.poetry]
+packages = [{include = "llm_module", from = "src"}]
+
+[build-system]
+requires = ["poetry-core>=2.0.0,<3.0.0"]
+build-backend = "poetry.core.masonry.api"
