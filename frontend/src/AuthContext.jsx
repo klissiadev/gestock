@@ -7,6 +7,8 @@ export const AuthProvider = ({ children }) => {
     const [user, setUser] = useState(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
+    const [isAdmin, setIsAdmin] = useState(false);
+
 
     // Da um ping pra verificar sessão e pega informacoes basicas do usuario
     const verificarSessao = useCallback(async (token) => {
@@ -19,6 +21,7 @@ export const AuthProvider = ({ children }) => {
             if (response.ok) {
                 const dadosUsuario = await response.json();
                 setUser(dadosUsuario);
+                setIsAdmin(dadosUsuario.papel === 'admin');
                 console.log("Sessão verificada, usuário:", dadosUsuario);
             } else {
                 localStorage.removeItem('token');
@@ -124,8 +127,9 @@ export const AuthProvider = ({ children }) => {
         }
     };
 
+
     return (
-        <AuthContext.Provider value={{ user, loading, error, login, logout, register, resetPassword, sendRecoveryEmail }}>
+        <AuthContext.Provider value={{ user, loading, error, login, logout, register, resetPassword, sendRecoveryEmail, isAdmin}}>
             {children}
         </AuthContext.Provider>
     );
