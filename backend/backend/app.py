@@ -69,7 +69,7 @@ async def lifespan(app: FastAPI):
         check=check_conn,
         min_size=0, 
         max_size=30,
-        timeout=5.0,
+        timeout=10.0,
         kwargs={
             "autocommit": True,
             "row_factory": dict_row, # 💡 ESSENCIAL: Faz o banco retornar dicionários

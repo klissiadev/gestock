@@ -22,6 +22,8 @@ export default function StepDadosGerais({ data, updateData, onNext }) {
   const handleNext = () => {
     setSubmitted(true);
 
+    console.log("Dados: ", data)
+
     const nomeValido = data.nome.trim() !== "";
     const emailPreenchido = data.email.trim() !== "";
     const emailValido = isValidEmail(data.email.trim());
@@ -41,10 +43,12 @@ export default function StepDadosGerais({ data, updateData, onNext }) {
       return;
     }
 
-    if (!data.funcao) {
+    if (!data.papel) {
       toast.error("Selecione uma função.");
       return;
     }
+
+
 
     onNext();
   };

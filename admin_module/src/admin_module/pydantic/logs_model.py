@@ -14,3 +14,8 @@ class ImportLogsRequest(BaseModel):
     status: str | None = None
     periodo: tuple[date | None, date | None] | None = None
     apenas_erro: bool = False
+    
+class UserFetchRequest(BaseModel):
+    search_term: str | None = None
+    ordenar_por: Literal["nome", "email", "ultimo_login"] = "nome"
+    
