@@ -7,7 +7,7 @@ export const AuthProvider = ({ children }) => {
     const [user, setUser] = useState(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
-    const isAdmin = true;
+    const [isAdmin, setIsAdmin] = useState(false);
 
 
     // Da um ping pra verificar sessão e pega informacoes basicas do usuario
@@ -21,6 +21,7 @@ export const AuthProvider = ({ children }) => {
             if (response.ok) {
                 const dadosUsuario = await response.json();
                 setUser(dadosUsuario);
+                setIsAdmin(dadosUsuario.papel === 'admin');
                 console.log("Sessão verificada, usuário:", dadosUsuario);
             } else {
                 localStorage.removeItem('token');
