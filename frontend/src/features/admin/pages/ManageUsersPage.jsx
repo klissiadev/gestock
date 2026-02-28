@@ -1,10 +1,14 @@
 import React from 'react'
-import { Box, Stack } from "@mui/material";
+import { Box, Stack, Avatar } from "@mui/material";
 import TopBar from "../components/TopBar";
-import TableUser from '../components/TableUser';
+import CustomTable from '../components/CustomTable';
 import { useEffect, useState } from "react";
 import { useHeader } from "../../../HeaderContext";
 import UserSvg from "../../../assets/icon/iconTeam.svg?react";
+
+import PersonOutlineIcon from "@mui/icons-material/PersonOutline";
+import EditSvg from "../../../assets/icon/iconEdit.svg?react";
+import DeleteSvg from "../../../assets/icon/iconDelete.svg?react";
 
 const UsersPage = () => {
   const { setHeaderConfig } = useHeader();
@@ -24,8 +28,8 @@ const UsersPage = () => {
   }, [setHeaderConfig]);
 
   const [filters, setFilters] = useState({
-      searchTerm: "",
-      order: "",
+    searchTerm: "",
+    order: "",
   });
 
   const handleFilterChange = (name, value) => {
@@ -52,10 +56,48 @@ const UsersPage = () => {
     },
   ];
 
-
   const orderOptions = [
     { value: "name_asc", label: "Nome (A-Z)" },
     { value: "name_desc", label: "Nome (Z-A)" },
+  ];
+
+  const columns = [
+    {
+      field: "nome",
+      header: "Funcionário",
+      render: (row) => (
+        <Box display="flex" alignItems="center" gap={2} justifyContent="center">
+          <Avatar
+            sx={{
+              width: 36,
+              height: 36,
+              backgroundColor: "#EAEAEA",
+              color: "#555",
+            }}
+          >
+            <PersonOutlineIcon fontSize="small" />
+          </Avatar>
+          {row.nome}
+        </Box>
+      ),
+    },
+    { field: "email", header: "Email" },
+    { field: "funcao", header: "Função" },
+  ];
+
+  const actions = [
+    {
+      icon: <EditSvg width={18} height={18} />,
+      onClick: (row) => {
+        console.log("Editar usuário:", row);
+      },
+    },
+    {
+      icon: <DeleteSvg width={18} height={18} />,
+      onClick: (row) => {
+        console.log("Excluir usuário:", row);
+      },
+    },
   ];
 
   return (
@@ -78,8 +120,12 @@ const UsersPage = () => {
         orderOptions={orderOptions}
         searchPlaceholder="Buscar usuário..."
       />
-      <TableUser rows={rows} selectedId={1} />
 
+      <CustomTable
+        columns={columns}
+        rows={rows}
+        actions={actions}
+      />
     </Stack>
   )
 }

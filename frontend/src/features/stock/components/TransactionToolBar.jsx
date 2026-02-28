@@ -35,7 +35,7 @@ const TransactionToolBar = ({ titulo, filters, onFilterChange }) => {
             alignItems="center"
             sx={{ width: "100%", justifyContent: "center" }}
           >
-            <SearchBar value={filters.searchTerm} onChange={onFilterChange} />
+            <SearchBar value={filters.searchTerm} onChange={onFilterChange} placeholder="Buscar movimentação..." />
             <Stack
               direction="row"
               gap={1}
