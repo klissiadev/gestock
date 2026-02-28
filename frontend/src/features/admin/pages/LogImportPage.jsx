@@ -8,7 +8,7 @@ import { fetchImportLogs } from "../services/fetchImportLogs";
 const LogImportPage = () => {
   const [filters, setFilters] = useState({
     searchTerm: "",
-    order: "created_at",
+    order: "created_at_DESC",
   });
 
   const [rows, setRows] = useState([]);
@@ -22,16 +22,20 @@ const LogImportPage = () => {
 
   const loadLogs = async () => {
     try {
+      const lastUnderscoreIndex = filters.order.lastIndexOf("_");
+
+      const orderField = filters.order.substring(0, lastUnderscoreIndex);
+      const direction = filters.order.substring(lastUnderscoreIndex + 1);
+
       const response = await fetchImportLogs({
-        direction: "DESC",
-        order_by: filters.order,
+        direction,
+        order_by: orderField,
         search_term: filters.searchTerm || null,
         status: null,
         periodo: null,
         apenas_erro: false,
       });
 
-      // Já vem com id, então só setar
       setRows(response.logs);
     } catch (error) {
       console.error("Erro ao buscar logs:", error.message);
@@ -43,18 +47,21 @@ const LogImportPage = () => {
   }, [filters]);
 
   const orderOptions = [
-    { value: "created_at", label: "Data" },
-    { value: "nome_arquivo", label: "Nome do Arquivo" },
-    { value: "usuario", label: "Usuário" },
+    { value: "created_at_DESC", label: "Data (Mais recente)" },
+    { value: "created_at_ASC", label: "Data (Mais antiga)" },
+    { value: "nome_arquivo_ASC", label: "Nome Arquivo(A-Z)" },
+    { value: "nome_arquivo_DESC", label: "Nome Arquivo (Z-A)" },
+    { value: "status_ASC", label: "Status (A-Z)" },
+    { value: "status_DESC", label: "Status (Z-A)" },
   ];
 
   const columns = [
     { field: "nome_arquivo", header: "Arquivo" },
     { field: "qntd_registros", header: "Qtd Registros" },
     { field: "status", header: "Status" },
-    { field: "usuario", header: "Usuário" },
+    { field: "user_id", header: "Usuário" },
     { 
-      field: "registrado_em", 
+      field: "created_at", 
       header: "Data",
       render: (row) =>
         new Date(row.created_at).toLocaleString("pt-BR")
@@ -82,10 +89,7 @@ const LogImportPage = () => {
         searchPlaceholder="Buscar Importação..."
       />
 
-      <CustomTable
-        columns={columns}
-        rows={rows}
-      />
+      <CustomTable columns={columns} rows={rows} />
     </Stack>
   );
 };
