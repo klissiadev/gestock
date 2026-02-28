@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useCallback } from 'react'
 import { Box, Stack, Avatar } from "@mui/material";
 import TopBar from "../components/TopBar";
 import CustomTable from '../components/CustomTable';
@@ -9,6 +9,8 @@ import UserSvg from "../../../assets/icon/iconTeam.svg?react";
 import PersonOutlineIcon from "@mui/icons-material/PersonOutline";
 import EditSvg from "../../../assets/icon/iconEdit.svg?react";
 import DeleteSvg from "../../../assets/icon/iconDelete.svg?react";
+
+import { fetchUser } from '../services/fetchImportLogs';
 
 const UsersPage = () => {
   const { setHeaderConfig } = useHeader();
@@ -27,15 +29,17 @@ const UsersPage = () => {
     };
   }, [setHeaderConfig]);
 
+
   const [filters, setFilters] = useState({
-    searchTerm: "",
-    order: "",
+    search_term: "",
+    order_by: "",
+    direction: "DESC"
   });
 
   const handleFilterChange = (name, value) => {
     setFilters((prev) => ({
-    ...prev,
-    [name]: value,
+      ...prev,
+      [name]: value,
     }));
 
     console.log("Filtro alterado:", name, value);
@@ -85,6 +89,29 @@ const UsersPage = () => {
     { field: "funcao", header: "Função" },
   ];
 
+  const [users, setUsers] = useState([]);
+  const [total, setTotal] = useState(0);
+  const [loading, setLoading] = useState(false);
+
+  const loadUsers = useCallback(async () => {
+    setLoading(true);
+    try {
+      const data = await fetchUser(filters);
+      // Mapeia o campo "logs" do JSON para o nosso estado
+      setUsers(data.logs || []);
+      setTotal(data.total || 0);
+    } catch (err) {
+      console.error("Erro ao carregar usuários:", err);
+    } finally {
+      setLoading(false);
+    }
+  }, [filters]);
+
+  useEffect(() => {
+    loadUsers();
+  }, [loadUsers]);
+
+
   const actions = [
     {
       icon: <EditSvg width={18} height={18} />,
@@ -123,7 +150,7 @@ const UsersPage = () => {
 
       <CustomTable
         columns={columns}
-        rows={rows}
+        rows={users}
         actions={actions}
       />
     </Stack>

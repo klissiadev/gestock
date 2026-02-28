@@ -4,6 +4,7 @@ import TopBar from "../components/TopBar";
 import ArchiveIcon from "@mui/icons-material/Archive";
 import CustomTable from "../components/CustomTable";
 import { fetchImportLogs } from "../services/fetchImportLogs";
+import { IMPORT_DEFAULT_PARAMS } from "../constants/filtersConstants";
 
 const LogImportPage = () => {
   const [filters, setFilters] = useState({
@@ -44,7 +45,7 @@ const LogImportPage = () => {
 
   useEffect(() => {
     loadLogs();
-  }, [filters]);
+  }, []);
 
   const orderOptions = [
     { value: "created_at_DESC", label: "Data (Mais recente)" },
@@ -59,9 +60,9 @@ const LogImportPage = () => {
     { field: "nome_arquivo", header: "Arquivo" },
     { field: "qntd_registros", header: "Qtd Registros" },
     { field: "status", header: "Status" },
-    { field: "user_id", header: "Usuário" },
-    { 
-      field: "created_at", 
+    { field: "responsavel_por", header: "Usuário" },
+    {
+      field: "created_at",
       header: "Data",
       render: (row) =>
         new Date(row.created_at).toLocaleString("pt-BR")
@@ -74,10 +75,9 @@ const LogImportPage = () => {
       spacing={2}
       sx={{
         backgroundColor: (theme) => theme.palette.common.white,
-        padding: 2,
-        flex: 1,
-        height: "100vh",
         width: "100%",
+        padding: 1,
+        flex: 1,
       }}
     >
       <TopBar

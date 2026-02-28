@@ -108,7 +108,7 @@ class LogFetcher:
             "status",
             "msg_erro",
             "created_at",
-            "user_id"
+            "responsavel_por"
         ]
 
         SEARCH_COLS = ["nome_arquivo", "msg_erro"]
@@ -139,7 +139,7 @@ class LogFetcher:
                 extra_params["data_fim"] = data_fim
 
         result = self._fetch_all(
-            table="app_logs.importacoes",
+            table="app_logs.mv_imports",
             columns=COLUNAS_VALIDAS,
             conditions=conditions,
             order_by=order_by,
@@ -149,6 +149,7 @@ class LogFetcher:
             extra_where=extra_where,
             extra_params=extra_params,
         )
+
 
         return result
     
@@ -162,7 +163,7 @@ class LogFetcher:
         
         extra_where = []
         extra_params = {}
-        COLUNAS = ["session_id", "user_message", "bot_response", "created_at"]
+        COLUNAS = ["user_id", "session_id", "user_message", "bot_response", "created_at"]
 
         if period:
             data_inicio, data_fim = period
@@ -183,3 +184,24 @@ class LogFetcher:
             order_by="created_at",
             direction="DESC"
         )
+    
+    # Tabela de usuarios
+    def get_usuarios_data(
+            self,
+            search_term: str | None = None,
+            order_by: str = "created_at",
+            direction: str = "DESC"
+    ):
+        
+        COLUNAS = ["nome", "papel", "email"]
+        SEARCH_COLS = ["nome", "email"]
+        
+        return self._fetch_all(
+            table="app_core.usuarios",
+            columns=COLUNAS,
+            search_term=search_term,
+            search_cols=SEARCH_COLS,
+            order_by=order_by,
+            direction=direction
+        )
+        

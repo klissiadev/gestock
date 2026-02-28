@@ -12,7 +12,7 @@ import {
 
 const CustomTable = ({ columns, rows, actions }) => {
   return (
-    <TableContainer sx={{ maxHeight: 500, overflowY: "auto", borderRadius: 3 }}>
+    <TableContainer sx={{ flex:1, overflowY: "auto", borderRadius: 3 }}>
       <Table stickyHeader>
         <TableHead>
           <TableRow>

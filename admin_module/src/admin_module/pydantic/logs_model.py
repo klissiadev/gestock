@@ -1,6 +1,6 @@
 from pydantic import BaseModel
 from datetime import date
-from typing import Literal
+from typing import Literal, Optional
 
 
 class MinervaLogsRequest(BaseModel):
@@ -16,6 +16,7 @@ class ImportLogsRequest(BaseModel):
     apenas_erro: bool = False
     
 class UserFetchRequest(BaseModel):
-    search_term: str | None = None
-    ordenar_por: Literal["nome", "email", "ultimo_login"] = "nome"
+    search_term: Optional[str]
+    order_by: str = "created_at"
+    direction: str = "DESC"
     
