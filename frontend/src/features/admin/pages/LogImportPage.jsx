@@ -1,27 +1,64 @@
-import React from 'react'
-import {Stack } from "@mui/material";
+import React, { useState, useEffect } from "react";
+import { Stack } from "@mui/material";
 import TopBar from "../components/TopBar";
-import { useState } from "react";
-import ArchiveIcon from '@mui/icons-material/Archive';
+import ArchiveIcon from "@mui/icons-material/Archive";
+import CustomTable from "../components/CustomTable";
+import { fetchImportLogs } from "../services/fetchImportLogs";
 
 const LogImportPage = () => {
   const [filters, setFilters] = useState({
     searchTerm: "",
-    order: "",
+    order: "created_at",
   });
+
+  const [rows, setRows] = useState([]);
 
   const handleFilterChange = (name, value) => {
     setFilters((prev) => ({
-    ...prev,
-    [name]: value,
+      ...prev,
+      [name]: value,
     }));
-
-    console.log("Filtro alterado:", name, value);
   };
 
+  const loadLogs = async () => {
+    try {
+      const response = await fetchImportLogs({
+        direction: "DESC",
+        order_by: filters.order,
+        search_term: filters.searchTerm || null,
+        status: null,
+        periodo: null,
+        apenas_erro: false,
+      });
+
+      // Já vem com id, então só setar
+      setRows(response.logs);
+    } catch (error) {
+      console.error("Erro ao buscar logs:", error.message);
+    }
+  };
+
+  useEffect(() => {
+    loadLogs();
+  }, [filters]);
+
   const orderOptions = [
-    { value: "name_asc", label: "Nome (A-Z)" },
-    { value: "name_desc", label: "Nome (Z-A)" },
+    { value: "created_at", label: "Data" },
+    { value: "nome_arquivo", label: "Nome do Arquivo" },
+    { value: "usuario", label: "Usuário" },
+  ];
+
+  const columns = [
+    { field: "nome_arquivo", header: "Arquivo" },
+    { field: "qntd_registros", header: "Qtd Registros" },
+    { field: "status", header: "Status" },
+    { field: "usuario", header: "Usuário" },
+    { 
+      field: "registrado_em", 
+      header: "Data",
+      render: (row) =>
+        new Date(row.created_at).toLocaleString("pt-BR")
+    },
   ];
 
   return (
@@ -45,8 +82,12 @@ const LogImportPage = () => {
         searchPlaceholder="Buscar Importação..."
       />
 
+      <CustomTable
+        columns={columns}
+        rows={rows}
+      />
     </Stack>
-  )
-}
+  );
+};
 
-export default LogImportPage
+export default LogImportPage;

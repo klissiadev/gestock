@@ -1,51 +1,54 @@
 import { InputBase, FormControl, Stack, Box } from "@mui/material";
 import SearchOutlinedIcon from "@mui/icons-material/SearchOutlined";
-import ArrowCircleUpRoundedIcon from "@mui/icons-material/ArrowCircleUpRounded";
 import { useState, useEffect } from "react";
 
-export const SearchBar = ({ value, onChange }) => {
-  const searchBarStyle = {
-    borderStyle: "solid",
-    borderWidth: "1px",
-    borderRadius: 3,
-    borderColor: (theme) => theme.palette.common.black,
-    padding: "2px 6px",
-    "&.Mui-focused .MuiOutlinedInput-notchedOutline": {
-      borderWidth: 0,
-    },
-  };
-
-  const searchBarStack = {
-    display: "flex",
-    justifyContent: "space-between",
-    alignItems: "center",
-    gap: 2,
-    padding: 0.4,
-  };
-
-  const searchbutton = {
-    color: (theme) => theme.palette.common.black,
-  };
-
+export const SearchBar = ({
+  value = "",
+  onChange,
+  name = "search",
+  placeholder = "Buscar...",
+  debounce = 500,
+  endIcon = null,
+  fullWidth = true,
+}) => {
   const [displayValue, setDisplayValue] = useState(value);
+
+  useEffect(() => {
+    setDisplayValue(value);
+  }, [value]);
+
   useEffect(() => {
     const handler = setTimeout(() => {
-      onChange("searchTerm", displayValue);
-    }, 500);
+      if (onChange) {
+        onChange(name, displayValue);
+      }
+    }, debounce);
 
     return () => clearTimeout(handler);
-  }, [displayValue]);
+  }, [displayValue, debounce, name, onChange]);
 
   return (
-    <FormControl fullWidth sx={searchBarStyle}>
-      <Stack direction={"row"} sx={searchBarStack}>
+    <FormControl
+      fullWidth={fullWidth}
+      sx={{
+        border: "1px solid",
+        borderRadius: 3,
+        borderColor: (theme) => theme.palette.common.black,
+        padding: "2px 6px",
+      }}
+    >
+      <Stack
+        direction="row"
+        alignItems="center"
+        gap={2}
+        padding={0.4}
+      >
         <SearchOutlinedIcon />
 
         <InputBase
           value={displayValue}
           onChange={(e) => setDisplayValue(e.target.value)}
-          placeholder="Procure produto ..."
-
+          placeholder={placeholder}
           sx={{
             flex: 1,
             "::placeholder": {
@@ -55,11 +58,11 @@ export const SearchBar = ({ value, onChange }) => {
           }}
         />
 
-        <Box sx={{ flex: 1, display: "flex", justifyContent: "flex-end" }}>
-          <Box sx={{ alignContent: "end" }}>
-            <ArrowCircleUpRoundedIcon />
+        {endIcon && (
+          <Box display="flex" justifyContent="flex-end">
+            {endIcon}
           </Box>
-        </Box>
+        )}
       </Stack>
     </FormControl>
   );
