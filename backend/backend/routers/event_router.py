@@ -3,6 +3,8 @@ from fastapi import APIRouter, Depends
 from backend.database.base import get_connection
 from backend.services.event_service import EventService
 from backend.database.schemas import NotificationEventCreate
+from auth_module.utils.security import get_current_user
+from auth_module.models.User import UserPublic
 
 router = APIRouter(prefix="/eventos", tags=["Eventos"])
 
@@ -13,9 +15,10 @@ def get_service(conn = Depends(get_connection)):
 @router.post("/")
 def criar_evento(
     evento: NotificationEventCreate,
+    current_user: UserPublic = Depends(get_current_user),
     service: EventService = Depends(get_service)
 ):
-    return service.criar_evento(evento)
+    return service.criar_evento(evento, current_user.id)
 
 
 @router.get("/")
