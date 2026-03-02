@@ -18,6 +18,7 @@ import AdminPage from "../features/admin/AdminPage";
 import LoginPage from "../features/auth/pages/LoginPage";
 import UsersPage from "../features/admin/pages/ManageUsersPage";
 import LogImportPage from "../features/admin/pages/LogImportPage";
+import LogChatPage from "../features/admin/pages/LogChatPage";
 import { ProtectedRoute } from "./ProtectedRoute";
 
 const AppRoutes = () => {
@@ -50,6 +51,7 @@ const AppRoutes = () => {
             <Route path="/users" element={<UsersPage/>}/>
             <Route path='/register-user' element={<RegisterUserPage/>}/>
             <Route path='/log-imports' element={<LogImportPage/>}/>
+            <Route path='/log-chats' element={<LogChatPage/>}/>
           </Route>
         </Route>
       </Route>
