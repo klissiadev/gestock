@@ -46,3 +46,26 @@ export const fetchUser = async (filters) => {
   return response.json();
 
 };
+
+export const fetchChatLogs = async (filters) => {
+  const token = localStorage.getItem("token");
+
+  if (!token) {
+    throw new Error("Usuário não autenticado");
+  }
+
+  const response = await fetch(`${api_url}/admin/logs/minerva`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${token}`,
+    },
+    body: JSON.stringify(filters),
+  });
+
+  if (!response.ok) {
+    throw new Error("Erro ao buscar logs da LLM");
+  }
+
+  return response.json();
+};

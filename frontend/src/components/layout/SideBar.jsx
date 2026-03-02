@@ -27,6 +27,7 @@ import TeamSvg from "../../assets/icon/iconTeam.svg?react";
 import ChevronRightIcon from "@mui/icons-material/ChevronRight";
 import ChevronLeftIcon from "@mui/icons-material/ChevronLeft";
 import ArchiveIcon from '@mui/icons-material/Archive';
+import SmartToyIcon from "@mui/icons-material/SmartToy";
 
 import { useAuth } from "../../AuthContext";
 
@@ -45,7 +46,8 @@ const commonItems = [
 const adminItems = [
   { id: "debug2", icon: HomeSvg, title: "Home" },
   { id: "users", icon: TeamSvg, title: "Users"},
-  { id: "log-imports", icon: ArchiveIcon, title: "Log Imports"}
+  { id: "log-imports", icon: ArchiveIcon, title: "Log Imports"},
+  { id: "log-chats", icon: SmartToyIcon, title: "Log Chats"}
 ];
 
 export default function SideBar({ active, onChange, expanded, onToggle }) {
