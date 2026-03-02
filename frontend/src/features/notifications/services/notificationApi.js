@@ -2,10 +2,13 @@ const API_URL = "http://localhost:8000";
 
 export async function fetchNotifications() {
   try {
+    const token = localStorage.getItem("access_token");
+
     const response = await fetch(`${API_URL}/notificacoes`, {
       method: "GET",
       headers: {
         "Content-Type": "application/json",
+        "Authorization": `Bearer ${token}`, // ← AQUI
       },
     });
 
@@ -27,6 +30,8 @@ export async function fetchNotifications() {
 }
 
 export async function fetchUnreadNotifications(limit = 5, cursor = null) {
+  const token = localStorage.getItem("access_token");
+
   const params = new URLSearchParams({
     read: "false",
     limit: String(limit),
@@ -37,7 +42,12 @@ export async function fetchUnreadNotifications(limit = 5, cursor = null) {
   }
 
   const response = await fetch(
-    `http://localhost:8000/notificacoes?${params.toString()}`
+    `${API_URL}/notificacoes?${params.toString()}`,
+    {
+      headers: {
+        "Authorization": `Bearer ${token}`, // ← AQUI
+      },
+    }
   );
 
   if (!response.ok) {
@@ -50,12 +60,15 @@ export async function fetchUnreadNotifications(limit = 5, cursor = null) {
 
 export async function markAsRead(notificationId) {
   try {
+    const token = localStorage.getItem("access_token");
+
     const response = await fetch(
       `${API_URL}/notificacoes/${notificationId}/read`,
       {
         method: "PATCH",
         headers: {
           "Content-Type": "application/json",
+          "Authorization": `Bearer ${token}`, // ← AQUI
         },
       }
     );
