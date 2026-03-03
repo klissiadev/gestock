@@ -3,14 +3,17 @@ from fastapi import HTTPException
 from backend.database.repository import Repository
 from psycopg2.extras import Json
 from backend.database.schemas import NotificationEventCreate
+from uuid import UUID
 
 class EventService:
 
     def __init__(self, conn):
         self.repo = Repository(conn)
 
-    def criar_evento(self, evento: dict | NotificationEventCreate) -> int:
-        data = evento.dict() if isinstance(evento, NotificationEventCreate) else evento
+    def criar_evento(self, evento: NotificationEventCreate, user_id: UUID):
+        data = evento.dict()
+
+        data["user_id"] = user_id  # ← AQUI está a correção real
 
         data["context"] = Json(data["context"])
         data["reference"] = Json(data["reference"])
@@ -60,10 +63,11 @@ class EventService:
 
     def buscar_por_id(self, event_id: int):
         evento = self.repo.fetch_one(
-            "notificacoes_eventos",
-            "id",
-            event_id
+            table="app_core.notificacoes_eventos",
+            conditions={"id": event_id}
         )
+
         if not evento:
             raise HTTPException(status_code=404, detail="Evento não encontrado")
+
         return evento

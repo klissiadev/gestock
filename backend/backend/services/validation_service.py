@@ -41,7 +41,6 @@ def validate_row(row, schema):
                 elif isinstance(val, datetime):
                     pass  # já é data válida
 
-                elif isinstance(val, date):
                     pass  # já é data válida
 
                 else:
