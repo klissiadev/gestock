@@ -440,9 +440,4 @@ class Repository:
     def fetch_one_raw(self, query: str, params: tuple = None):
         self.cursor.execute(query, params)
         row = self.cursor.fetchone()
-
-        if not row:
-            return None
-
-        columns = [desc[0] for desc in self.cursor.description]
-        return dict(zip(columns, row))
+        return row

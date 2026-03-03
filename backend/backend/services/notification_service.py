@@ -74,17 +74,24 @@ class NotificationService:
             """,
             (event_id, str(user_id))
         )
-
         
-
-        if isinstance(evento.get("reference"), str):
-            evento["reference"] = json.loads(evento["reference"])
-
-        if isinstance(evento.get("context"), str):
-            evento["context"] = json.loads(evento["context"])
 
         if not evento:
             raise HTTPException(status_code=404, detail="Evento não encontrado")
+
+        if isinstance(evento.get("reference"), str):
+            try:
+                evento["reference"] = json.loads(evento["reference"])
+            except json.JSONDecodeError:
+                evento["reference"] = {}
+
+        if isinstance(evento.get("context"), str):
+            try:
+                evento["context"] = json.loads(evento["context"])
+            except json.JSONDecodeError:
+                evento["context"] = {}
+        
+        print("EVENTO ANTES DO ENRICH:", evento)
 
         self._enrich_reference(evento)
 
@@ -181,11 +188,27 @@ class NotificationService:
 
         return {"message": "Notificação marcada como lida"}
 
-    def enrich_reference(self, evento: dict):
-        ref = evento.get("reference", {})
+    def _enrich_reference(self, evento: dict):
+        ref = evento.get("reference")
+
+        # Se não há referência, não há nada para enriquecer
+        if not ref:
+            return
+
+        # Se vier como string (dependendo do cursor), normaliza
+        if isinstance(ref, str):
+            try:
+                import json
+                ref = json.loads(ref)
+                evento["reference"] = ref
+            except Exception:
+                return
+
+        # Segurança final
+        if not isinstance(ref, dict):
+            return
+
         ref_type = ref.get("type")
 
         if ref_type == "PRODUCT":
             ref["nome"] = self.produto_service.get_nome_produto(ref["id"])
-
-        # futuros tipos aqui
