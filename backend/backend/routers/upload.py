@@ -1,10 +1,11 @@
 #backend\backend\routers\upload.py
 from fastapi import APIRouter, UploadFile, Depends, HTTPException
 from datetime import date
+from uuid import UUID
 
 from backend.services.file_service import file_hash_exists, save_file_hash
 from backend.utils.file_hash import generate_file_hash_stream
-
+from typing import Annotated
 from backend.database.base import get_db
 from backend.services.import_service import process_import
 from backend.services.log_importacao_service import LogImportacaoService
@@ -13,12 +14,21 @@ from backend.utils.file_validation import validate_upload_file
 from backend.services.event_processor import EventProcessor
 
 
+from auth_module.utils.security import require_role
+from auth_module.models.User import UserPublic
+
 router = APIRouter(prefix="/upload", tags=["upload"])
 
 
 @router.post("/{tipo}")
-def upload_file(tipo: str, file: UploadFile, db=Depends(get_db)):
+def upload_file(tipo: str, 
+                file: UploadFile, 
+                user: Annotated[UserPublic, Depends(require_role(["gestor"]))],
+                db=Depends(get_db)
+            ):
     tipo = tipo.lower().strip()
+
+    print(f"id do usr: {user.id}")
 
     # 1. Validação do arquivo
     validate_upload_file(file)
@@ -39,7 +49,7 @@ def upload_file(tipo: str, file: UploadFile, db=Depends(get_db)):
             "qntd_registros": 0,
             "status": "ERRO",
             "msg_erro": "Arquivo já importado anteriormente",
-            "usuario_id": 1
+            "user_id": UUID(f'{user.id}')
         })
 
         raise HTTPException(
@@ -62,27 +72,10 @@ def upload_file(tipo: str, file: UploadFile, db=Depends(get_db)):
         "qntd_registros": total_processados,
         "status": "SUCESSO" if not result.get("errors") else "ERRO",
         "msg_erro": None if not result.get("errors") else "Importação com erros",
-        "usuario_id": 1
+        "user_id": UUID(f'{user.id}')
     })
 
-        
-    event_id = event_service.criar_evento({
-        "type": "SUCCESS",
-        "context": {
-            "state": "IMPORT_SUCCESS",
-            "data": {
-                "file_name": file.filename,
-            },
-        },
-        "reference": {
-            "id": log["id"],
-            "type": "IMPORT",
-        },
-        "user_id": 1,
-    })
-
-    processor = EventProcessor(db)
-    processor.processar_evento(event_id)
+    print(log)
     
     # 8. Retorno
     return {

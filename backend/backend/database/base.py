@@ -3,9 +3,19 @@ import psycopg2
 from psycopg2.extras import RealDictCursor
 from fastapi import HTTPException
 import os
-from dotenv import load_dotenv
+from backend.utils.env_loader import load_env_from_root
+from pathlib import Path
 
-load_dotenv()
+"""
+    Pra multiplas conexões: Ideal seria o ThreadedConnectionPool pra nao ficar criando varias conexões e fechando
+    > Usado pelo Modulo de Admin
+    > Backend
+    TO DO: Integrar ao LLM
+
+    Dessa forma, abre só um gerenciador de conexão e agiliza tudo com postgre
+"""
+
+load_env_from_root()
 
 def get_connection():
     try:

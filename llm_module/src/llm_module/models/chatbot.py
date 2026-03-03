@@ -1,164 +1,129 @@
+import os
+import logging
+import asyncio
+import token
+from typing import Optional, List, Dict, Any
+from datetime import datetime
+
+from llm_module.utils.env_loader import load_env_from_root
 from langchain_ollama import ChatOllama
 from langchain.agents import create_agent
 from langchain_community.document_loaders import TextLoader
-from langchain_core.messages import SystemMessage
-from langchain.messages import HumanMessage
-from dotenv import load_dotenv
-import os, time, uuid
-
+from langchain.agents.middleware import SummarizationMiddleware
+from langgraph.checkpoint.postgres.aio import AsyncPostgresSaver
+from psycopg_pool import AsyncConnectionPool
+from psycopg.rows import dict_row
+from langchain_core.messages import SystemMessage, HumanMessage, AIMessageChunk
 from llm_module.tools.sql_tools import (
+    tool_buscar_produto,
     tool_listar_produtos,
-    tool_produtos_vencendo,
-    tool_produtos_vencimento_proximo,
-    tool_contagem_produtos,
+    tool_buscar_movimentacao,
+    tool_calcular_validade,
+    tool_listar_movimentacoes,
+    buscar_produtos_a_vencer,
+    buscar_produtos_abaixo_estoque,
+    buscar_movimentacoes_por_periodo,
+    buscar_movimentacoes_por_data,
+    buscar_produtos_por_descricao
 )
-from llm_module.tools.mcp_tools import tool_get_current_time
+from llm_module.utils.config import Config
 
-load_dotenv()
-SYSTEM_PROMPT_LOCATION = os.getenv("SYSTEM_PROMPT_LOCATION")
-MAX_INPUT_SIZE = int(os.getenv("MAX_INPUT_LENGTH", "4000"))
+logger = logging.getLogger(__name__)
+logger.setLevel(logging.WARNING)
+load_env_from_root()
 
-class chat_bot_service:
+    
+class ChatBotService:
     def __init__(self):
-        self.model = ChatOllama(model="llama3.2:3b", temperature=0.1)
-        self.middleware = []
+        self.main_model = ChatOllama(model="qwen2.5:7B", temperature=0.0)
+        self.summary_model = ChatOllama(model="gemma3:270m", temperature=0.0)
+        self._initialized = False
+        self.agent = None
         self.tools = [
-            tool_listar_produtos,
-            tool_produtos_vencendo,
-            tool_produtos_vencimento_proximo,
-            tool_contagem_produtos,
-            tool_get_current_time
+            buscar_produtos_a_vencer, tool_buscar_movimentacao, 
+            tool_buscar_produto, tool_listar_produtos, 
+            tool_calcular_validade, tool_listar_movimentacoes, 
+            buscar_produtos_abaixo_estoque, buscar_movimentacoes_por_periodo,
+            buscar_movimentacoes_por_data, buscar_produtos_por_descricao
         ]
-        self.prompt = SystemMessage(content=self._get_system_prompt())
-        self.agent = self._build_agent()
-
-    def _build_agent(self,
-                    session_id: str | None = None, 
-                    user_id: str | None = None
-                    ):
-        """
-        Responsavel pela construcao do agente
-        -> retorna agente com seu prompt inicializado
-        -> checkpoints de memoria determinados
-        -> ferramentas atribuidas 
         
-        TO DO: 
-        - adicionar ferramentas
-        - adicionar middleware
-        - adicionar memoria (por isso variaveis de id_Sessao e id_usuario)
-        """ 
-        return create_agent(
-            model=self.model,
-            middleware=self.middleware,
+    def _setup_middleware(self) -> List[SummarizationMiddleware]:
+        return [
+            SummarizationMiddleware(
+                model=self.summary_model,
+                trigger=("tokens", 5000),
+                keep=("messages", 10)
+            )
+        ]
+        
+    async def init(self, checkpointer: AsyncPostgresSaver):
+        """Inicializa o agente de forma segura."""
+        if self._initialized: return self
+
+        self.agent = create_agent(
+            model=self.main_model,
             tools=self.tools,
-            system_prompt=self.prompt,
-            checkpointer=None
+            system_prompt=SystemMessage(content=self._load_system_prompt()),
+            checkpointer=checkpointer, # 💡 Recebe o checkpointer pronto
         )
-
-    def _get_system_prompt(self) -> str:
-        if not SYSTEM_PROMPT_LOCATION:
-            raise ValueError("SYSTEM_PROMPT_LOCATION não definido")
-        
-        loader = TextLoader(SYSTEM_PROMPT_LOCATION, encoding='utf-8')
-        docs = loader.load()
-        return docs[0].page_content
+        self._initialized = True
+        return self
     
-    def _validate_user_input(self, user_input: str):
-        """
-        Responsavel por validar a entrada do usuario
-        -> se é uma string
-        -> se nao está vazia
-        -> se é muito longa
-        """
-        if not isinstance(user_input, str):
-            raise TypeError("Entrada deve ser uma string")
+    def _load_system_prompt(self) -> str:
+        if not Config.SYSTEM_PROMPT_LOCATION:
+            raise ValueError("Caminho do System Prompt não configurado no .env")
+        loader = TextLoader(Config.SYSTEM_PROMPT_LOCATION, encoding='utf-8')
+        raw_content = loader.load()[0].page_content
+
+        agora = datetime.now()
+        data_hoje = agora.strftime('%Y-%m-%d')
+        dias_semana = {
+            0: "Segunda-feira", 1: "Terça-feira", 2: "Quarta-feira",
+            3: "Quinta-feira", 4: "Sexta-feira", 5: "Sábado", 6: "Domingo"
+        }
+        dia_nome = dias_semana[agora.weekday()]
         
-        content = user_input.strip()
+        print(f"Data atual: {data_hoje}, Dia da semana: {dia_nome}")
 
-        if not content:
-            raise ValueError("Entrada vazia")
-        
-        if len(content) > MAX_INPUT_SIZE:
-            raise RuntimeError("Entrada muito longa")
+        content_atualizado = raw_content.replace("{{DATA_HOJE}}", data_hoje)
+        content_atualizado = content_atualizado.replace("{{DIA_SEMANA}}", dia_nome)
 
-    async def send_message(self, 
-                     user_input: str, 
-                     session_id: str | None = None, 
-                     user_id: str | None = None
-                    ) -> dict:
-        """
-        Responsavel por enviar a entrada do usuario ao agente
-        Identificando qual sessão e qual usuario estamos conversando
-        Retorna um dicionario com a resposta e o id de sessao e usuario para identificacao
-        """
+        return content_atualizado
 
+    async def send_message(self, user_input: str, session_id: str = "guest") -> Any:
         if not self.agent:
-            raise RuntimeError("Agent nao inicializado")
-        
-        self._validate_user_input(user_input=user_input)
-        
-        result = await self.agent.ainvoke(
-            {
-                "messages": [HumanMessage(content=user_input)]
-            },
-            config={
-                "metadata": {
-                    "session_id": session_id,
-                    "user_id": user_id
-                }
-            }
+            raise RuntimeError("Serviço não inicializado. Execute 'await service.init()'.")
+
+        resultado = await self.agent.ainvoke(
+            {"messages": [HumanMessage(content=user_input)]},
+            {"configurable": {"thread_id": session_id}},
         )
+        
+        print("=============================")
+        print("Resposta completa do agente:")
+        print(resultado)
+        print("=============================")
 
-        return result["messages"][-1].content
+        return resultado["messages"][-1].content
     
-    """
-    As funcoes a seguir precisam da existencia de uma tela de usuario para funcionar... 
-    TO DO: Desenhar tabela
-        - Usuario
-        - Sessao
-        - Mensagens
-        Usuario (1,1) ---- (0,N) Sessao (1,1) ---- (0,N) Mensagens
+    async def stream_message(self, user_input: str, session_id: str = "guest"):
+        if not self.agent:
+            raise RuntimeError("Agente não inicializado.")
+        
+        full_response = []
+        async for token, metadata in self.agent.astream(
+            {"messages": [HumanMessage(content=user_input)]},
+            {"configurable": {"thread_id": session_id}},
+            stream_mode="messages" 
+        ):
+            if not isinstance(token, AIMessageChunk):
+                continue
+            text = token.text
+            if text:
+                full_response.append(text)
+                yield text
+
     
-    def start_session(self, user_id: str | None = None):
-        pass
 
-    def end_session(self, session_id: str | None = None):
-        pass
-
-    def get_history(self, session_id: str | None = None):
-        pass
-
-    def clear_history(self, session_id: str | None = None):
-        pass
-    """
-
-"""
-Bloco de testes, um exemplo de como chamar a Minerva
-"""
-
-async def testes():
-    chat = chat_bot_service()
-
-    resp = await chat.send_message("que dia é hoje? que horas são?")
-    print(resp)
-    print("------------------------")
-
-    resp = await chat.send_message(
-        "Liste os produtos que estão para vencer nos próximos 15 dias."
-    )
-    print(resp)
-    print("------------------------")
-
-    resp = await chat.send_message(
-        "Liste os produtos que estão para vencer nos próximos 2000 dias."
-    )
-    print(resp)
-    print("------------------------")
-
-if __name__ == "__main__":
-    print("Iniciando testes...\n")
-    import asyncio
-    asyncio.run(testes())
-    print("Testes finalizados.")
 
         
