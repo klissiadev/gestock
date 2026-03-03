@@ -21,8 +21,16 @@ def days_until(data_alvo: str) -> int:
 
 def normalize_event(evento: dict) -> Optional[NotificationCreate]:
     event_type = evento.get("type")
-    context = evento.get("context", {})
-    reference = evento.get("reference", {})
+
+    context = evento.get("context")
+    if isinstance(context, str):
+        context = json.loads(context)
+    context = context or {}
+
+    reference = evento.get("reference")
+    if isinstance(reference, str):
+        reference = json.loads(reference)
+    reference = reference or {}
 
     state = context.get("state")
     data = context.get("data", {})
@@ -34,7 +42,8 @@ def normalize_event(evento: dict) -> Optional[NotificationCreate]:
         "user_id": evento.get("user_id"),
     }
 
-    nome = reference.get("nome", "produto")
+    nome = reference.get("nome")
+    nome_texto = nome if nome else "o item"
 
     # ======================
     # RUPTURE
