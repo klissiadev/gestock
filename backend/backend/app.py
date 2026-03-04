@@ -47,6 +47,11 @@ from auth_module.routers.user_router import router as auth_router
 from auth_module.routers.recovery_router import router as recovery_router
 
 # =========================
+# IMPORT DO MODULO REQUISICAO
+# =========================
+from request_module.router.request_router import router as request_router
+
+# =========================
 # CONFIGURA LOGGING (1x)
 # =========================
 setup_logging()
@@ -59,6 +64,7 @@ app_logger_instance = get_logger()
 load_env_from_root()
 async def check_conn(conn):
     await conn.execute("SELECT 1")
+    
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     # =========================
@@ -196,3 +202,5 @@ app.include_router(logs_router, dependencies=[Depends(get_current_user)], tags=[
 
 app.include_router(auth_router)
 app.include_router(recovery_router)
+
+app.include_router(request_router)

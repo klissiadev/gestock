@@ -1,5 +1,5 @@
 email:
-  financeiro_destinatario: "financeiro@suaempresa.com"
+  financeiro_destinatario: "thaisbraga969@gmail.com"
   templates:
     nova_requisicao:
       assunto: "[Gestock] Nova Requisição: {titulo} ({prioridade})"

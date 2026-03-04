@@ -26,5 +26,5 @@ class RequestModel(BaseModel):
     motivo: str
     prioridade: RequestPriority = RequestPriority.MEDIA
     itens: List[RequestItem]
-    created_at: datetime = Field(default_factory=datetime.now)
+
     

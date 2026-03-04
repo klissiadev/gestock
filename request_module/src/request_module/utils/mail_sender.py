@@ -4,7 +4,7 @@ from email.mime.text import MIMEText
 from datetime import datetime
 
 # Carregamento do template
-CONFIG_PATH = os.path.join(os.getcwd(), "mail_template.yaml")
+CONFIG_PATH = os.path.join(os.getcwd(), "..\\request_module\\src\\request_module\\templates\\mail_template.yaml")
 with open(CONFIG_PATH, "r", encoding="utf-8") as f:
     config_yaml = yaml.safe_load(f)
 
@@ -28,7 +28,7 @@ def workflow_envio_email(dados: dict):
         logging.error(f"Erro no workflow de e-mail: {e}")
 
 def preparar_email_html(dados: dict):
-    template = config_yaml['templates']['nova_requisicao']
+    template = config_yaml['email']['templates']['nova_requisicao']
     
     linhas_html = ""
     for item in dados['itens']:
@@ -43,18 +43,18 @@ def preparar_email_html(dados: dict):
         id_banco=dados.get('id_banco'),
         titulo=dados.get('titulo'),
         motivo=dados.get('motivo'),
-        prioridade=dados.get('prioridade'),
+        prioridade=str(dados.get('prioridade').value),
         tabela_itens=linhas_html,
         data=datetime.now().strftime("%d/%m/%Y %H:%M")
     )
     
-    assunto = template['assunto'].format(titulo=dados['titulo'], prioridade=dados['prioridade'])
+    assunto = template['assunto'].format(titulo=dados['titulo'], prioridade=str(dados['prioridade'].value))
     return assunto, corpo
 
 def enviar_email_financeiro(corpo_html: str, assunto: str):
     user = os.getenv("EMAIL")
     password = os.getenv("PASSWORD")
-    destinatario = config_yaml['financeiro_destinatario']
+    destinatario = config_yaml['email']['financeiro_destinatario']
 
     msg = MIMEMultipart()
     msg['From'], msg['To'], msg['Subject'] = user, destinatario, assunto
