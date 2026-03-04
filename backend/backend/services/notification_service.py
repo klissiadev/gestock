@@ -4,23 +4,30 @@ from psycopg2.extras import Json
 from backend.database.repository import Repository
 from backend.database.schemas import NotificationCreate
 from backend.services.notification_normalizer import normalize_event
+from backend.services.produto_service import ProdutoService
 from datetime import timedelta
 from uuid import UUID
 from datetime import datetime
 import json
+from datetime import timedelta
+
+COOLDOWN = {
+    "RUPTURE": timedelta(minutes=10),
+    "LOW_STOCK": timedelta(minutes=5),
+}
 
 class NotificationService:
-
     def __init__(self, conn):
         self.conn = conn
         self.repo = Repository(conn)
+        self.produto_service = ProdutoService(conn)
     
     #regra de disparo
 
     def should_notify(self, notification: NotificationCreate) -> bool:
         # 1. Nunca duplicar o mesmo evento
         if self.repo.fetch_one(
-            "notificacoes",
+            "app_core.notificacoes",
             {"event_id": notification.event_id}
         ):
             return False
@@ -29,17 +36,25 @@ class NotificationService:
         if notification.type in {"ERROR", "SUCCESS"}:
             return True
 
+        ref = notification.reference
+
+        # Segurança defensiva
+        if not ref or not getattr(ref, "id", None):
+            return False
+
+        ref_id = str(ref.id)
+
         # 3. Evitar repetir mesmo estado (severity)
         last = self.repo.fetch_one_raw(
             """
             SELECT *
             FROM app_core.notificacoes
             WHERE type = %s
-              AND reference->>'id' = %s
+            AND reference->>'id' = %s
             ORDER BY created_at DESC
             LIMIT 1
             """,
-            (notification.type, str(notification.reference["id"]))
+            (notification.type, ref_id)
         )
 
         if last and last["severity"] == notification.severity:
@@ -53,10 +68,10 @@ class NotificationService:
                 SELECT 1
                 FROM app_core.notificacoes
                 WHERE type = %s
-                  AND reference->>'id' = %s
-                  AND created_at > now() - %s
+                AND reference->>'id' = %s
+                AND created_at > now() - %s
                 """,
-                (notification.type, str(notification.reference["id"]), cooldown)
+                (notification.type, ref_id, cooldown)
             )
 
             if recent:
@@ -97,6 +112,8 @@ class NotificationService:
 
         notificacao = normalize_event(evento)
 
+        print("NOTIFICACAO FINAL:", notificacao.dict())
+
         if not notificacao:
             return None
 
@@ -105,6 +122,7 @@ class NotificationService:
 
         data = notificacao.dict()
         data["reference"] = Json(data["reference"])
+        data["user_id"] = str(user_id)  
 
         self.repo.insert("app_core.notificacoes", data)
         self.conn.commit()

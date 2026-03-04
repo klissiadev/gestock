@@ -1,14 +1,14 @@
 import {
   Box,
   Typography,
-  IconButton,
   CircularProgress,
   Button,
   Stack,
   Divider,
 } from "@mui/material";
-import { useNotifications } from "../../hooks/useNotifications";
+import { useAllNotifications } from "../../hooks/useAllNotifications";
 import { NotificationItem } from "./components/NotificationItem";
+import { useEffect } from "react";
 
 export default function NotificationsPage() {
   const {
@@ -17,7 +17,19 @@ export default function NotificationsPage() {
     error,
     hasMore,
     loadMore,
-  } = useNotifications({ limit: 5 });
+    markAllAsReadLocally,
+    syncPendingReads,
+  } = useAllNotifications(10);
+
+  useEffect(() => {
+    // Quando entra na tela
+    markAllAsReadLocally();
+
+    return () => {
+      // Quando sai da tela
+      syncPendingReads();
+    };
+  }, []);
 
   return (
     <Stack
@@ -32,10 +44,8 @@ export default function NotificationsPage() {
       }}
     >
       {/* Header */}
-      <Stack>
       <Box
         sx={{
-          flex: 1,
           display: "flex",
           justifyContent: "center",
           alignItems: "center",
@@ -46,10 +56,8 @@ export default function NotificationsPage() {
           Notificações
         </Typography>
       </Box>
-      </Stack>
-      
+
       <Divider variant="middle" />
-      
 
       {/* Lista */}
       <Box
@@ -89,6 +97,6 @@ export default function NotificationsPage() {
           </Typography>
         )}
       </Box>
-    </Stack >
+    </Stack>
   );
 }

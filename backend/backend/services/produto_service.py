@@ -20,7 +20,7 @@ class ProdutoService:
     
     def get_nome_produto(self, produto_id: int) -> str | None:
         result = self.repo.fetch_all(
-            table="produtos",
+            table="app_core.produtos",
             columns=["nome"],
             conditions={"id": produto_id}
         )

@@ -62,7 +62,7 @@ const Header = () => {
         {getActionButton()}
 
         <IconButton sx={iconStyle}>
-          <NotificationSvg width={18} height={18} />
+          <NotificationSvg width={18} height={18} onClick={() => navigate("/notifications")}/>
         </IconButton>
       </Box>
     </Box>
