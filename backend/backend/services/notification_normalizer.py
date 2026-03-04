@@ -67,7 +67,7 @@ def normalize_event(evento: dict) -> Optional[NotificationCreate]:
                 severity=NotificationSeverity.WARNING,
                 title="Estoque próximo do mínimo",
                 message=(
-                    f"O produto {nome} está próximo do limite mínimo "
+                    f"O produto {nome} está a {data.get('safetyStock')} unidades próximo do limite mínimo "
                     f"de {data.get('minimumStock')} unidades"
                 ),
             )
