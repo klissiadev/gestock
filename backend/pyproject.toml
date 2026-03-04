@@ -22,12 +22,14 @@ dependencies = [
     "admin-module",
     "llm_module",
     "auth_module",
+    "request_module",
 ]
 
 [tool.poetry.dependencies]
 llm_module = { path = "../llm_module", develop = true }
 admin-module = { path = "../admin_module", develop = true }
 auth_module = { path = "../auth_module", develop = true }
+request_module = { path = "../request_module", develop = true }
 
 [build-system]
 requires = ["poetry-core>=2.0.0,<3.0.0"]

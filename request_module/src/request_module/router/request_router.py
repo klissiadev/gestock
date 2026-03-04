@@ -1,6 +1,10 @@
 from fastapi import APIRouter, Depends, HTTPException, BackgroundTasks, Request
-from .schemas import RequestModel # Ajuste o import conforme sua pasta
-from .utils import mail_sender, db_utils
+from typing import Annotated
+
+from request_module.models.RequestModel import RequestModel, RequestItem, RequestPriority
+from request_module.utils import mail_sender
+from auth_module.models.User import UserPublic
+from auth_module.utils.security import get_current_user
 
 router = APIRouter(prefix="/requisicoes", tags=["Requisições"])
 
@@ -8,27 +12,26 @@ router = APIRouter(prefix="/requisicoes", tags=["Requisições"])
 async def criar_requisicao(
     request: Request, 
     payload: RequestModel, 
-    background_tasks: BackgroundTasks
+    background_tasks: BackgroundTasks,
+    user: Annotated[UserPublic, Depends(get_current_user)]
 ):
     pool = request.app.state.db_pool
     
     async with pool.connection() as conn:
         try:
-            # Iniciamos uma transação atômica
             async with conn.transaction():
-                # 1. Inserir o Cabeçalho
                 cursor = await conn.execute(
                     """
-                    INSERT INTO app_core.requisicoes (titulo, descricao, motivo, prioridade)
-                    VALUES (%s, %s, %s, %s)
+                    INSERT INTO app_core.requisicoes (titulo, descricao, motivo, prioridade, user_id)
+                    VALUES (%s, %s, %s, %s, %s)
                     RETURNING id;
                     """,
-                    (payload.titulo, payload.descricao, payload.motivo, payload.prioridade)
+                    (payload.titulo, payload.descricao, payload.motivo, payload.prioridade, user.id)
                 )
                 res = await cursor.fetchone()
                 requisicao_id = res['id']
 
-                # 2. Inserir os Itens
+
                 for item in payload.itens:
                     await conn.execute(
                         """
@@ -39,10 +42,10 @@ async def criar_requisicao(
                         (requisicao_id, item.produto_id, item.quantidade, item.observacao)
                     )
 
-            # --- Fora da transação (após o commit automático) ---
-
-            # 3. Buscar nomes dos produtos para o e-mail (UX do Financeiro)
-            nomes_map = await db_utils.buscar_nomes_produtos(pool, payload.itens)
+            # --- Fora da transação de inserir ---
+    
+            # 3. Buscar nomes dos produtos para o e-mail
+            nomes_map = await mail_sender.buscar_nomes_produtos(pool, payload.itens)
 
             # 4. Preparar dados para a tarefa de fundo
             dados_email = payload.model_dump()
