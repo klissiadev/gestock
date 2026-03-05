@@ -66,18 +66,9 @@ def setup_logging():
                 "formatter": "simple",
                 "stream": sys.stdout,
             },
-            "file": {
-                "class": "logging.handlers.RotatingFileHandler",
-                "level": "INFO",
-                "formatter": "json",
-                "filename": "logs/app.log",
-                "maxBytes": 10485760,
-                "backupCount": 5,
-                "encoding": "utf8",
-            },
             "error_file": {
                 "class": "logging.handlers.RotatingFileHandler",
-                "level": "ERROR",
+                "level": "WARNING",
                 "formatter": "json",
                 "filename": "logs/error.log",
                 "maxBytes": 10485760,
@@ -89,32 +80,32 @@ def setup_logging():
         "loggers": {
             "": {  # Root logger
                 "level": "INFO",
-                "handlers": ["console", "file", "error_file"],
+                "handlers": ["console",  "error_file"],
                 "propagate": False
             },
             "backend": {
                 "level": "INFO",
-                "handlers": ["console", "file", "error_file"],
+                "handlers": ["console",  "error_file"],
                 "propagate": False
             },
             "uvicorn": {
                 "level": "INFO",
-                "handlers": ["console", "file"],
+                "handlers": ["console"],
                 "propagate": False
             },
             "uvicorn.error": {
                 "level": "INFO",
-                "handlers": ["console", "file", "error_file"],
+                "handlers": ["console", "error_file"],
                 "propagate": False
             },
             "uvicorn.access": {
                 "level": "INFO",
-                "handlers": ["console", "file"],
+                "handlers": ["console"],
                 "propagate": False
             },
             "watchfiles": {
                 "level": "WARNING",  # Muda de INFO para WARNING
-                "handlers": ["console", "file"],
+                "handlers": ["console"],
                 "propagate": False
             },
         }
