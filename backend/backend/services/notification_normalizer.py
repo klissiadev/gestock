@@ -76,11 +76,20 @@ def normalize_event(evento: dict) -> Optional[NotificationCreate]:
     # SUCCESS
     # ======================
     if event_type == "SUCCESS" and state == "IMPORT_SUCCESS":
+
+        file_name = data.get("file_name", "arquivo")
+        inserted = data.get("inserted", 0)
+        rejected = data.get("rejected", 0)
+
         return NotificationCreate(
             **base,
             severity=NotificationSeverity.SUCCESS,
-            title="Importação realizada",
-            message=f"A importação {data.get('file_name')} foi finalizada com sucesso. Estoque atualizado.",
+            title="Importação concluída",
+            message=(
+                f"Arquivo {file_name} processado.\n"
+                f"{inserted} registros importados.\n"
+                f"{rejected} rejeitados."
+            ),
         )
 
     # ======================

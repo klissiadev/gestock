@@ -10,8 +10,11 @@ from backend.database.base import get_db
 from backend.services.import_service import process_import
 from backend.services.log_importacao_service import LogImportacaoService
 from backend.services.event_service import EventService
+from backend.services.stock_event_service import StockEventService
+from backend.services.notification_service import NotificationService
+from backend.database.repository import Repository
 from backend.utils.file_validation import validate_upload_file
-from backend.services.event_processor import EventProcessor
+from backend.database.schemas import NotificationEventCreate
 
 
 from auth_module.utils.security import require_role
@@ -40,7 +43,6 @@ def upload_file(tipo: str,
     file.file.seek(0)
 
     log_service = LogImportacaoService(db)
-    event_service = EventService(db)
 
     # DUPLICADO
     if file_hash_exists(db, file_hash):
@@ -74,6 +76,38 @@ def upload_file(tipo: str,
         "msg_erro": None if not result.get("errors") else "Importação com erros",
         "user_id": UUID(f'{user.id}')
     })
+
+    event_service = EventService(db)
+
+    event = NotificationEventCreate(
+        type="SUCCESS",
+        context={
+            "state": "IMPORT_SUCCESS",
+            "data": {
+                "file_name": file.filename,
+                "inserted": result.get("inserted", 0),
+                "rejected": result.get("rejected", 0)
+            }
+        },
+        reference={
+            "id": log["id"],
+            "type": "IMPORT"
+        }
+    )
+
+    event_id = event_service.criar_evento(event, user.id)
+
+    # verifica ruptura após importação
+    stock_service = StockEventService(
+        Repository(db),
+        event_service
+    )
+
+    stock_service.check_stock_events(user.id)
+
+    # gera notificações
+    notification_service = NotificationService(db)
+    notification_service.processar_evento_para_todos(event_id)
 
     print(log)
     
