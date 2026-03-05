@@ -18,7 +18,8 @@ def criar_notificacao_do_evento(
     current_user: UserPublic = Depends(get_current_user),
     service: NotificationService = Depends(get_service)
 ):
-    return service.processar_evento(event_id, current_user.id)
+    # apenas valida autenticação
+    return service.processar_evento_para_todos(event_id)
 
 @router.get("/notificacoes/from-event/{event_id}")
 def get_notification_from_event(event_id: int):

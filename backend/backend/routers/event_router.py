@@ -38,3 +38,4 @@ def processar_evento(
 ):
     processor = EventProcessor(conn)
     return processor.processar_evento(event_id)
+

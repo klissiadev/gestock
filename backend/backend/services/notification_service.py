@@ -25,16 +25,17 @@ class NotificationService:
     #regra de disparo
 
     def should_notify(self, notification: NotificationCreate) -> bool:
-        # 1. Nunca duplicar o mesmo evento
+
+        print("CHECANDO EVENTO:", notification.event_id, notification.user_id)
+        # 1. Nunca duplicar o mesmo evento para o mesmo usuário
         if self.repo.fetch_one(
             "app_core.notificacoes",
-            {"event_id": notification.event_id}
+            conditions={
+                "event_id": notification.event_id,
+                "user_id": str(notification.user_id)
+            }
         ):
             return False
-
-        # 2. Tipos que sempre notificam
-        if notification.type in {"ERROR", "SUCCESS"}:
-            return True
 
         ref = notification.reference
 
@@ -51,10 +52,11 @@ class NotificationService:
             FROM app_core.notificacoes
             WHERE type = %s
             AND reference->>'id' = %s
+            AND user_id = %s
             ORDER BY created_at DESC
             LIMIT 1
             """,
-            (notification.type, ref_id)
+            (notification.type, ref_id, str(notification.user_id))
         )
 
         if last and last["severity"] == notification.severity:
@@ -69,65 +71,62 @@ class NotificationService:
                 FROM app_core.notificacoes
                 WHERE type = %s
                 AND reference->>'id' = %s
+                AND user_id = %s
                 AND created_at > now() - %s
                 """,
-                (notification.type, ref_id, cooldown)
+                (notification.type, ref_id, str(notification.user_id), cooldown)
             )
 
             if recent:
                 return False
 
+        print("PASSOU NA REGRA")
         return True
     
-    def processar_evento(self, event_id: int, user_id: UUID):
-
+    def processar_evento_para_todos(self, event_id: int):
+        
         evento = self.repo.fetch_one_raw(
             """
             SELECT *
             FROM app_core.notificacoes_eventos
-            WHERE id = %s AND user_id = %s
+            WHERE id = %s
             """,
-            (event_id, str(user_id))
+            (event_id,)
         )
-        
 
         if not evento:
             raise HTTPException(status_code=404, detail="Evento não encontrado")
 
-        if isinstance(evento.get("reference"), str):
-            try:
-                evento["reference"] = json.loads(evento["reference"])
-            except json.JSONDecodeError:
-                evento["reference"] = {}
-
-        if isinstance(evento.get("context"), str):
-            try:
-                evento["context"] = json.loads(evento["context"])
-            except json.JSONDecodeError:
-                evento["context"] = {}
-        
-        print("EVENTO ANTES DO ENRICH:", evento)
-
         self._enrich_reference(evento)
 
-        notificacao = normalize_event(evento)
+        notificacao_base = normalize_event(evento)
 
-        print("NOTIFICACAO FINAL:", notificacao.dict())
-
-        if not notificacao:
+        if not notificacao_base:
             return None
 
-        if not self.should_notify(notificacao):
-            return None
+        # Busca todos usuários ativos
+        usuarios = self._buscar_usuarios_para_evento()
+        print("USUARIOS ENCONTRADOS:", usuarios)
 
-        data = notificacao.dict()
-        data["reference"] = Json(data["reference"])
-        data["user_id"] = str(user_id)  
+        for usuario in usuarios:
+            
+            notificacao = notificacao_base.copy()
+            notificacao.user_id = usuario["id"]
 
-        self.repo.insert("app_core.notificacoes", data)
+            print("PROCESSANDO USER:", usuario["id"])
+
+            if not self.should_notify(notificacao):
+                continue
+
+            data = notificacao.dict()
+            data["reference"] = Json(data["reference"])
+            data["user_id"] = str(usuario["id"])
+
+            self.repo.insert("app_core.notificacoes", data)
+
         self.conn.commit()
 
-        return {"message": "Notificação criada"}
+        return {"message": "Notificações criadas para todos usuários ativos"}
 
 
 
@@ -230,3 +229,11 @@ class NotificationService:
 
         if ref_type == "PRODUCT":
             ref["nome"] = self.produto_service.get_nome_produto(ref["id"])
+
+    def _buscar_usuarios_para_evento(self):
+        return self.repo.execute_query("""
+            SELECT id
+            FROM app_core.usuarios
+            WHERE ativo = true
+            AND papel = 'gestor'
+        """)

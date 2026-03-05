@@ -13,8 +13,15 @@ class EventService:
     def criar_evento(self, evento: NotificationEventCreate, user_id: UUID):
         data = evento.dict()
 
-        data["user_id"] = user_id  # ← AQUI está a correção real
+        type_ = data.get("type")
 
+        # Regras específicas por tipo (ANTES de converter para Json)
+        if type_ == "RUPTURE":
+            if not self._should_create_rupture(data):
+                return None
+
+        # Só depois que passou nas regras, prepara para persistência
+        data["user_id"] = user_id
         data["context"] = Json(data["context"])
         data["reference"] = Json(data["reference"])
 
@@ -24,22 +31,16 @@ class EventService:
             returning="id"
         )
 
-        # 🔒 Blindagem contra retorno inconsistente
         if not result:
             raise HTTPException(
                 status_code=400,
                 detail="Erro ao registrar evento."
             )
 
-        # Se vier tupla (ex: (42,))
         if isinstance(result, tuple):
             evento_id = result[0]
-
-        # Se vier dict (caso mude no futuro)
         elif isinstance(result, dict):
             evento_id = result.get("id")
-
-        # Se vier valor direto
         else:
             evento_id = result
 
@@ -71,3 +72,46 @@ class EventService:
             raise HTTPException(status_code=404, detail="Evento não encontrado")
 
         return evento
+
+    def _ultimo_evento_ruptura(self, product_id: int):
+        result = self.repo.execute_query("""
+            SELECT context
+            FROM app_core.notificacoes_eventos
+            WHERE type = 'RUPTURE'
+            AND reference->>'id' = %s
+            ORDER BY created_at DESC
+            LIMIT 1
+        """, (str(product_id),))
+
+        return result[0] if result else None
+
+    def _should_create_rupture(self, data: dict) -> bool:
+        reference = data.get("reference") or {}
+        context = data.get("context") or {}
+
+        product_id = reference.get("id")
+        if not product_id:
+            return True
+
+        ultimo_evento = self._ultimo_evento_ruptura(product_id)
+
+        if not ultimo_evento:
+            return True
+
+        ultimo_context = ultimo_evento.get("context") or {}
+        ultimo_data = ultimo_context.get("data") or {}
+
+        ultimo_estoque = ultimo_data.get("currentStock")
+        estoque_atual = (context.get("data") or {}).get("currentStock")
+
+        ultimo_state = ultimo_context.get("state")
+        state_atual = context.get("state")
+
+        # Se qualquer um for None, deixa criar
+        if estoque_atual is None:
+            return True
+
+        if ultimo_estoque == estoque_atual and ultimo_state == state_atual:
+            return False
+
+        return True

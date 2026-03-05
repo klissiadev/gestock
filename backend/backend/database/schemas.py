@@ -269,6 +269,7 @@ class NotificationBase(BaseModel):
     message: str
     reference: NotificationEventReference
     event_id: int
+    user_id: UUID   
 
 class NotificationCreate(NotificationBase):
     pass
