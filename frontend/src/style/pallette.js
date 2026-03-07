@@ -41,6 +41,15 @@ export const palette = {
 
     card: {
       background: "#cfcfcf",
+    },
+
+    admin: {
+      main: "#634494",
+      secondary: "#F8F4FD",
+      background: "#FFFFFF",
+      good: "#2AFF00",
+      degraded: "#ff9800",
+      offline: "#f44336"
     }
 };
 
