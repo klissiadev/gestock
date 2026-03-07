@@ -9,6 +9,9 @@ import UsageBox from './components/UsageBox';
 import { HARDWARE_FIELDS } from './constants/hardwareConstants';
 import SignalCellularAltIcon from '@mui/icons-material/SignalCellularAlt';
 
+
+import SystemDashboard from './components/SystemDashboard';
+
 const getLatencyColor = (ms) => {
     if (ms < 200) return 'success.main';
     if (ms < 800) return 'warning.main';
@@ -55,8 +58,7 @@ const AdminPage = () => {
             
             {/* --- SEÇÃO 1: MÉTRICAS PRINCIPAIS --- */}
             <Box sx={{ display: 'flex', gap: 2, mb: 4, flexWrap: 'wrap' }}>
-                <UsageBox name={HARDWARE_FIELDS.cpu} usage={info.cpu} />
-                <UsageBox name={HARDWARE_FIELDS.ram} usage={info.ram} />
+                <SystemDashboard cpu_usage={info.cpu} ram_usage={info.ram}/>
             </Box>
 
             {/* --- SEÇÃO 2: GPU --- */}
