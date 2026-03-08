@@ -18,7 +18,18 @@ export function useAllNotifications(limit = 20) {
     try {
       setLoading(true);
       const data = await fetchAllNotifications(limit);
-      setNotifications(data);
+
+      // adiciona ao pending
+      data.forEach((n) => {
+        if (!n.read) {
+          pendingReadRef.current.add(n.id);
+        }
+      });
+
+      // marca localmente
+      const updated = data.map((n) => ({ ...n, read: true }));
+
+      setNotifications(updated);
       setHasMore(data.length === limit);
     } catch (err) {
       setError(err.message);
@@ -26,7 +37,6 @@ export function useAllNotifications(limit = 20) {
       setLoading(false);
     }
   }
-
   async function loadMore() {
     if (!hasMore || loading) return;
 

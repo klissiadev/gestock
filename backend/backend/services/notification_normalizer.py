@@ -1,3 +1,4 @@
+import json
 from typing import Optional, Dict, Any
 from backend.database.schemas import NotificationCreate
 from backend.database.schemas import (
@@ -15,7 +16,6 @@ def days_until(data_alvo: str) -> int:
     target = datetime.strptime(data_alvo, "%Y-%m-%d").date()
 
     diff_dias = (target - today).days
-
     return diff_dias
 
 
@@ -56,7 +56,7 @@ def normalize_event(evento: dict) -> Optional[NotificationCreate]:
                 severity=NotificationSeverity.CRITICAL,
                 title="Estoque abaixo do mínimo",
                 message=(
-                    f"O produto {nome} possui apenas "
+                    f"O produto {nome_texto} possui apenas "
                     f"{data.get('currentStock')} unidades em estoque."
                 ),
             )
@@ -67,16 +67,16 @@ def normalize_event(evento: dict) -> Optional[NotificationCreate]:
                 severity=NotificationSeverity.WARNING,
                 title="Estoque próximo do mínimo",
                 message=(
-                    f"O produto {nome} está a {data.get('safetyStock')} unidades próximo do limite mínimo "
-                    f"de {data.get('minimumStock')} unidades"
+                    f"O produto {nome_texto} está próximo do limite mínimo "
+                    f"de {data.get('minimumStock')} unidades."
                 ),
             )
 
     # ======================
-    # SUCCESS
+    # IMPORTAÇÃO
     # ======================
-    if event_type == "SUCCESS" and state == "IMPORT_SUCCESS":
 
+    if state == "IMPORT_SUCCESS":
         file_name = data.get("file_name", "arquivo")
         inserted = data.get("inserted", 0)
         rejected = data.get("rejected", 0)
@@ -86,9 +86,41 @@ def normalize_event(evento: dict) -> Optional[NotificationCreate]:
             severity=NotificationSeverity.SUCCESS,
             title="Importação concluída",
             message=(
-                f"Arquivo {file_name} processado.\n"
-                f"{inserted} registros importados.\n"
+                f"Arquivo {file_name} processado. "
+                f"{inserted} registros importados e "
                 f"{rejected} rejeitados."
+            ),
+        )
+
+    if state == "IMPORT_PARTIAL":
+
+        file_name = data.get("file_name", "arquivo")
+        inserted = data.get("inserted", 0)
+        rejected = data.get("rejected", 0)
+
+        return NotificationCreate(
+            **base,
+            severity=NotificationSeverity.WARNING,
+            title="Importação parcialmente concluída",
+            message=(
+                f"O arquivo {file_name} foi processado com inconsistências. "
+                f"{inserted} registros importados e "
+                f"{rejected} rejeitados."
+            ),
+        )
+
+    if state == "IMPORT_ERROR":
+
+        file_name = data.get("file_name", "arquivo")
+        rejected = data.get("rejected", 0)
+
+        return NotificationCreate(
+            **base,
+            severity=NotificationSeverity.CRITICAL,
+            title="Falha na importação",
+            message=(
+                f"A importação do arquivo {file_name} falhou. "
+                f"{rejected} registros foram rejeitados."
             ),
         )
 
@@ -107,7 +139,7 @@ def normalize_event(evento: dict) -> Optional[NotificationCreate]:
                 **base,
                 severity=NotificationSeverity.CRITICAL,
                 title="Produto vencido",
-                message=f"O produto {nome} está vencido há {abs(dias)} dias."
+                message=f"O produto {nome_texto} está vencido há {abs(dias)} dias."
             )
 
         if state == "NEAR_EXPIRATION":
@@ -115,13 +147,13 @@ def normalize_event(evento: dict) -> Optional[NotificationCreate]:
                 **base,
                 severity=NotificationSeverity.WARNING,
                 title="Produto próximo do vencimento",
-                message=f"O produto {nome} vencerá em {dias} dias."
+                message=f"O produto {nome_texto} vencerá em {dias} dias."
             )
 
     # ======================
     # ERROR
     # ======================
-    if event_type == "ERROR" and state == "ERROR":
+    if event_type == "ERROR":
         return NotificationCreate(
             **base,
             severity=NotificationSeverity.CRITICAL,
@@ -136,10 +168,10 @@ def normalize_event(evento: dict) -> Optional[NotificationCreate]:
         return NotificationCreate(
             **base,
             severity=NotificationSeverity.INFO,
-            title="Sugestão de demanda",
+            title="Sugestão de reposição",
             message=(
-                f"Melhor momento para repor o produto {nome}. "
-                f"Confira os detalhes no painel."
+                f"Pode ser um bom momento para repor o produto {nome_texto}. "
+                f"Verifique o painel de estoque."
             )
         )
 

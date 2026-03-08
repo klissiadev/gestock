@@ -37,7 +37,15 @@ def process_import(upload_file, conn, import_type="produtos"):
         raise HTTPException(status_code=400, detail="Tipo de importação inválido.")
 
     schema = IMPORT_SCHEMAS[import_type]
+    print("COLUNAS ESPERADAS PELO SCHEMA:")
+    print(schema["columns"].keys())
+
     df = parse_to_dataframe(upload_file)
+
+    print("COLUNAS DO ARQUIVO:")
+    print(df.columns)
+    print("PRIMEIRAS LINHAS:")
+    print(df.head())
 
     # Verifica colunas obrigatórias
     required_columns = {
@@ -87,7 +95,13 @@ def process_import(upload_file, conn, import_type="produtos"):
         row_dict = row._asdict()
 
         row_errors = validate_row(row_dict, schema)
+
         if row_errors:
+            print("---- ERRO DE VALIDAÇÃO ----")
+            print("LINHA:", idx)
+            print("DADOS:", row_dict)
+            print("ERROS:", row_errors)
+
             rejected += 1
             errors.append({"row": idx, "errors": row_errors})
             continue

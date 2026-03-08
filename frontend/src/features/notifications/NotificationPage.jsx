@@ -8,7 +8,7 @@ import {
 } from "@mui/material";
 import { useAllNotifications } from "../../hooks/useAllNotifications";
 import { NotificationItem } from "./components/NotificationItem";
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 
 export default function NotificationsPage() {
   const {
@@ -21,13 +21,26 @@ export default function NotificationsPage() {
     syncPendingReads,
   } = useAllNotifications(10);
 
+
+  const didMarkRef = useRef(false);
+
   useEffect(() => {
-    // Quando entra na tela
-    markAllAsReadLocally();
+    if (!didMarkRef.current && notifications.length > 0) {
+      markAllAsReadLocally();
+      didMarkRef.current = true;
+    }
+  }, [notifications]);
+
+  useEffect(() => {
+    const handleBeforeUnload = () => {
+      syncPendingReads();
+    };
+
+    window.addEventListener("beforeunload", handleBeforeUnload);
 
     return () => {
-      // Quando sai da tela
       syncPendingReads();
+      window.removeEventListener("beforeunload", handleBeforeUnload);
     };
   }, []);
 
