@@ -79,14 +79,30 @@ def upload_file(tipo: str,
 
     event_service = EventService(db)
 
+    inserted = result.get("inserted", 0)
+    rejected = result.get("rejected", 0)
+
+    if inserted == 0 and rejected > 0:
+        event_type = "ERROR"
+        state = "IMPORT_ERROR"
+
+    elif inserted > 0 and rejected > 0:
+        event_type = "WARNING"
+        state = "IMPORT_PARTIAL"
+
+    else:
+        event_type = "SUCCESS"
+        state = "IMPORT_SUCCESS"
+
+
     event = NotificationEventCreate(
-        type="SUCCESS",
+        type=event_type,
         context={
-            "state": "IMPORT_SUCCESS",
+            "state": state,
             "data": {
                 "file_name": file.filename,
-                "inserted": result.get("inserted", 0),
-                "rejected": result.get("rejected", 0)
+                "inserted": inserted,
+                "rejected": rejected
             }
         },
         reference={
