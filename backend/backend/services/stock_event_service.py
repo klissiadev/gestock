@@ -3,8 +3,6 @@ from backend.services.event_service import EventService
 from backend.database.base import get_connection
 from backend.database.schemas import NotificationEventCreate
 
-
-
 class StockEventService:
 
     def __init__(self, repo, event_service):

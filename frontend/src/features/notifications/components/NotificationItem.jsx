@@ -5,10 +5,12 @@ import DoneIcon from "@mui/icons-material/Done";
 export function NotificationItem({ data }) {
   const isUnread = !data.read;
 
+  const severityStyle = getSeverityStyle(data.severity);
+
   return (
     <Box
       sx={{
-        bgcolor: isUnread ? "#ffffff" : "#eeeeee",
+        bgcolor: isUnread ? severityStyle.bgColor : "#eeeeee",
         borderRadius: 2,
         p: 2,
         mb: 2,
@@ -23,7 +25,10 @@ export function NotificationItem({ data }) {
         {/* Status Icon */}
         <Box mt={0.5}>
           {isUnread ? (
-            <FiberManualRecordIcon fontSize="small" />
+            <FiberManualRecordIcon
+              fontSize="small"
+              sx={{ color: severityStyle.dotColor }}
+            />
           ) : (
             <DoneIcon fontSize="small" />
           )}
@@ -36,7 +41,10 @@ export function NotificationItem({ data }) {
             justifyContent="space-between"
             alignItems="center"
           >
-            <Typography fontWeight={600}>
+            <Typography
+              fontWeight={600}
+              color={isUnread ? severityStyle.textColor : "inherit"}
+            >
               {data.title}
             </Typography>
 
@@ -58,11 +66,41 @@ export function NotificationItem({ data }) {
   );
 }
 
-// Formatação simples
+// Formatação data
 function formatDate(date) {
   const d = new Date(date);
-  return d.toLocaleDateString("pt-BR", {
+
+  return d.toLocaleString("pt-BR", {
     day: "2-digit",
     month: "short",
+    hour: "2-digit",
+    minute: "2-digit",
   });
+}
+
+function getSeverityStyle(severity) {
+  switch (severity) {
+    case "error":
+    case "warning":
+    case "critical":
+      return {
+        dotColor: "#d32f2f",
+        bgColor: "#ffebee",
+        textColor: "#b71c1c",
+      };
+
+    case "success":
+      return {
+        dotColor: "#2e7d32",
+        bgColor: "#e8f5e9",
+        textColor: "#1b5e20",
+      };
+
+    default:
+      return {
+        dotColor: "#1976d2",
+        bgColor: "#e3f2fd",
+        textColor: "#0d47a1",
+      };
+  }
 }

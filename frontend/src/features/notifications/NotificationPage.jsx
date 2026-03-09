@@ -23,7 +23,6 @@ export default function NotificationsPage() {
 
 
   const didMarkRef = useRef(false);
-
   useEffect(() => {
     if (!didMarkRef.current && notifications.length > 0) {
       markAllAsReadLocally();
@@ -76,8 +75,8 @@ export default function NotificationsPage() {
       <Box
         sx={{
           flex: 1,
-          overflowY: "auto",
           pr: 1,
+          pb:2
         }}
       >
         {notifications.map((notification) => (
@@ -92,7 +91,7 @@ export default function NotificationsPage() {
 
         {!loading && hasMore && (
           <Box textAlign="center" mt={2}>
-            <Button variant="outlined" onClick={loadMore}>
+            <Button onClick={loadMore}>
               Carregar mais
             </Button>
           </Box>

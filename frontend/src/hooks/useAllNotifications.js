@@ -19,17 +19,13 @@ export function useAllNotifications(limit = 20) {
       setLoading(true);
       const data = await fetchAllNotifications(limit);
 
-      // adiciona ao pending
       data.forEach((n) => {
         if (!n.read) {
           pendingReadRef.current.add(n.id);
         }
       });
 
-      // marca localmente
-      const updated = data.map((n) => ({ ...n, read: true }));
-
-      setNotifications(updated);
+      setNotifications(data);
       setHasMore(data.length === limit);
     } catch (err) {
       setError(err.message);
@@ -37,12 +33,20 @@ export function useAllNotifications(limit = 20) {
       setLoading(false);
     }
   }
+
   async function loadMore() {
     if (!hasMore || loading) return;
 
     try {
       setLoading(true);
       const data = await fetchAllNotifications(limit, cursor);
+
+      data.forEach((n) => {
+        if (!n.read) {
+          pendingReadRef.current.add(n.id);
+        }
+      });
+
       setNotifications((prev) => [...prev, ...data]);
       setHasMore(data.length === limit);
     } catch (err) {
