@@ -23,3 +23,5 @@ async function apiFetch(endpoint, options = {}) {
 };
 
 export const fetchHealth = () => apiFetch("/admin/health").then(r => r.json());
+export const fetchHardware = () => apiFetch("/admin/hardware").then(r => r.json());
+
