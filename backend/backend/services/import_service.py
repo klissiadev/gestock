@@ -33,6 +33,10 @@ def parse_date(value, fmt=None):
 
 
 def process_import(upload_file, conn, import_type="produtos"):
+
+    print("IMPORT TYPE RECEBIDO:", import_type)
+    print("TIPOS DISPONÍVEIS:", IMPORT_SCHEMAS.keys())
+    
     if import_type not in IMPORT_SCHEMAS:
         raise HTTPException(status_code=400, detail="Tipo de importação inválido.")
 

@@ -71,7 +71,7 @@ const UploadDialog = () => {
               { value: "produtos", label: "Produtos" },
               { value: "movimentacoes_entrada", label: "Movimentações de Entrada" },
               { value: "movimentacoes_saida", label: "Movimentações de Saída" },
-              { value: "movimentacoes_interna", label: "Movimentações Internas" }
+              { value: "movimentacoes_internas", label: "Movimentações Internas" }
             ]}
           />
 
