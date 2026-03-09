@@ -3,6 +3,7 @@ from fastapi import HTTPException
 from backend.database.repository import Repository
 from psycopg2.extras import Json
 from backend.database.schemas import NotificationEventCreate
+from backend.services.notification_service import NotificationService
 from uuid import UUID
 
 class EventService:
@@ -49,8 +50,13 @@ class EventService:
                 status_code=500,
                 detail="Evento criado, mas ID inválido."
             )
-
+        
         self.repo.commit()
+
+        # gera notificações automaticamente
+        notification_service = NotificationService(self.repo.conn)
+        notification_service.processar_evento_para_todos(evento_id)
+
         return evento_id
 
     def listar_eventos(self):

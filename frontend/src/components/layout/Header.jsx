@@ -1,7 +1,8 @@
-import React from "react";
-import { Box, IconButton, Button, Typography } from "@mui/material";
+import { Box, IconButton, Button, Typography, Badge } from "@mui/material";
 import { useNavigate } from "react-router-dom";
-
+import {  } from "@mui/material";
+import { useEffect, useState } from "react";
+import { fetchUnreadNotifications } from "../../features/notifications/services/notificationApi";
 import PerfilSvg from "../../assets/icon/iconPerfil.svg?react";
 import NotificationSvg from "../../assets/icon/iconNotify.svg?react";
 import AddUserSvg from "../../assets/icon/iconAddUser.svg?react";
@@ -17,6 +18,25 @@ const Header = () => {
   const navigate = useNavigate();
 
   const nome = user?.nome ?? "";
+
+  const [hasUnread, setHasUnread] = useState(false);
+
+  useEffect(() => {
+    async function checkUnread() {
+      try {
+        const data = await fetchUnreadNotifications(1);
+        setHasUnread(data.length > 0);
+      } catch (err) {
+        console.error(err);
+      }
+    }
+
+    checkUnread();
+
+    const interval = setInterval(checkUnread, 30000);
+
+    return () => clearInterval(interval);
+  }, []);
 
   const getActionButton = () => {
     switch (headerConfig.variant) {
@@ -61,8 +81,20 @@ const Header = () => {
       <Box display="flex" alignItems="center" gap={2} mr={1}>
         {getActionButton()}
 
-        <IconButton sx={iconStyle}>
-          <NotificationSvg width={18} height={18} onClick={() => navigate("/notifications")}/>
+        <IconButton
+          sx={iconStyle}
+          onClick={() => {
+            navigate("/notifications");
+            setHasUnread(false);
+          }}
+        >
+          <Badge
+            color="error"
+            variant="dot"
+            invisible={!hasUnread}
+          >
+            <NotificationSvg width={18} height={18} />
+          </Badge>
         </IconButton>
       </Box>
     </Box>

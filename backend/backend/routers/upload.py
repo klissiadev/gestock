@@ -11,11 +11,10 @@ from backend.services.import_service import process_import
 from backend.services.log_importacao_service import LogImportacaoService
 from backend.services.event_service import EventService
 from backend.services.stock_event_service import StockEventService
-from backend.services.notification_service import NotificationService
 from backend.database.repository import Repository
 from backend.utils.file_validation import validate_upload_file
 from backend.database.schemas import NotificationEventCreate
-
+from backend.services.expiration_event_service import ExpirationEventService   
 
 from auth_module.utils.security import require_role
 from auth_module.models.User import UserPublic
@@ -113,7 +112,7 @@ def upload_file(tipo: str,
 
     event_id = event_service.criar_evento(event, user.id)
 
-    # verifica ruptura após importação
+        # verifica ruptura após importação
     stock_service = StockEventService(
         Repository(db),
         event_service
@@ -121,9 +120,13 @@ def upload_file(tipo: str,
 
     stock_service.check_stock_events(user.id)
 
-    # gera notificações
-    notification_service = NotificationService(db)
-    notification_service.processar_evento_para_todos(event_id)
+    # verifica produtos vencidos
+    expiration_service = ExpirationEventService(
+        Repository(db),
+        event_service
+    )
+
+    expiration_service.check_expiration_events(user.id)
 
     print(log)
     
