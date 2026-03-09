@@ -1,15 +1,28 @@
-const api_url = import.meta.env.VITE_API_URL || 'http://localhost:8000';
+const BASE_URL = "http://127.0.0.1:8000";
 
-export const fetchHardware = async () => {
+async function apiFetch(endpoint, options = {}) {
+  const token = localStorage.getItem('token');
+  const headers = {
+    "Content-Type": "application/json",
+    ...(token && { "Authorization": `Bearer ${token}` }),
+    ...options.headers,
+  };
 
-    const response = await fetch(`http://127.0.0.1:8000/admin/hardware`, {
-        method: 'GET',
-        headers: {
-            'Content-Type': 'application/json'
-        }
-    });
+  const response = await fetch(`${BASE_URL}${endpoint}`, { ...options, headers });
 
-    if (!response.ok) throw new Error("Não foi possível buscar informações de hardware do sistema: Tente novamente mais tarde");
-    const dados = await response.json();
-    return dados;
-}
+  if (!response.ok) {
+    if (response.status === 401) {
+      localStorage.removeItem('token');
+      window.location.href = "/";
+
+      throw new Error("Sessão expirada");
+    }
+    throw new Error(`Erro na API: ${response.statusText}`);
+  }
+  return response;
+};
+
+
+
+export const fetchHardware = () => apiFetch("/admin/hardware").then(r => r.json());
+    

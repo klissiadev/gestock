@@ -20,13 +20,13 @@ import UsersPage from "../features/admin/pages/ManageUsersPage";
 import LogImportPage from "../features/admin/pages/LogImportPage";
 import LogChatPage from "../features/admin/pages/LogChatPage";
 import { ProtectedRoute } from "./ProtectedRoute";
-import SystemDashboard from "../features/admin/components/SystemDashboard";
+import GPUDashboard from "../features/admin/components/GPUDashboard";
 
 const AppRoutes = () => {
   return (
     <Routes>
       <Route path='/' element={<LoginPage />} />
-      <Route path="/teste" element={<SystemDashboard />} />
+      <Route path="/teste" element={<GPUDashboard />} />
 
       <Route path='/login' element={<LoginPage />} />
       <Route path="/reset-password" element={<ResetPassword />} />

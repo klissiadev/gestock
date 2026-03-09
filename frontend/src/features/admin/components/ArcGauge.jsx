@@ -19,6 +19,13 @@ const ArcGauge = ( {value = 50, isFull = false } ) => {
             startAngle={startAngle}
             endAngle={endAngle}
             cornerRadius={'50%'}
+            width={undefined} // Deixa o CSS controlar
+            height={undefined} // Deixa o CSS controlar
+            sx={{
+                width: '100%',
+                height: '100%',
+                minHeight: isFull ? 200 : 150, // Garante um tamanho mínimo visível
+            }}
 
         >
             <GaugeReferenceArc />
