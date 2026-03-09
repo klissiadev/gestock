@@ -163,7 +163,7 @@ class LogFetcher:
         
         extra_where = []
         extra_params = {}
-        COLUNAS = ["user_id", "session_id", "user_message", "bot_response", "created_at"]
+        COLUNAS = ["id", "session_id", "user_message", "bot_response", "created_at"]
 
         if period:
             data_inicio, data_fim = period
