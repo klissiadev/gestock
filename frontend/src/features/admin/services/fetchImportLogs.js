@@ -1,7 +1,7 @@
 const api_url = import.meta.env.VITE_API_URL || "http://localhost:8000";
 
 export const fetchImportLogs = async (filters) => {
-  const token = localStorage.getItem("token"); 
+  const token = localStorage.getItem("token");
 
   if (!token) {
     throw new Error("Usuário não autenticado");
@@ -24,7 +24,7 @@ export const fetchImportLogs = async (filters) => {
 };
 
 export const fetchUser = async (filters) => {
-  const token = localStorage.getItem("token"); 
+  const token = localStorage.getItem("token");
 
   if (!token) {
     throw new Error("Usuário não autenticado");
@@ -68,4 +68,29 @@ export const fetchChatLogs = async (filters) => {
   }
 
   return response.json();
+};
+
+export const deleteUser = async (userId) => {
+  const token = localStorage.getItem("token");
+
+  if (!token) {
+    throw new Error("Usuário não autenticado");
+  }
+  try {
+    const response = await fetch(`${api_url}/auth/users/${userId}`, {
+      method: 'DELETE',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${token}`,
+      }
+    });
+
+    if (response.status === 204) {
+      console.log("Removido com sucesso!");
+    } else if (response.status === 404) {
+      console.warn("Usuário não encontrado.");
+    }
+  } catch (error) {
+    console.error("Erro na requisição:", error);
+  }
 };

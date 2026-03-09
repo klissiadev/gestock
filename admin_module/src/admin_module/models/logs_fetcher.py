@@ -193,7 +193,7 @@ class LogFetcher:
             direction: str = "DESC"
     ):
         
-        COLUNAS = ["nome", "papel", "email"]
+        COLUNAS = ["id", "nome", "papel", "email"]
         SEARCH_COLS = ["nome", "email"]
         
         return self._fetch_all(
