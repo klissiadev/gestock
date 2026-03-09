@@ -26,7 +26,7 @@ const ServiceFooter = ({ database, ollama, smtp, uptime }) => {
                     type="service"
                     title="Database"
                     value={database.status}
-                    status={database.status}
+                    status={database.status.toLowerCase()}
                     description={"Latência: "+ database.latency}
                     icon={SensorsIcon}
                     sx={{ flex: 2 }}
@@ -36,7 +36,7 @@ const ServiceFooter = ({ database, ollama, smtp, uptime }) => {
                     type="service"
                     title="Ollama (IA Local)"
                     value={ollama.status}
-                    status={ollama.status}
+                    status={ollama.status.toLowerCase()}
                     description={"Latência: "+ ollama.latency}
                     icon={SensorsIcon}
                     sx={{ flex: 2 }}
@@ -46,7 +46,7 @@ const ServiceFooter = ({ database, ollama, smtp, uptime }) => {
                     type="service"
                     title="Serviço de E-Mail Google"
                     value={smtp.status}
-                    status={smtp.status}
+                    status={smtp.status.toLowerCase()}
                     description={"Latência: "+ smtp.latency}
                     icon={SensorsIcon}
                     sx={{ flex: 2 }}

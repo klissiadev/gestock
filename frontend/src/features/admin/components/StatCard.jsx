@@ -19,7 +19,7 @@ const StatCard = ({
   // Configuração de cores e ícones baseada no status do serviço
   const statusConfig = {
     online: { color: theme => theme.palette.success.main, icon: <CheckCircleIcon fontSize="small" /> },
-    warning: { color: theme => theme.palette.warning.main, icon: <InfoIcon fontSize="small" /> },
+    degradado: { color: theme => theme.palette.warning.main, icon: <InfoIcon fontSize="small" /> },
     offline: { color: theme => theme.palette.error.main, icon: <ErrorIcon fontSize="small" /> },
   };
 
