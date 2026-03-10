@@ -53,7 +53,7 @@ const ChatInput = ({
             onChange={(e) => onChange(e.target.value)}
             placeholder="Pergunte alguma coisa..."
             disabled={disabled}
-            InputProps={{ disableUnderline: true }}
+            InputProps={{ disableUnderline: true }} 
             onKeyDown={(e) => {
               if (e.key === "Enter" && !e.shiftKey) {
                 e.preventDefault();

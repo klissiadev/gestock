@@ -8,7 +8,6 @@ const MuiTextField = {
   styleOverrides: {
     root: {
       "& .MuiOutlinedInput-root": {
-        height: 45,
         borderRadius: 8,
 
         "& fieldset": {
@@ -28,6 +27,16 @@ const MuiTextField = {
         },
       },
 
+      // altura fixa SOMENTE para inputs normais
+      "& .MuiOutlinedInput-root:not(.MuiInputBase-multiline)": {
+        height: 45,
+      },
+
+      "& .MuiOutlinedInput-input": {
+        fontSize: "14px",
+        padding: "10px 14px",
+      },
+
       "& .MuiFormHelperText-root": {
         fontSize: 12,
         marginLeft: 0,
@@ -43,12 +52,7 @@ const MuiTextField = {
 
       "& .MuiOutlinedInput-root.Mui-error .MuiOutlinedInput-input::placeholder": {
         color: "#FF3B30",
-        opacity: 1, // IMPORTANTE (senão fica meio transparente)
-      },
-
-      "& .MuiOutlinedInput-input": {
-        fontSize: "14px",
-        padding: "10px 14px",
+        opacity: 1,
       },
     },
   },

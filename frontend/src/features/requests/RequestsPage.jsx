@@ -1,17 +1,31 @@
-import React from 'react'
-import ExpandableIconButton from "../../components/ui/ExpandableIconButton.jsx";
-import ChatSvg from "../../assets/icon/iconChat.svg?react";
+import { Box } from "@mui/material";
 
-const RequestsPage = () => {
+import RequestMainPanel from "./components/RequestMainPanel";
+import RequestCartPanel from "./components/RequestCartPanel";
+
+const RequestPage = () => {
+
+  const productsMock = [
+    { id: 1, name: "Nome produto", description: "Descrição do produto", qty: 2, priority: false },
+    { id: 2, name: "Nome produto", description: "Descrição do produto", qty: 5, priority: true },
+    { id: 3, name: "Nome produto", description: "Descrição do produto", qty: 10, priority: true },
+    { id: 4, name: "Nome produto", description: "Descrição do produto", qty: 150, priority: false },
+    { id: 5, name: "Nome produto", description: "Descrição do produto", qty: 2, priority: true }
+  ];
+
   return (
-    <div>RequestsPage
-      <ExpandableIconButton
-        icon={<ChatSvg width={20} height={20} />} 
-        origin="requests"
-        initialMessage="Olá Minerva, me ajude na tela de solicitações."
-      />
-    </div>
-  )
-}
+    <Box
+      sx={{
+        display: "flex",
+        gap: 2,
+        height: "85vh",
+        width: "100%",
+      }}
+    >
+      <RequestMainPanel />
+      <RequestCartPanel productsMock={productsMock} />
+    </Box>
+  );
+};
 
-export default RequestsPage
+export default RequestPage;
