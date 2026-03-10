@@ -12,7 +12,7 @@ class UserCreate(BaseModel):
     nome: str = Field(..., min_length=3, max_length=100)
     email: EmailStr
     password: str = Field(..., min_length=8) # Validação básica de tamanho
-    papel: UserRole = UserRole.GESTOR
+    papel: UserRole = Field(..., max_length=6) # Validação para aceitar apenas "admin" ou "gestor"
 
 # Esquema para Login
 class UserLogin(BaseModel):
@@ -37,9 +37,6 @@ class UserDB(BaseModel):
     ativo: bool = True
     
     model_config = ConfigDict(from_attributes=True)
-
-class ResetRequest(BaseModel):
-    email: EmailStr
 
 
 

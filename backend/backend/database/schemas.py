@@ -3,6 +3,7 @@ from pydantic import BaseModel
 from datetime import date, datetime
 from typing import Optional, Dict, Any, Literal
 from enum import Enum
+from uuid import UUID
 
 
 # =========================
@@ -214,6 +215,8 @@ class NotificationEventState(str, Enum):
     NEAR_EXPIRATION = "NEAR_EXPIRATION"
 
     IMPORT_SUCCESS = "IMPORT_SUCCESS"
+    IMPORT_PARTIAL = "IMPORT_PARTIAL"
+    IMPORT_ERROR = "IMPORT_ERROR"
 
     SUGGEST_REPLENISHMENT = "SUGGEST_REPLENISHMENT"
 
@@ -249,7 +252,6 @@ class NotificationEventBase(BaseModel):
     type: NotificationEventType
     context: NotificationEventContext
     reference: NotificationEventReference
-    user_id: int
 
 class NotificationEventCreate(NotificationEventBase):
     pass
@@ -269,7 +271,7 @@ class NotificationBase(BaseModel):
     message: str
     reference: NotificationEventReference
     event_id: int
-    user_id: int
+    user_id: UUID   
 
 class NotificationCreate(NotificationBase):
     pass

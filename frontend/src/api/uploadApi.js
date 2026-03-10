@@ -1,3 +1,4 @@
+//frontend\src\api\uploadApi.js
 const allowedExtensions = ["csv", "xlsx"];
 const allowedMimeTypes = [
   "text/csv",

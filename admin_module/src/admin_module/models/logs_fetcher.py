@@ -94,21 +94,33 @@ class LogFetcher:
     def get_import_log(
         self,
         direction: str = "DESC",
-        order_by: str = "registrado_em",
+        order_by: str = "created_at",
         search_term: str | None = None,
         status: str | None = None,
         periodo: tuple[str, str] | None = None,
-        apenas_erro: bool = False) -> list[dict]:
-        
-        COLUNAS_VALIDAS = ["id", "nome_arquivo", "qntd_registros", "status", "msg_erro", "registrado_em", "usuario"]
-        SEARCH_COLS = ["nome_arquivo", "usuario", "msg_erro"]
+        apenas_erro: bool = False
+    ) -> list[dict]:
+
+        COLUNAS_VALIDAS = [
+            "id",
+            "nome_arquivo",
+            "qntd_registros",
+            "status",
+            "msg_erro",
+            "created_at",
+            "responsavel_por"
+        ]
+
+        SEARCH_COLS = ["nome_arquivo", "msg_erro"]
 
         if order_by not in COLUNAS_VALIDAS:
-            order_by = "registrado_em"
+            order_by = "created_at"
 
         conditions = {}
+
         if status:
             conditions["status"] = status
+
         if apenas_erro:
             conditions["status"] = "ERRO"
 
@@ -117,18 +129,17 @@ class LogFetcher:
 
         if periodo:
             data_inicio, data_fim = periodo
+
             if data_inicio:
-                extra_where.append("registrado_em >= %(data_inicio)s")
+                extra_where.append("created_at >= %(data_inicio)s")
                 extra_params["data_inicio"] = data_inicio
+
             if data_fim:
-                extra_where.append("registrado_em <= %(data_fim)s")
+                extra_where.append("created_at <= %(data_fim)s")
                 extra_params["data_fim"] = data_fim
 
-        # Antes do fetch atualiza a tabela
-        self._refresh_log("app_logs.logs_import")
-
         result = self._fetch_all(
-            table="app_logs.logs_import",
+            table="app_logs.mv_imports",
             columns=COLUNAS_VALIDAS,
             conditions=conditions,
             order_by=order_by,
@@ -138,6 +149,7 @@ class LogFetcher:
             extra_where=extra_where,
             extra_params=extra_params,
         )
+
 
         return result
     
@@ -151,7 +163,7 @@ class LogFetcher:
         
         extra_where = []
         extra_params = {}
-        COLUNAS = ["session_id", "user_message", "bot_response", "created_at"]
+        COLUNAS = ["user_id", "session_id", "user_message", "bot_response", "created_at"]
 
         if period:
             data_inicio, data_fim = period
@@ -172,3 +184,24 @@ class LogFetcher:
             order_by="created_at",
             direction="DESC"
         )
+    
+    # Tabela de usuarios
+    def get_usuarios_data(
+            self,
+            search_term: str | None = None,
+            order_by: str = "created_at",
+            direction: str = "DESC"
+    ):
+        
+        COLUNAS = ["nome", "papel", "email"]
+        SEARCH_COLS = ["nome", "email"]
+        
+        return self._fetch_all(
+            table="app_core.usuarios",
+            columns=COLUNAS,
+            search_term=search_term,
+            search_cols=SEARCH_COLS,
+            order_by=order_by,
+            direction=direction
+        )
+        

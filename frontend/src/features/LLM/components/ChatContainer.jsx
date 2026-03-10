@@ -45,7 +45,7 @@ const ChatContainer = ({ messages, loading }) => {
         boxShadow: "none",
       }}
     >
-      {messages.length === 0 ? (
+      {messages.length === 0 && !loading? (
         <Typography color="text.secondary">
           Nenhuma mensagem ainda.
         </Typography>

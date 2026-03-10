@@ -7,6 +7,8 @@ export const AuthProvider = ({ children }) => {
     const [user, setUser] = useState(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
+    const [isAdmin, setIsAdmin] = useState(false);
+
 
     // Da um ping pra verificar sessão e pega informacoes basicas do usuario
     const verificarSessao = useCallback(async (token) => {
@@ -19,6 +21,8 @@ export const AuthProvider = ({ children }) => {
             if (response.ok) {
                 const dadosUsuario = await response.json();
                 setUser(dadosUsuario);
+                setIsAdmin(dadosUsuario.papel === 'admin');
+                console.log("Sessão verificada, usuário:", dadosUsuario);
             } else {
                 localStorage.removeItem('token');
                 setUser(null);
@@ -67,12 +71,12 @@ export const AuthProvider = ({ children }) => {
     };
 
     // Responsavel pelo registro do usuario
-    const register = async (nome, email, password) => {
+    const register = async (nome, email, password, papel) => {
         setError(null);
         setLoading(true);
         try {
             //const token = localStorage.getItem('token');
-            const resposta = await registerUser(nome, email, password);
+            const resposta = await registerUser(nome, email, password, papel);
             // Geralmente redirecionamos para o login ou exibimos uma mensagem verde.
             console.log("Usuário registrado:", resposta.message);
             return { success: true };
@@ -123,8 +127,9 @@ export const AuthProvider = ({ children }) => {
         }
     };
 
+
     return (
-        <AuthContext.Provider value={{ user, loading, error, login, logout, register, resetPassword, sendRecoveryEmail }}>
+        <AuthContext.Provider value={{ user, loading, error, login, logout, register, resetPassword, sendRecoveryEmail, isAdmin}}>
             {children}
         </AuthContext.Provider>
     );

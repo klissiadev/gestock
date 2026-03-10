@@ -10,7 +10,14 @@ VARIACAO_COMPRA = (-0.05, 0.10)  # -5% até +10%
 FORNECEDORES = [
     "Fornecedor Alpha",
     "Fornecedor Beta",
-    "Fornecedor Gamma"
+    "Fornecedor Gamma",
+    "Fornecedor Delta",
+    "Fornecedor Epsilon",
+    "Fornecedor Zeta",
+    "Fornecedor Eta",
+    "Fornecedor Theta",
+    "Fornecedor Iota",
+    "Fornecedor Kappa"
 ]
 
 # =========================================================
@@ -24,7 +31,6 @@ def gerar_entradas_mp(demanda_df, produtos_df, bom, estoque):
 
     mp_ids = produtos_df[produtos_df["tipo"] == "MP"]["id"].tolist()
     compras = []
-    id_counter = 1
     ESTOQUE_MINIMO_MP = 20  # estoque mínimo para cada MP
 
     for _, demanda in demanda_df.iterrows():
@@ -62,18 +68,16 @@ def gerar_entradas_mp(demanda_df, produtos_df, bom, estoque):
 
                 # Aplicar variação de compra
                 fator = 1 + random.uniform(*VARIACAO_COMPRA)
-                quantidade_compra = max(0, int(quantidade_necessaria * fator))
+                quantidade_compra = max(1, int(quantidade_necessaria * fator))
 
                 # Registrar compra
                 compras.append({
-                    "id": id_counter,
                     "produto_id": id_mp,
                     "quantidade": quantidade_compra,
                     "data_de_compra": data_compra,
                     "preco_de_compra": round(random.uniform(5, 50), 2),
                     "fornecedor": random.choice(FORNECEDORES)
                 })
-                id_counter += 1
 
                 # Atualizar estoque imediatamente
                 estoque.loc[id_mp, "quantidade"] += quantidade_compra
@@ -83,7 +87,6 @@ def gerar_entradas_mp(demanda_df, produtos_df, bom, estoque):
 
 '''
 Tabela de entrada possui:
-- id
 - produto_id
 - quantidade 
 - data_de_compra

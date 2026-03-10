@@ -1,7 +1,7 @@
-import { Navigate } from "react-router-dom";
+import { Navigate, Outlet } from 'react-router-dom';
 import { useAuth } from "../AuthContext"
 
-export const ProtectedRoute = ({ children }) => {
+export const ProtectedRoute = ({ allowedRoles }) => {
   const { user, loading } = useAuth();
 
   // Tela de carregamento
@@ -14,8 +14,17 @@ export const ProtectedRoute = ({ children }) => {
   }
 
   if (!user) {
-    return <Navigate to="/" />;
+    return <Navigate to="/login" replace />;
   }
 
-  return children;
+  if (user.papel && !allowedRoles.includes(user.papel)) {
+    if (user.papel === 'admin') {
+      return <Navigate to="/debug2" replace />;
+    } else if (user.papel === 'gestor') {
+      return <Navigate to="/home" replace />;
+    }
+  }
+
+
+  return <Outlet />;
 };

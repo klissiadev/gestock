@@ -9,6 +9,7 @@ import StepContainer from "./StepContainer";
 import { cancel_button, accept_button } from "../styles/style";
 import { useState } from "react";
 import { toast } from "react-toastify";
+import FuncaoSelector from "./FuncaoSelector";
 
 export default function StepDadosGerais({ data, updateData, onNext }) {
   const [submitted, setSubmitted] = useState(false);
@@ -20,6 +21,8 @@ export default function StepDadosGerais({ data, updateData, onNext }) {
 
   const handleNext = () => {
     setSubmitted(true);
+
+    console.log("Dados: ", data)
 
     const nomeValido = data.nome.trim() !== "";
     const emailPreenchido = data.email.trim() !== "";
@@ -39,6 +42,13 @@ export default function StepDadosGerais({ data, updateData, onNext }) {
       toast.error("Digite um email válido.");
       return;
     }
+
+    if (!data.papel) {
+      toast.error("Selecione uma função.");
+      return;
+    }
+
+
 
     onNext();
   };
@@ -82,6 +92,10 @@ export default function StepDadosGerais({ data, updateData, onNext }) {
               ? "Email inválido"
               : ""
           }
+        />
+        <FuncaoSelector
+          value={data.papel}
+          onChange={(value) => updateData({ papel: value })}
         />
       </Box>
 

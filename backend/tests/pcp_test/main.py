@@ -13,7 +13,7 @@ from saida import gerar_movimentacoes_saida
 # =========================
 # CONFIG
 # =========================
-ANO_PLANEJAMENTO = 2026
+ANO_PLANEJAMENTO = 2027
 pd.set_option("display.max_columns", None)
 pd.set_option("display.width", None)
 
@@ -99,7 +99,6 @@ def main():
     # PROCESSAMENTO MENSAL
     # =========================
 
-    id_saida_global = 1
 
     for mes in range(1, 13):
         print("\n" + "="*120)
@@ -119,7 +118,7 @@ def main():
         ops_status.append(ops_df)
 
         # 3️⃣ Saídas (vendas de PA)
-        saida_mes, estoque_trabalho, id_saida_global = gerar_movimentacoes_saida(demanda_mes, estoque_trabalho, id_saida_global)
+        saida_mes, estoque_trabalho = gerar_movimentacoes_saida(demanda_mes, estoque_trabalho)
         if not saida_mes.empty:
             saidas.append(saida_mes)
 

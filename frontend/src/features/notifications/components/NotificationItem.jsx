@@ -1,47 +1,106 @@
-export function NotificationItem({ notification, onClick }) {
-  const { title, message, read, created_at } = notification;
+import { Box, Typography, Stack } from "@mui/material";
+import FiberManualRecordIcon from "@mui/icons-material/FiberManualRecord";
+import DoneIcon from "@mui/icons-material/Done";
+
+export function NotificationItem({ data }) {
+  const isUnread = !data.read;
+
+  const severityStyle = getSeverityStyle(data.severity);
 
   return (
-    <div
-      onClick={onClick}
-      style={{
-        padding: "12px",
-        borderBottom: "1px solid #e5e7eb",
+    <Box
+      sx={{
+        bgcolor: isUnread ? severityStyle.bgColor : "#eeeeee",
+        borderRadius: 2,
+        p: 2,
+        mb: 2,
+        transition: "0.2s",
         cursor: "pointer",
-        backgroundColor: read ? "#fff" : "#f0f9ff",
+        "&:hover": {
+          transform: "scale(1.01)",
+        },
       }}
     >
-      <div style={{ display: "flex", justifyContent: "space-between" }}>
-        <strong>{title}</strong>
+      <Stack direction="row" spacing={2}>
+        {/* Status Icon */}
+        <Box mt={0.5}>
+          {isUnread ? (
+            <FiberManualRecordIcon
+              fontSize="small"
+              sx={{ color: severityStyle.dotColor }}
+            />
+          ) : (
+            <DoneIcon fontSize="small" />
+          )}
+        </Box>
 
-        {!read && (
-          <span
-            style={{
-              width: 8,
-              height: 8,
-              backgroundColor: "#3b82f6",
-              borderRadius: "50%",
-            }}
-          />
-        )}
-      </div>
+        {/* Conteúdo */}
+        <Box flex={1}>
+          <Stack
+            direction="row"
+            justifyContent="space-between"
+            alignItems="center"
+          >
+            <Typography
+              fontWeight={600}
+              color={isUnread ? severityStyle.textColor : "inherit"}
+            >
+              {data.title}
+            </Typography>
 
-      <p
-        style={{
-          margin: "6px 0",
-          color: "#555",
-          whiteSpace: "nowrap",
-          overflow: "hidden",
-          textOverflow: "ellipsis",
-          maxWidth: "100%",
-        }}
-      >
-        {message}
-      </p>
+            <Typography variant="caption" color="text.secondary">
+              {formatDate(data.created_at)}
+            </Typography>
+          </Stack>
 
-      <small style={{ color: "#888" }}>
-        {new Date(created_at).toLocaleString()}
-      </small>
-    </div>
+          <Typography
+            variant="body2"
+            color="text.secondary"
+            mt={0.5}
+          >
+            {data.message}
+          </Typography>
+        </Box>
+      </Stack>
+    </Box>
   );
+}
+
+// Formatação data
+function formatDate(date) {
+  const d = new Date(date);
+
+  return d.toLocaleString("pt-BR", {
+    day: "2-digit",
+    month: "short",
+    hour: "2-digit",
+    minute: "2-digit",
+  });
+}
+
+function getSeverityStyle(severity) {
+  switch (severity) {
+    case "error":
+    case "warning":
+    case "critical":
+      return {
+        dotColor: "#d32f2f",
+        bgColor: "#ffebee",
+        textColor: "#b71c1c",
+      };
+
+    case "success":
+      return {
+        dotColor: "#2e7d32",
+        bgColor: "#e8f5e9",
+        textColor: "#1b5e20",
+      };
+
+    default:
+      return {
+        dotColor: "#1976d2",
+        bgColor: "#e3f2fd",
+        textColor: "#0d47a1",
+      };
+  }
 }

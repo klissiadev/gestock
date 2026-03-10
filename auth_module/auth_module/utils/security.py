@@ -1,7 +1,7 @@
 # auth_module/utils/security.py
 from datetime import datetime, timedelta
 from zoneinfo import ZoneInfo
-from typing import Annotated
+from typing import Annotated, Literal
 import jwt
 from pwdlib import PasswordHash
 from fastapi import Depends, HTTPException, status
@@ -79,13 +79,9 @@ def create_password_reset_token(user: UserDB):
     to_encode = {"exp": expire, "sub": str(user.id)}
     return jwt.encode(to_encode, dynamic_secret, algorithm=ALGORITHM)
 
-import jwt # PyJWT
-from datetime import datetime, timedelta, timezone
 
-# No seu security.py
 def verify_reset_token(token: str):
     try:
-        # 1. Decodificamos SEM validar a assinatura apenas para pegar o 'sub' (user_id)
         unverified_payload = jwt.decode(token, options={"verify_signature": False})
         user_id = unverified_payload.get("sub")
         
@@ -106,3 +102,32 @@ def verify_reset_token(token: str):
     except (jwt.InvalidTokenError, Exception) as e:
         print(f"Token inválido: {e}")
         return None
+
+def _role_checker(current_user: UserPublic = Depends(get_current_user), allowed_roles: list[str] = ["admin", "gestor"]):
+    if current_user.papel not in allowed_roles:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Você não tem permissão para acessar este recurso."
+        )
+    return current_user
+
+def require_role(allowed_roles: list[str]):
+    """ 
+    Dependencia para verificar se o usuário tem um dos papeis permitidos.
+    Exemplo de uso: 
+    @app.get("/admin-only", dependencies=[Depends(require_role(["admin"]))]) OU
+    @app.get("/admin-gestor", dependencies=[Depends(require_role(["admin", "gestor"]))])
+    @app.get("/gestor-only", dependencies=[Depends(require_role(["gestor"]))])
+    
+    retorna HTTP 403 ou Usuario logado
+    """
+    def role_checker(current_user: UserPublic = Depends(get_current_user)):
+        if current_user.papel not in allowed_roles:
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail="Você não tem permissão para acessar este recurso."
+            )
+        return current_user
+    
+    return role_checker
+

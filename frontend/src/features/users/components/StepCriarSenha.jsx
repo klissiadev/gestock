@@ -41,7 +41,7 @@ export default function StepCriarSenha({
     if (!senhaValida) return;
 
     if (mode === "register") {
-      const result = await register(data.nome, data.email, data.password);
+      const result = await register(data.nome, data.email, data.password, data.papel);
       if (result.success) onNext();
     }
     else if (mode === "recovery") {
