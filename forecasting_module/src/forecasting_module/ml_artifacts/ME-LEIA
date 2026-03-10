@@ -1,0 +1,9 @@
+Aqui é onde armazena os arquivos do modelo TFT treinado
+
+pelo que eu entendi, eu preciso do:
+-> O modelo treinado salvo (em pt?)
+-> O transformador matemático
+
+ficaria algo como:
+- tft_gestock.pt
+- scaler.pkl
