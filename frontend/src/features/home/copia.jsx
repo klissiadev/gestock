@@ -1,4 +1,4 @@
-// frontend\src\features\home\HomePage.jsx
+// frontend/src/features/home/HomePage.jsx
 import { Box } from "@mui/material";
 import { useEffect, useState } from "react";
 
@@ -6,8 +6,9 @@ import CardStock from "./components/CardStock";
 import SalesLineChart from "./components/SalesLineChart";
 import TopSalesChart from "./components/TopSalesChart";
 import CriticalItemsCard from "./components/CriticalItensCard";
-import { useHeader } from "../../HeaderContext";
+import FinancialBarChart from "./components/FinancialBarChart"; 
 
+import { useHeader } from "../../HeaderContext";
 
 import {
   getTotalStock,
@@ -15,6 +16,7 @@ import {
   getCriticalProducts,
   getSalesByMonth,
   getTopSellingProductsByMonth,
+  getFinancialKpisByYear, 
 } from "../../api/analyticsApi";
 
 function formatMonthFromDate(dateString) {
@@ -37,19 +39,21 @@ function getMonthName(monthNumber) {
   return months[monthNumber - 1] ?? "";
 }
 
-
-export default function HomePage2() {
+export default function HomePage() {
   const [STOCK_CARDS, setStockCards] = useState([]);
   const [SALES_BY_MONTH, setSalesByMonth] = useState([]);
-  const [STOCK_BY_TYPE, setStockByType] = useState([]);
   const [TOP_SALES, setTopSales] = useState([]);
   const [EXPIRING_ITEMS, setExpiringItems] = useState([]);
+  const [FINANCIAL_DATA, setFinancialData] = useState([]);
+
   const { setHeaderConfig } = useHeader();
 
   const [year, setYear] = useState(2026);
   const [month, setMonth] = useState(5);
 
-
+  // =============================
+  // HEADER CONFIG
+  // =============================
   useEffect(() => {
     setHeaderConfig({
       variant: "home",
@@ -65,8 +69,9 @@ export default function HomePage2() {
     };
   }, [year, month]);
 
-
-
+  // =============================
+  // LOAD DASHBOARD DATA
+  // =============================
   useEffect(() => {
     async function loadData() {
       try {
@@ -76,21 +81,19 @@ export default function HomePage2() {
           criticalProductsRes,
           salesByMonthRes,
           topSellingRes,
+          financialRes, // 👈 NOVO
         ] = await Promise.all([
           getTotalStock(),
           getStockByType(),
           getCriticalProducts(),
           getSalesByMonth(year),
           getTopSellingProductsByMonth(year, month),
+          getFinancialKpisByYear(year), // 👈 NOVO
         ]);
 
-        console.log("totalStockRes", totalStockRes);
-        console.log("stockByTypeRes", stockByTypeRes);
-        console.log("salesByMonthRes", salesByMonthRes);
-        console.log("topSellingRes", topSellingRes);
-        console.log("criticalProductsRes", criticalProductsRes);
-
-        // CARDS
+        // =============================
+        // CARDS DE ESTOQUE
+        // =============================
         const cards = [
           {
             title: "Estoque total",
@@ -108,7 +111,9 @@ export default function HomePage2() {
 
         setStockCards(cards);
 
-        // VENDAS POR MÊS
+        // =============================
+        // VENDAS (QUANTIDADE)
+        // =============================
         const salesFormatted = salesByMonthRes.map((m) => ({
           month: formatMonthFromDate(m.mes),
           value: m.total_vendido,
@@ -116,15 +121,20 @@ export default function HomePage2() {
 
         setSalesByMonth(salesFormatted);
 
-        // ESTOQUE POR TIPO (baixo estoque)
-        const stockFormatted = stockByTypeRes.map((item) => ({
-          label: item.tipo,
-          value: item.estoque_total ?? 0,
+        // =============================
+        // FINANCEIRO (COMPRAS x VENDAS)
+        // =============================
+        const financialFormatted = financialRes.map((m) => ({
+          month: formatMonthFromDate(m.mes),
+          compras: m.valor_compras ?? 0,
+          vendas: m.valor_vendas ?? 0,
         }));
 
-        setStockByType(stockFormatted);
+        setFinancialData(financialFormatted);
 
+        // =============================
         // TOP VENDAS
+        // =============================
         const topFormatted = topSellingRes.map((p) => ({
           product: p.nome,
           total: p.total_vendido,
@@ -132,7 +142,9 @@ export default function HomePage2() {
 
         setTopSales(topFormatted);
 
+        // =============================
         // PRODUTOS CRÍTICOS
+        // =============================
         const criticalFormatted = criticalProductsRes.map((p) => ({
           product: p.nome,
           quantity: p.estoque_atual,
@@ -141,6 +153,7 @@ export default function HomePage2() {
         }));
 
         setExpiringItems(criticalFormatted);
+
       } catch (error) {
         console.error("Erro ao carregar dashboard:", error);
       }
@@ -150,14 +163,19 @@ export default function HomePage2() {
   }, [year, month]);
 
   return (
-    <Box sx={{ width: "100%", p: 1 , display: "flex", flexDirection:"column", gap: 2,}}>
-      <Box
-        sx={{
-          display:"flex",
-          flexDirection:"row",
-          gap: 2,
-        }}
-      >
+    <Box
+      sx={{
+        width: "100%",
+        p: 1,
+        display: "flex",
+        flexDirection: "column",
+        gap: 2,
+      }}
+    >
+      {/* ================================= */}
+      {/* BLOCO SUPERIOR */}
+      {/* ================================= */}
+      <Box sx={{ display: "flex", gap: 2 }}>
         <Box
           sx={{
             width: "45%",
@@ -170,22 +188,32 @@ export default function HomePage2() {
             <CardStock key={index} {...card} />
           ))}
         </Box>
-        <Box sx={{ mt: 2, width:"55%"}}>
+
+        <Box sx={{ width: "55%" }}>
           <SalesLineChart salesByMonth={SALES_BY_MONTH} />
         </Box>
       </Box>
-      <Box
-        sx={{
-          display:"flex",
-          flexDirection:"row",
-          gap: 2,
-        }}
-      >
-        <Box width={"45%"}>
-          <CriticalItemsCard criticalItems={EXPIRING_ITEMS}/>
+
+      {/* ================================= */}
+      {/* FINANCEIRO */}
+      {/* ================================= */}
+      <Box sx={{ width: "100%" }}>
+        <FinancialBarChart data={FINANCIAL_DATA} />
+      </Box>
+
+      {/* ================================= */}
+      {/* BLOCO INFERIOR */}
+      {/* ================================= */}
+      <Box sx={{ display: "flex", gap: 2 }}>
+        <Box width="45%">
+          <CriticalItemsCard criticalItems={EXPIRING_ITEMS} />
         </Box>
-        <Box width={"55%"}>
-          <TopSalesChart topSales={TOP_SALES} period={getMonthName(month)}/>
+
+        <Box width="55%">
+          <TopSalesChart
+            topSales={TOP_SALES}
+            period={getMonthName(month)}
+          />
         </Box>
       </Box>
     </Box>

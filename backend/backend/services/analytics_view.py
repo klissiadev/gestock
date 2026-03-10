@@ -58,10 +58,12 @@ class AnalyticsService:
             "produtos_vencidos": vencidos["count"]
         }
 
+    '''
+
     # =====================================================
     # KPIs FINANCEIROS
     # =====================================================
-
+    
     def get_financial_kpis_por_mes(self, start: date, end: date):
         return self.repo.execute_query("""
             SELECT
@@ -75,9 +77,6 @@ class AnalyticsService:
             GROUP BY DATE_TRUNC('month', data_evento)
             ORDER BY mes
         """, (start, end))
-
-    
-    '''
 
     # =====================================================
     # ESTOQUE TOTAL (TODOS OS PRODUTOS)
