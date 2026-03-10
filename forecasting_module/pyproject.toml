@@ -1,0 +1,18 @@
+[project]
+name = "forecasting-module"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+authors = [
+    { name = "Thais Carolina Braga de Magalhães", email = "tcbdma.snf24@uea.edu.br" }
+]
+requires-python = ">=3.11"
+dependencies = [
+    "darts>=0.42.1",
+    "psycopg[binary]>=3.3.3",
+    "python-dotenv>=1.2.2",
+]
+
+[build-system]
+requires = ["uv_build>=0.9.22,<0.10.0"]
+build-backend = "uv_build"
