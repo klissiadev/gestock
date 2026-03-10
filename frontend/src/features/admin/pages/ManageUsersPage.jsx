@@ -10,7 +10,7 @@ import PersonOutlineIcon from "@mui/icons-material/PersonOutline";
 import EditSvg from "../../../assets/icon/iconEdit.svg?react";
 import DeleteSvg from "../../../assets/icon/iconDelete.svg?react";
 
-import { fetchUser } from '../services/fetchImportLogs';
+import { fetchUser, deleteUser } from '../services/fetchImportLogs';
 
 const UsersPage = () => {
   const { setHeaderConfig } = useHeader();
@@ -113,16 +113,21 @@ const UsersPage = () => {
 
 
   const actions = [
+    /* 
+    
     {
       icon: <EditSvg width={18} height={18} />,
       onClick: (row) => {
         console.log("Editar usuário:", row);
       },
     },
+
+    */
     {
       icon: <DeleteSvg width={18} height={18} />,
       onClick: (row) => {
         console.log("Excluir usuário:", row);
+        deleteUser(row.id);
       },
     },
   ];

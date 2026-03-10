@@ -72,3 +72,16 @@ def top_selling_products(
     service: AnalyticsService = Depends(get_service)
 ):
     return service.get_top_selling_products_by_month(year, month, limit)
+
+# =====================================================
+# KPIs FINANCEIROS POR PERÍODO
+# =====================================================
+
+@router.get("/financial-kpis-by-year")
+def financial_kpis_by_year(
+    year: int = Query(...),
+    service: AnalyticsService = Depends(get_service)
+):
+    start = date(year, 1, 1)
+    end = date(year, 12, 31)
+    return service.get_financial_kpis_por_mes(start, end)

@@ -1,16 +1,27 @@
-const api_url = import.meta.env.VITE_API_URL;
+const BASE_URL = "http://127.0.0.1:8000";
 
-export const fetchHealth = async () => {
+async function apiFetch(endpoint, options = {}) {
+  const token = localStorage.getItem('token');
+  const headers = {
+    "Content-Type": "application/json",
+    ...(token && { "Authorization": `Bearer ${token}` }),
+    ...options.headers,
+  };
 
-    const response = await fetch(`http://127.0.0.1:8000/admin/health`, {
-        method: 'GET',
-        headers: {
-            'Content-Type': 'application/json'
-        }
-    });
+  const response = await fetch(`${BASE_URL}${endpoint}`, { ...options, headers });
 
-    if (!response.ok) throw new Error("Não foi possível buscar informações de saúde do sistema: Tente novamente mais tarde");
+  if (!response.ok) {
+    if (response.status === 401) {
+      localStorage.removeItem('token');
+      window.location.href = "/";
 
-    const dados = await response.json();
-    return dados;
-}
+      throw new Error("Sessão expirada");
+    }
+    throw new Error(`Erro na API: ${response.statusText}`);
+  }
+  return response;
+};
+
+export const fetchHealth = () => apiFetch("/admin/health").then(r => r.json());
+export const fetchHardware = () => apiFetch("/admin/hardware").then(r => r.json());
+

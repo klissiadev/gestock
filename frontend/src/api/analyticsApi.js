@@ -52,3 +52,15 @@ export async function getTopSellingProductsByMonth(
   if (!res.ok) throw new Error("Erro ao buscar top produtos vendidos");
   return res.json();
 }
+
+
+// =====================================================
+// KPIs FINANCEIROS (COMPRAS x VENDAS POR ANO)
+// =====================================================
+export async function getFinancialKpisByYear(year) {
+  const res = await fetch(
+    `${BASE_URL}/financial-kpis-by-year?year=${year}`
+  );
+  if (!res.ok) throw new Error("Erro ao buscar KPIs financeiros");
+  return res.json();
+}
