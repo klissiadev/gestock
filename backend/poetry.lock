@@ -3718,6 +3718,7 @@ files = []
 develop = true
 
 [package.dependencies]
+auth-module = "*"
 fastapi = {version = ">=0.123.5,<0.124.0", extras = ["standard"]}
 psycopg = {version = ">=3.3.3", extras = ["binary", "pool"]}
 python-dotenv = ">=1.2.2"
@@ -5426,4 +5427,4 @@ cffi = ["cffi (>=1.17,<2.0) ; platform_python_implementation != \"PyPy\" and pyt
 [metadata]
 lock-version = "2.1"
 python-versions = ">=3.11,<4.0"
-content-hash = "344aa2a1fd73f333cc653fced1d73f1a6083774300eca5150faf12f21e05bd70"
+content-hash = "0241ab9197e83246f1db05e59f64933b53a43ece886513a7d6ac080e796e6ade"
