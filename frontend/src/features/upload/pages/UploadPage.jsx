@@ -18,16 +18,25 @@ export default function UploadPage() {
     }
 
     setLoading(true);
-    const result = await uploadFile(file, tipo);
-    setResponse(result);
-    setLoading(false);
+
+    try {
+      const result = await uploadFile(file, tipo);
+      setResponse(result);
+    } catch (err) {
+      console.error(err);
+      toast.error("Falha ao processar a importação");
+    } finally {
+      setLoading(false);
+    }
   };
+
 
   const handleMail = async () => {
     try {
       handleMailTrigger();
       toast.success("E-mails agendados para envio");
     } catch (error) {
+      console.error(error);
       toast.error("Erro ao agendar envio de e-mails");
     }
   };

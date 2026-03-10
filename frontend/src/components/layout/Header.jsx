@@ -1,78 +1,129 @@
-// frontend\src\components\layout\Header.jsx
-import React from 'react'
-import { Box, IconButton, Button, Typography} from "@mui/material";
+import { Box, IconButton, Button, Typography, Badge } from "@mui/material";
+import { useNavigate } from "react-router-dom";
+import {  } from "@mui/material";
+import { useEffect, useState } from "react";
+import { fetchUnreadNotifications } from "../../features/notifications/services/notificationApi";
 import PerfilSvg from "../../assets/icon/iconPerfil.svg?react";
 import NotificationSvg from "../../assets/icon/iconNotify.svg?react";
+import AddUserSvg from "../../assets/icon/iconAddUser.svg?react";
 import AddSvg from "../../assets/icon/iconAdd.svg?react";
+
 import PeriodSelector from "../ui/PeriodSelector";
 import { useHeader } from "../../HeaderContext";
-import { useAuth } from '../../AuthContext';
+import { useAuth } from "../../AuthContext";
 
 const Header = () => {
-    const { user, logout } = useAuth();
-    const nome = user.nome;
-    const { headerConfig } = useHeader();
+  const { user } = useAuth();
+  const { headerConfig } = useHeader();
+  const navigate = useNavigate();
 
-    return (
-        <Box 
-            sx={{
-                bgcolor: 'background.paper',
-                borderRadius: 3,
-                p: 1,
-                ml: 2.5  ,
-                display: "flex",
-                flex: 1,
-                alignItems:"center",
-                justifyContent:"space-between"
-            }}
+  const nome = user?.nome ?? "";
+
+  const [hasUnread, setHasUnread] = useState(false);
+
+  useEffect(() => {
+    async function checkUnread() {
+      try {
+        const data = await fetchUnreadNotifications(1);
+        setHasUnread(data.length > 0);
+      } catch (err) {
+        console.error(err);
+      }
+    }
+
+    checkUnread();
+
+    const interval = setInterval(checkUnread, 30000);
+
+    return () => clearInterval(interval);
+  }, []);
+
+  const getActionButton = () => {
+    switch (headerConfig.variant) {
+      case "home":
+        return (
+          <PeriodSelector
+            value={headerConfig.period}
+            onChange={headerConfig.onPeriodChange}
+          />
+        );
+
+      case "users":
+        return (
+          <Button
+            variant="contained"
+            startIcon={<AddUserSvg width={18} height={18} />}
+            sx={buttonStyle}
+            onClick={() => navigate("/register-user")}
+          >
+            Adicionar usuário
+          </Button>
+        );
+
+      default:
+        return (
+          <></>
+        );
+    }
+  };
+
+  return (
+    <Box sx={containerStyle}>
+      {/* Perfil */}
+      <Box display="flex" alignItems="center" gap={2} ml={1}>
+        <IconButton sx={iconStyle}>
+          <PerfilSvg width={18} height={18} />
+        </IconButton>
+        <Typography fontSize={18}>{nome}</Typography>
+      </Box>
+
+      {/* Ações */}
+      <Box display="flex" alignItems="center" gap={2} mr={1}>
+        {getActionButton()}
+
+        <IconButton
+          sx={iconStyle}
+          onClick={() => {
+            navigate("/notifications");
+            setHasUnread(false);
+          }}
         >
-            <Box display="flex" alignItems="center" justifyContent="space-between" gap={2} ml={1}>
-                <IconButton
-                    sx={{
-                        borderRadius: '12px',
-                        border: '1.5px solid',
-                        borderColor: 'common.black'
-                    }}
-                    onClick={() => alert("perfil aqui")}
-                >
-                    <PerfilSvg width={18} height={18}/>
-                </IconButton>
-                <Typography fontSize={18} >{nome}</Typography>
-            </Box>
-            <Box display="flex" alignItems="center" justifyContent="space-between" gap={2} mr={1}>
-                {headerConfig.variant === "home" ? (
-                    <PeriodSelector
-                        value={headerConfig.period}
-                        onChange={headerConfig.onPeriodChange}
-                    />
-                    ) : (
-                    <Button 
-                        variant="contained"
-                        color="primary"
-                        startIcon={<AddSvg width={18} height={18} />}
-                        sx={{ 
-                        textTransform: 'none',
-                        borderRadius: '12px',
-                        border: '1.5px solid',
-                        borderColor: 'common.black',
-                        fontSize: 14
-                        }}
-                    >
-                        Nova requisição
-                    </Button>
-                )}
-                <IconButton
-                    sx={{
-                        borderRadius: '12px',
-                        border: '1.5px solid',
-                        borderColor: 'common.black'
-                    }}
-                >
-                    <NotificationSvg width={18} height={18}/>
-                </IconButton>
-            </Box>
-        </Box>
-    )
-}
+          <Badge
+            color="error"
+            variant="dot"
+            invisible={!hasUnread}
+          >
+            <NotificationSvg width={18} height={18} />
+          </Badge>
+        </IconButton>
+      </Box>
+    </Box>
+  );
+};
 
-export default Header
+const containerStyle = {
+  bgcolor: "background.paper",
+  borderRadius: 3,
+  p: 1,
+  ml: 2.5,
+  display: "flex",
+  flex: 1,
+  alignItems: "center",
+  justifyContent: "space-between",
+};
+
+const iconStyle = {
+  borderRadius: "12px",
+  border: "1.5px solid",
+  borderColor: "common.black",
+};
+
+const buttonStyle = {
+  textTransform: "none",
+  borderRadius: "12px",
+  border: "1.5px solid",
+  borderColor: "common.black",
+  fontSize: 14,
+};
+
+export default Header;

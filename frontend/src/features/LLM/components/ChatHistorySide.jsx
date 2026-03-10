@@ -64,8 +64,7 @@ const ChatHistorySide = ({
             color="primary"
             startIcon={<AddSvg width={18} height={18} />}
             onClick={() => {
-              setMessages([]);
-              onCreateSession();
+              onCreateSession(); 
               onClose();
             }}
             sx={{
