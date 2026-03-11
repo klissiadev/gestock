@@ -7,7 +7,7 @@ import psycopg
 from forecasting_module.schemas.models import FieldSaida
 from forecasting_module.db.database import Repository
 
-def preparar_dados_para_tft(movimentacoes: List[FieldSaida], data_inicio: date, data_fim: date, produto_id: int) -> pd.DataFrame:
+def _preparar_dados_para_tft(movimentacoes: List[FieldSaida], data_inicio: date, data_fim: date, produto_id: int) -> pd.DataFrame:
     """
     Recebe os dados validados do banco, preenche os dias sem vendas e 
     formata as colunas exatamente como o modelo TFT espera.
@@ -58,7 +58,7 @@ def preparar_dados_para_tft(movimentacoes: List[FieldSaida], data_inicio: date, 
 
 
 
-def gerar_previsao_estoque(conexao, produto_id: int, tft_days: int=112):
+def formatacao_dados(conexao, produto_id: int, tft_days: int=60):
     """
     Orquestra o fluxo completo: Busca no banco, formata e mostra o dado formatado (testes)
     """
@@ -72,7 +72,7 @@ def gerar_previsao_estoque(conexao, produto_id: int, tft_days: int=112):
     movimentacoes_validadas = repo.buscar_historico_vendas(produto_id, data_inicio)
 
     # Formatar para o Pandas
-    df_formatado = preparar_dados_para_tft(
+    df_formatado = _preparar_dados_para_tft(
         movimentacoes=movimentacoes_validadas,
         data_inicio=data_inicio,
         data_fim=data_fim - timedelta(days=1), # Até ontem
@@ -101,14 +101,14 @@ if __name__ == '__main__':
     try:
         with psycopg.connect(STRING_CONEXAO) as conn:
             print("Conectado! Formatando dados...")
-            resultado_df = gerar_previsao_estoque(conexao=conn, produto_id=32)
+            resultado_df = formatacao_dados(conexao=conn, produto_id=32)
             
-            print("\n--- PRIMEIRAS LINHAS ---")
+            print("\n--- 5 PRIMEIRAS LINHAS ---")
             print(resultado_df.head(5))
-            print("\n--- ÚLTIMAS LINHAS ---")
-            print(resultado_df.tail(30))
+            print("\n--- 5 ÚLTIMAS LINHAS ---")
+            print(resultado_df.tail(5))
             
-            print(f"\nTotal de dias formatados: {len(resultado_df)} (Deve ser exatos 112!)")
+            print(f"\nTotal de dias formatados: {len(resultado_df)}")
             
     except Exception as e:
         print(f"Erro no teste: {e}")
