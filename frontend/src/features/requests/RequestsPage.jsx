@@ -1,17 +1,41 @@
 import { Box } from "@mui/material";
+import { useState } from "react";
 
 import RequestMainPanel from "./components/RequestMainPanel";
 import RequestCartPanel from "./components/RequestCartPanel";
+import RequestSuccessCard from "./components/RequestSuccessCard";
 
 const RequestPage = () => {
 
-  const productsMock = [
-    { id: 1, name: "Nome produto", description: "Descrição do produto", qty: 2, priority: false },
-    { id: 2, name: "Nome produto", description: "Descrição do produto", qty: 5, priority: true },
-    { id: 3, name: "Nome produto", description: "Descrição do produto", qty: 10, priority: true },
-    { id: 4, name: "Nome produto", description: "Descrição do produto", qty: 150, priority: false },
-    { id: 5, name: "Nome produto", description: "Descrição do produto", qty: 2, priority: true }
+  const [products, setProducts] = useState([]);
+  const [requestSent, setRequestSent] = useState(false);
+
+  const suggestionsMock = [
+    { id: 1, name: "Arroz", description: "Arroz branco tipo 1", qty: 1, priority: false },
+    { id: 2, name: "Feijão", description: "Feijão carioca", qty: 1, priority: false },
+    { id: 3, name: "Macarrão", description: "Macarrão espaguete", qty: 1, priority: false },
+    { id: 4, name: "Açúcar", description: "Açúcar refinado", qty: 1, priority: false },
   ];
+
+  const handleSelectSuggestion = (product) => {
+    setProducts((prev) => {
+      if (prev.some((p) => p.id === product.id)) return prev;
+      return [...prev, product];
+    });
+  };
+
+  if (requestSent) {
+    return (
+      <Box
+        height="85vh"
+        display="flex"
+        alignItems="center"
+        justifyContent="center"
+      >
+        <RequestSuccessCard />
+      </Box>
+    );
+  }
 
   return (
     <Box
@@ -22,8 +46,16 @@ const RequestPage = () => {
         width: "100%",
       }}
     >
-      <RequestMainPanel />
-      <RequestCartPanel productsMock={productsMock} />
+      <RequestMainPanel
+        suggestions={suggestionsMock}
+        onSelectSuggestion={handleSelectSuggestion}
+      />
+
+      <RequestCartPanel
+        products={products}
+        setProducts={setProducts}
+        onSubmit={() => setRequestSent(true)}
+      />
     </Box>
   );
 };
