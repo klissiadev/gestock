@@ -1,3 +1,4 @@
+//frontend\src\features\stock\constants\productConstant.js
 // Nome dos fields
 export const PRODUCT_HEADER_NAMES = {
     id: "ID",

@@ -1,28 +1,16 @@
-import { Box, Typography, Divider } from "@mui/material";
-import { useState, useMemo } from "react";
+import { Box, Typography, Divider, CircularProgress } from "@mui/material";
+import { useState } from "react";
 
 import SearchBar from "../../stock/components/SearchBar";
 import PurchaseSuggestions from "./PurchaseSuggestions";
 import SearchProductList from "./SearchProductList";
+import { useProductSearch } from "../hooks/useProductSearch";
 
 const RequestMainPanel = ({ suggestions, onSelectSuggestion }) => {
+
   const [search, setSearch] = useState("");
 
-  // simulação de base de produtos
-  const productsMock = [
-    { id: 1, name: "Arroz", description: "Arroz branco tipo 1", qty: 1, priority: false },
-    { id: 2, name: "Feijão", description: "Feijão carioca", qty: 1, priority: false },
-    { id: 3, name: "Macarrão", description: "Macarrão espaguete", qty: 1, priority: false },
-    { id: 4, name: "Açúcar", description: "Açúcar refinado", qty: 1, priority: false },
-  ];
-
-  const filteredProducts = useMemo(() => {
-    if (!search) return [];
-
-    return productsMock.filter((p) =>
-      p.name.toLowerCase().includes(search.toLowerCase())
-    );
-  }, [search]);
+  const { products, loading } = useProductSearch(search);
 
   return (
     <Box
@@ -35,17 +23,12 @@ const RequestMainPanel = ({ suggestions, onSelectSuggestion }) => {
         flexDirection: "column",
       }}
     >
-      <Typography
-        textAlign="center"
-        fontSize={20}
-        fontWeight={500}
-      >
+      <Typography textAlign="center" fontSize={20} fontWeight={500}>
         Nova Requisição
       </Typography>
 
       <Divider sx={{ my: 2 }} />
 
-      {/* BUSCA */}
       <Box
         sx={{
           display: "flex",
@@ -61,13 +44,32 @@ const RequestMainPanel = ({ suggestions, onSelectSuggestion }) => {
         />
       </Box>
 
-      {/* RESULTADOS OU SUGESTÕES */}
-      {filteredProducts.length > 0 ? (
+      {/* LOADING */}
+      {loading && (
+        <Box display="flex" justifyContent="center" mt={4}>
+          <CircularProgress size={28} />
+        </Box>
+      )}
+
+      {/* RESULTADOS */}
+      {!loading && search && products.length > 0 && (
         <SearchProductList
-          products={filteredProducts}
+          products={products}
           onRequestProduct={onSelectSuggestion}
         />
-      ) : (
+      )}
+
+      {/* NENHUM RESULTADO */}
+      {!loading && search && products.length === 0 && (
+        <Box mt={4} textAlign="center">
+          <Typography color="text.secondary" fontSize={14}>
+            Produto não encontrado
+          </Typography>
+        </Box>
+      )}
+
+      {/* SUGESTÕES */}
+      {!search && (
         <PurchaseSuggestions
           suggestions={suggestions}
           onSelectSuggestion={onSelectSuggestion}

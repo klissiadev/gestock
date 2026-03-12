@@ -43,7 +43,7 @@ const ProductRequestItem = ({
               cursor: "default",
             }}
           >
-            {product.description}
+            {product.type}
           </Typography>
         </Tooltip>
       </Box>
