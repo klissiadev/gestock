@@ -1,3 +1,4 @@
+//frontend\src\features\stock\hooks\useProductTable.js
 import { useState, useEffect, useCallback } from 'react';
 import { INITIAL_FILTERS, PRODUCT_HEADER_NAMES } from '../constants/productConstant';
 import { fetchProdutos } from '../services/produtctService';

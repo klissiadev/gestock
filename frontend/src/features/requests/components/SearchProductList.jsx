@@ -9,7 +9,7 @@ const SearchProductList = ({ products, onRequestProduct }) => {
         display: "flex",
         flexDirection: "column",
         gap: 1.5,
-        maxHeight: 340, 
+        maxHeight: 600, 
         overflowY: "auto", 
       }}
     >
@@ -27,7 +27,7 @@ const SearchProductList = ({ products, onRequestProduct }) => {
         >
           <Box>
             <Typography fontSize={14} fontWeight={500}>
-              {product.name}
+              {product.nome}
             </Typography>
 
             <Typography
@@ -40,13 +40,21 @@ const SearchProductList = ({ products, onRequestProduct }) => {
                 whiteSpace: "nowrap",
               }}
             >
-              {product.description}
+              {product.tipo}
             </Typography>
           </Box>
           <Box>
           <Button
             variant="contained"
-            onClick={() => onRequestProduct(product)}
+            onClick={() =>
+              onRequestProduct({
+                id: product.id,
+                name: product.nome,
+                type: product.tipo,
+                qty: 1,
+                priority: false,
+              })
+            }
             sx={{
                 borderRadius: "6px",
                 textTransform: "none",

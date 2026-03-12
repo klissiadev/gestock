@@ -11,10 +11,10 @@ const RequestPage = () => {
   const [requestSent, setRequestSent] = useState(false);
 
   const suggestionsMock = [
-    { id: 1, name: "Arroz", description: "Arroz branco tipo 1", qty: 1, priority: false },
-    { id: 2, name: "Feijão", description: "Feijão carioca", qty: 1, priority: false },
-    { id: 3, name: "Macarrão", description: "Macarrão espaguete", qty: 1, priority: false },
-    { id: 4, name: "Açúcar", description: "Açúcar refinado", qty: 1, priority: false },
+    { id: 1, name: "Arroz", type: "Arroz branco tipo 1", qty: 1, priority: false },
+    { id: 2, name: "Feijão", type: "Feijão carioca", qty: 1, priority: false },
+    { id: 3, name: "Macarrão", type: "Macarrão espaguete", qty: 1, priority: false },
+    { id: 4, name: "Açúcar", type: "Açúcar refinado", qty: 1, priority: false },
   ];
 
   const handleSelectSuggestion = (product) => {
