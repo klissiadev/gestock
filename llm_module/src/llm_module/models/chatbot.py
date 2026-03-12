@@ -11,17 +11,21 @@ from langchain.agents.middleware import SummarizationMiddleware
 from langgraph.checkpoint.postgres.aio import AsyncPostgresSaver
 from psycopg_pool import AsyncConnectionPool
 from psycopg.rows import dict_row
-from langchain_core.messages import SystemMessage, HumanMessage
+from langchain_core.messages import SystemMessage, HumanMessage, AIMessageChunk
 
 from llm_module.tools.sql_tools import (
-    tool_buscar_produto,
-    tool_listar_produtos,
-    tool_buscar_movimentacao,
-    tool_calcular_validade,
-    tool_listar_movimentacoes,
-    buscar_produtos_a_vencer,
-    buscar_produtos_abaixo_estoque,
+    consultar_produtos,
+    consultar_movimentacoes,
+    relatorio_alertas_estoque,
+    ferramenta_sql_livre
 )
+
+from llm_module.tools.middlewares import (
+    limitador_chamadas,
+    editor_contexto
+)
+
+from llm_module.utils.config import Config
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.WARNING)
@@ -46,10 +50,8 @@ class ChatBotService:
         self.summary_model = ChatOllama(model="gemma3:270m", temperature=0.0)
         
         self.tools = [
-            buscar_produtos_a_vencer, tool_buscar_movimentacao, 
-            tool_buscar_produto, tool_listar_produtos, 
-            tool_calcular_validade, tool_listar_movimentacoes, 
-            buscar_produtos_abaixo_estoque
+            consultar_produtos, consultar_movimentacoes,
+            relatorio_alertas_estoque, ferramenta_sql_livre
         ]
         
         self.agent = None
@@ -71,10 +73,11 @@ class ChatBotService:
         
     def _setup_middleware(self) -> List[SummarizationMiddleware]:
         return [
+            limitador_chamadas, editor_contexto,
             SummarizationMiddleware(
                 model=self.summary_model,
                 trigger=("tokens", 5000),
-                keep=("messages", 10)
+                keep=("messages", 5)
             )
         ]
         

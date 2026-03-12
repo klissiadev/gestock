@@ -6,15 +6,16 @@ import unicodedata
 # Instância única do cliente de banco (ok para uso atual)
 database = PostgresClient()
 
-def _wrap_rows(rows: list[dict]) -> dict:
-    """
-    Padroniza o retorno para consumo da LLM.
-    """
+def _wrap_rows(rows: list[dict], limit: int = 20) -> dict:
+    """Padroniza o retorno e avisa a LLM se os resultados foram truncados."""
+    total_retornado = len(rows)
     return {
-        "total": len(rows),
+        "total_encontrado_na_busca": total_retornado,
         "items": rows,
-        "empty": len(rows) == 0
+        "aviso": f"Mostrando apenas os primeiros {limit} resultados para economizar memória. Peça para o usuário ser mais específico se o que ele procura não estiver aqui." if total_retornado >= limit else "Todos os resultados mostrados.",
+        "empty": total_retornado == 0
     }
+    
     
 def _normalizar_variacoes(termo: str) -> list[str]:
     def strip_accents(s):
@@ -40,218 +41,143 @@ def _normalizar_variacoes(termo: str) -> list[str]:
     return sorted(variacoes)
 
 
-@tool
-def tool_buscar_produto(termo: str) -> dict:
-    """
-    Busca produtos no sistema a partir de um termo livre do usuário.
-    A normalização e variações são tratadas internamente.
-    Retorna o produto com os campos: nome_produto, descricao, estoque_atual, estoque_minimo, ativo, data_validade
-    """
-    
-    where_ilike = " OR ".join(
-        f"nome_produto ILIKE '%{v}%'"
-        for v in _normalizar_variacoes(termo)
-    )
-
-    query = f"""
-        SELECT
-            nome_produto,
-            descricao,
-            estoque_atual,
-            estoque_minimo,
-            ativo,
-            data_validade
-        FROM app_core.v_produtos
-        WHERE {where_ilike}
-        ORDER BY nome_produto;
-    """
-
-    return _wrap_rows(database.fetch_all(query=query))
 
 
 @tool
-def tool_buscar_movimentacao(termo: str, tipo: str = None) -> dict:
+def consultar_produtos(termo_busca: Optional[str] = None, buscar_na_descricao: bool = False, apenas_ativos: bool = True) -> dict:
     """
-    Busca movimentações (entrada e saída) a partir de um termo livre do usuário.
-    A normalização e variações são tratadas internamente.
-    Valor Padrao de tipo: None -> busca tanto entradas quanto saídas
-    Retorna o produto com os campos: nome_produto, quantidade, data_movimentacao, entidade, tipo_movimentacao, adicionado_em
+    SUPER FERRAMENTA DE PRODUTOS. Use SEMPRE que precisar buscar, listar ou saber informações de produtos no estoque.
+    - Se o usuário quiser ver todos os produtos, não passe o 'termo_busca'.
+    - Se o usuário procurar por um nome específico, passe em 'termo_busca'.
+    - Se a busca pelo nome falhar, tente novamente passando 'buscar_na_descricao=True'.
     """
-    
-    # Condição para o termo
     where_clauses = []
-    if termo:
-        where_ilike = " OR ".join(
-            f"nome_produto ILIKE '%{v}%'"
-            for v in _normalizar_variacoes(termo)
-        )
+    
+    if apenas_ativos:
+        where_clauses.append("ativo = true")
+        
+    if termo_busca:
+        coluna = "descricao" if buscar_na_descricao else "nome_produto"
+        where_ilike = " OR ".join(f"{coluna} ILIKE '%{v}%'" for v in _normalizar_variacoes(termo_busca))
         where_clauses.append(f"({where_ilike})")
-    
-    # Condição para o tipo de movimentação
-    if tipo in ("entrada", "saida"):
-        where_clauses.append(f"tipo_movimentacao = '{tipo}'")
-    
-    # Junta as condições com AND, ou deixa vazio
-    where_sql = ""
-    if where_clauses:
-        where_sql = "WHERE " + " AND ".join(where_clauses)
-    
+        
+    where_sql = "WHERE " + " AND ".join(where_clauses) if where_clauses else ""
+
+    # LIMIT 20 SALVA SUA JANELA DE CONTEXTO!
     query = f"""
-        SELECT
-            nome_produto,
-            quantidade,
-            data_movimentacao,
-            entidade,
-            tipo_movimentacao,
-            adicionado_em
-        FROM app_core.v_movimentacao
-        {where_sql}
-        ORDER BY data_movimentacao DESC;
-    """
-
-    rows = database.fetch_all(query=query)
-    return _wrap_rows(rows)
-
-
-
-@tool
-def tool_listar_produtos(apenas_ativos: bool = True) -> dict:
-    """
-    Lista produtos do sistema. Pode filtrar apenas os ativos.
-    Retorna o produto com os campos: nome_produto, descricao, estoque_atual
-    """
-
-    filtro = "WHERE ativo = true" if apenas_ativos else ""
-
-    query = f"""
-        SELECT
-            nome_produto,
-            descricao,
-            estoque_atual
+        SELECT nome_produto, descricao, estoque_atual, estoque_minimo, ativo, data_validade
         FROM app_core.v_produtos
-        {filtro}
-        ORDER BY nome_produto;
+        {where_sql}
+        ORDER BY nome_produto
+        LIMIT 20; 
     """
-
-    return _wrap_rows(database.fetch_all(query=query))
+    return _wrap_rows(database.fetch_all(query=query), limit=20)
 
 
 @tool
-def tool_listar_movimentacoes(tipo: str = None) -> dict:
+def consultar_movimentacoes(
+    produto: Optional[str] = None, 
+    tipo: Optional[str] = None, 
+    data_inicio: Optional[str] = None, 
+    data_fim: Optional[str] = None
+) -> dict:
     """
-    Lista movimentações do sistema. 
-    É possivel filtrar por tipo: 
-    'entrada': apenas movimentaçoes de entrada; 
-    'saida': apenas movimentações de saída;
-    None: Movimentações de ambos os tipos.
-    Retorna o produto com os campos: nome_produto, quantidade, tipo_movimentacao, data_movimentacao
+    SUPER FERRAMENTA DE MOVIMENTAÇÕES. Use para relatórios, histórico de entradas/saídas ou buscar dados de datas específicas.
+    - 'tipo' DEVE ser apenas 'entrada', 'saida' ou null.
+    - 'data_inicio' e 'data_fim' devem ser no formato YYYY-MM-DD.
+    - Se o usuário pedir 'hoje', passe a data atual em ambos.
     """
-
-    filtro = ""
+    where_clauses = []
+    
+    if produto:
+        where_ilike = " OR ".join(f"produto_nome ILIKE '%{v}%'" for v in _normalizar_variacoes(produto))
+        where_clauses.append(f"({where_ilike})")
+        
     if tipo in ("entrada", "saida"):
-        filtro = f"WHERE tipo_movimentacao = '{tipo}'"
+        where_clauses.append(f"tipo_movimento = '{tipo.upper()}'") # Assumindo que no banco fica uppercase
+        
+    if data_inicio:
+        dt_ini = _normalizar_data(data_inicio)
+        if data_fim:
+            dt_fim = _normalizar_data(data_fim)
+            where_clauses.append(f"data_evento::date BETWEEN '{dt_ini}' AND '{dt_fim}'")
+        else:
+            where_clauses.append(f"data_evento::date = '{dt_ini}'")
+
+    where_sql = "WHERE " + " AND ".join(where_clauses) if where_clauses else ""
 
     query = f"""
-        SELECT
-            nome_produto,
-            quantidade,
-            tipo_movimentacao,
-            data_movimentacao
-        FROM app_core.v_movimentacao
-        {filtro}
-        ORDER BY data_movimentacao DESC;
+        SELECT produto_nome, quantidade, data_evento, valor_unitario, parceiro_origem, local_destino, tipo_movimento
+        FROM app_core.mv_movimentacao 
+        {where_sql} 
+        ORDER BY data_evento DESC
+        LIMIT 20;
     """
-
-    return _wrap_rows(database.fetch_all(query=query))
+    return _wrap_rows(database.fetch_all(query=query), limit=20)
 
 
 @tool
-def tool_calcular_validade(data_validade: str) -> str:
+def relatorio_alertas_estoque(tipo_alerta: str = "ambos", data_referencia: Optional[str] = None) -> dict:
     """
-    Calcula o status de validade de um produto.
+    Use para descobrir problemas no estoque: produtos vencendo ou abaixo do mínimo.
+    - 'tipo_alerta': use 'vencimento' (para produtos a vencer), 'estoque_baixo' (para repor estoque), ou 'ambos'.
     """
+    where_clauses = []
+    
+    if tipo_alerta in ("estoque_baixo", "ambos"):
+        where_clauses.append("(estoque_atual <= estoque_minimo)")
+        
+    if tipo_alerta in ("vencimento", "ambos"):
+        data = data_referencia if data_referencia else date.today().isoformat()
+        where_clauses.append(f"(data_validade < '{data}')")
 
-    hoje = date.today()
-    validade = date.fromisoformat(data_validade)
-    dias = (validade - hoje).days
-
-    if dias < 0:
-        return f"Produto vencido há {-dias} dias."
-    elif dias == 0:
-        return "Produto vence hoje."
-    elif dias <= 30:
-        return f"Produto vence em {dias} dias."
-    else:
-        return f"Produto válido. Faltam {dias} dias para o vencimento."
-
-
-@tool
-def buscar_produtos_a_vencer(data: str = None, termo: str = ""):
-    """
-    Busca produtos no sistema que tenham uma data de validade menor do que a variável 'data' 
-    e permite uso de termos de pesquisa, sendo isso opcional.
-    'data' deve estar no padrão YYYY-MM-DD; valor padrão: data atual.
-    Retorna os campos: nome_produto, descricao, estoque_atual, estoque_minimo, ativo, data_validade
-    """
-    # Se data não for informada, usa a data de hoje
-    if data is None:
-        data = date.today().isoformat()
-
-    # Monta cláusula de termos, se fornecido
-    where_ilike = ""
-    if termo.strip():
-        termos = " OR ".join(f"nome_produto ILIKE '%{v}%'" for v in _normalizar_variacoes(termo))
-        where_ilike = f" AND ({termos})"
+    # Junta com OR se for ambos, ou AND se for outra coisa (aqui uma lógica simples usando OR atende bem um painel de alertas)
+    where_sql = "WHERE " + " OR ".join(where_clauses) if where_clauses else ""
 
     query = f"""
-    SELECT
-        nome_produto,
-        descricao,
-        estoque_atual,
-        estoque_minimo,
-        ativo,
-        data_validade
-    FROM app_core.v_produtos
-    WHERE data_validade < '{data}' {where_ilike}
-    ORDER BY data_validade, nome_produto;
+        SELECT nome_produto, descricao, estoque_atual, estoque_minimo, data_validade
+        FROM app_core.v_produtos
+        {where_sql}
+        ORDER BY data_validade ASC, estoque_atual ASC
+        LIMIT 20;
     """
-    
-    rows = database.fetch_all(query=query)
-    return _wrap_rows(rows)
-
-
+    return _wrap_rows(database.fetch_all(query=query), limit=20)
 
 @tool
-def buscar_produtos_abaixo_estoque(termo: str = ""):
+def ferramenta_sql_livre(query_sql: str) -> str | dict:
     """
-    Busca produtos no sistema que estejam abaixo do estoque
-    e permite uso de termos de pesquisa, sendo isso opcional.
-    Retorna os campos: nome_produto, descricao, estoque_atual, estoque_minimo, ativo, data_validade
-    """
-    where_term = ""
-    if termo:
-        termos = " OR ".join(f"nome_produto ILIKE '%{v}%'" for v in _normalizar_variacoes(termo))
-        where_term = f" AND ({termos})"
-
-    query = f"""
-    SELECT
-        nome_produto,
-        descricao,
-        estoque_atual,
-        estoque_minimo,
-        ativo,
-        data_validade
-    FROM app_core.v_produtos
-    WHERE estoque_atual <= estoque_minimo {where_term}
-    ORDER BY nome_produto;
+    ÚLTIMO RECURSO: Use esta ferramenta APENAS se as outras ferramentas não puderem responder à pergunta.
+    Permite executar uma consulta SQL (apenas SELECT) no banco de dados.
+    
+    Tabelas disponíveis:
+    1. app_core.v_produtos (nome_produto, descricao, estoque_atual, estoque_minimo, ativo, data_validade)
+    2. app_core.mv_movimentacao (produto_nome, quantidade, data_evento, valor_unitario, parceiro_origem, local_destino, tipo_movimento)
+    
+    Regras:
+    - Retorne APENAS os dados estritamente necessários.
+    - Sempre prefira usar as outras ferramentas antes desta.
     """
     
-    rows = database.fetch_all(query=query)
-    return _wrap_rows(rows)
-
-
-
-
+    query_upper = query_sql.upper()
+    comandos_proibidos = ["INSERT", "UPDATE", "DELETE", "DROP", "ALTER", "TRUNCATE", "GRANT", "REVOKE"]
     
+    if any(cmd in query_upper for cmd in comandos_proibidos):
+        return "Erro de Segurança: Apenas comandos SELECT são permitidos."
     
+    if not query_upper.strip().startswith("SELECT"):
+        return "Erro: A query deve obrigatoriamente começar com SELECT."
+    
+    if "LIMIT" not in query_upper:
+        # Adicionar um LIMIT pra query
+        query_sql = query_sql.strip().rstrip(";") + " LIMIT 20;"
+        try:
+            resultados = database.fetch_all(query=query_sql)
+            
+            if not resultados:
+                return "A consulta foi executada com sucesso, mas não retornou nenhum resultado."
+            
+            return _wrap_rows(resultados, limit=20)
+        
+        except Exception as e:
+            return f"Erro ao executar a query SQL: {str(e)}. Verifique a sintaxe, os nomes das colunas e tente novamente."
     
