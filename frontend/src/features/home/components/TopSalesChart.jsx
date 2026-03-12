@@ -61,27 +61,27 @@ export default function TopSalesManual({ topSales, period }) {
         borderRadius: "24px",
         px: 4,
         py: 2,
-        height: 440,
+        height: 300,
         width: "100%",
       }}
     >
       <Typography
-        sx={{ fontSize: 20, fontWeight: 500, textAlign: "center", mb: 2, mt:1}}
+        sx={{ fontSize: 18, fontWeight: 500, textAlign: "center", mb: 2}}
       >
         Top vendas - {period}
       </Typography>
 
-      <Box sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
+      <Box sx={{ display: "flex", flexDirection: "column", gap: 1 }}>
         {topSales.map((item) => (
           <Box key={item.product}>
-            <Typography sx={{ fontSize: 12, mb: 1}}>
+            <Typography sx={{ fontSize: 12}}>
               {item.product}
             </Typography>
 
             <SaleTooltip product={item.product} total={item.total}>
               <Box
                 sx={{
-                  height: 20,
+                  height: 16,
                   width: "100%",
                   background: "#9E9E9E",
                   borderRadius: "20px",
@@ -108,7 +108,7 @@ export default function TopSalesManual({ topSales, period }) {
         sx={{
           display: "flex",
           justifyContent: "space-between",
-          mt: 3,
+          mt: 2,
           px: 1,
         }}
       >

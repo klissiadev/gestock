@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { Stack } from "@mui/material";
 import TopBar from "../components/TopBar";
-import SmartToyIcon from "@mui/icons-material/SmartToy";
+import ChatSvg from "../../../assets/icon/iconChat.svg?react";
 import CustomTable from "../components/CustomTable";
 import {  fetchChatLogs  } from "../services/fetchImportLogs";
 
@@ -83,7 +83,7 @@ const LogChatPage = () => {
     >
       <TopBar
         title="Log Conversas LLM"
-        icon={SmartToyIcon}
+        icon={ChatSvg}
         filters={filters}
         onFilterChange={handleFilterChange}
         orderOptions={orderOptions}

@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { Stack } from "@mui/material";
 import TopBar from "../components/TopBar";
-import ArchiveIcon from "@mui/icons-material/Archive";
+import ArchiveIcon from "../../../assets/icon/iconFiles.svg?react";
 import CustomTable from "../components/CustomTable";
 import { fetchImportLogs } from "../services/fetchImportLogs";
 import { IMPORT_DEFAULT_PARAMS } from "../constants/filtersConstants";

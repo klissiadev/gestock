@@ -166,50 +166,32 @@ export default function HomePage() {
     <Box
       sx={{
         width: "100%",
-        p: 1,
+        p: 2,
         display: "flex",
         flexDirection: "column",
         gap: 2,
       }}
     >
-      {/* ================================= */}
-      {/* BLOCO SUPERIOR */}
-      {/* ================================= */}
       <Box sx={{ display: "flex", gap: 2 }}>
-        <Box
-          sx={{
-            width: "45%",
-            display: "grid",
-            gridTemplateColumns: "repeat(2, 1fr)",
-            gap: 2,
-          }}
-        >
-          {STOCK_CARDS.map((card, index) => (
-            <CardStock key={index} {...card} />
-          ))}
+        <Box width={"45%"}>
+          <Box
+            sx={{
+              display: "grid",
+              gridTemplateColumns: "repeat(2, 1fr)",
+              gap: 2,
+              mb: 2
+            }}
+          >
+            {STOCK_CARDS.map((card, index) => (
+              <CardStock key={index} {...card} />
+            ))}
+            </Box>
+            <CriticalItemsCard criticalItems={EXPIRING_ITEMS} />
         </Box>
 
         <Box sx={{ width: "55%" }}>
           <SalesLineChart salesByMonth={SALES_BY_MONTH} />
-        </Box>
-      </Box>
-
-      {/* ================================= */}
-      {/* FINANCEIRO */}
-      {/* ================================= */}
-      <Box sx={{ width: "100%" }}>
-        <FinancialBarChart data={FINANCIAL_DATA} />
-      </Box>
-
-      {/* ================================= */}
-      {/* BLOCO INFERIOR */}
-      {/* ================================= */}
-      <Box sx={{ display: "flex", gap: 2 }}>
-        <Box width="45%">
-          <CriticalItemsCard criticalItems={EXPIRING_ITEMS} />
-        </Box>
-
-        <Box width="55%">
+          <FinancialBarChart data={FINANCIAL_DATA} />
           <TopSalesChart
             topSales={TOP_SALES}
             period={getMonthName(month)}
