@@ -10,21 +10,14 @@ from datetime import datetime
 from typing import List, Optional
 from pydantic import BaseModel, Field
 
-class RequestPriority(str, Enum):
-    BAIXA = 'BAIXA'
-    MEDIA = 'MEDIA'
-    ALTA = 'ALTA'
-
 class RequestItem(BaseModel):
     produto_id: int
     quantidade: int
-    observacao: Optional[str] = None
+    prioridade: bool
 
 class RequestModel(BaseModel):
     titulo: str
-    descricao: str
-    motivo: str
-    prioridade: RequestPriority = RequestPriority.MEDIA
+    observacao: str
     itens: List[RequestItem]
 
     

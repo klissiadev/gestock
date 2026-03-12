@@ -29,26 +29,31 @@ def workflow_envio_email(dados: dict):
 
 def preparar_email_html(dados: dict):
     template = config_yaml['email']['templates']['nova_requisicao']
-    
+
     linhas_html = ""
     for item in dados['itens']:
+        status_prioridade = "SIM" if item.get('prioridade') else "Não"
+        
         linhas_html += f"""
         <tr>
             <td style="padding: 8px; border: 1px solid #ddd;">{item.get('nome_produto')}</td>
             <td style="padding: 8px; border: 1px solid #ddd; text-align:center;">{item.get('quantidade')}</td>
-            <td style="padding: 8px; border: 1px solid #ddd;">{item.get('observacao') or '-'}</td>
+            <td style="padding: 8px; border: 1px solid #ddd; text-align:center;">{status_prioridade}</td>
         </tr>"""
 
+    # 3. Formata o corpo do e-mail garantindo que as chaves batam com o YAML
     corpo = template['corpo'].format(
         id_banco=dados.get('id_banco'),
         titulo=dados.get('titulo'),
-        motivo=dados.get('motivo'),
-        prioridade=str(dados.get('prioridade').value),
+        motivo=dados.get('observacao'),
         tabela_itens=linhas_html,
         data=datetime.now().strftime("%d/%m/%Y %H:%M")
     )
     
-    assunto = template['assunto'].format(titulo=dados['titulo'], prioridade=str(dados['prioridade'].value))
+    assunto = template['assunto'].format(
+        titulo=dados['titulo']
+    )
+    
     return assunto, corpo
 
 def enviar_email_financeiro(corpo_html: str, assunto: str):

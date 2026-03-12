@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Depends, HTTPException, BackgroundTasks, Request
 from typing import Annotated
 
-from request_module.models.RequestModel import RequestModel, RequestItem, RequestPriority
+from request_module.models.RequestModel import RequestModel, RequestItem
 from request_module.utils import mail_sender
 from auth_module.models.User import UserPublic
 from auth_module.utils.security import get_current_user
@@ -22,11 +22,11 @@ async def criar_requisicao(
             async with conn.transaction():
                 cursor = await conn.execute(
                     """
-                    INSERT INTO app_core.requisicoes (titulo, descricao, motivo, prioridade, user_id)
-                    VALUES (%s, %s, %s, %s, %s)
+                    INSERT INTO app_core.requisicoes (titulo, observacao, user_id)
+                    VALUES (%s, %s, %s)
                     RETURNING id;
                     """,
-                    (payload.titulo, payload.descricao, payload.motivo, payload.prioridade, user.id)
+                    (payload.titulo, payload.observacao, user.id)
                 )
                 res = await cursor.fetchone()
                 requisicao_id = res['id']
@@ -36,10 +36,10 @@ async def criar_requisicao(
                     await conn.execute(
                         """
                         INSERT INTO app_core.itens_requisicoes 
-                        (requisicao_id, produto_id, quantidade, observacao)
+                        (requisicao_id, produto_id, quantidade, prioridade)
                         VALUES (%s, %s, %s, %s);
                         """,
-                        (requisicao_id, item.produto_id, item.quantidade, item.observacao)
+                        (requisicao_id, item.produto_id, item.quantidade, item.prioridade)
                     )
 
             # --- Fora da transação de inserir ---
