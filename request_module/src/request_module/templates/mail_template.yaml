@@ -2,13 +2,12 @@ email:
   financeiro_destinatario: "thaisbraga969@gmail.com"
   templates:
     nova_requisicao:
-      assunto: "[Gestock] Nova Requisição: {titulo} ({prioridade})"
+      assunto: "[Gestock] Nova Requisição: {titulo}"
       corpo: |
         <h2>Nova Requisição de Compra</h2>
         <p>ID da Requisição no Sistema: {id_banco}</p>
         <p><strong>Título:</strong> {titulo}</p>
-        <p><strong>Motivo:</strong> {motivo}</p>
-        <p><strong>Prioridade:</strong> {prioridade}</p>
+        <p><strong>Observações:</strong> {motivo}</p>
         <hr>
         <h3>Itens Solicitados:</h3>
         <table border="1" cellpadding="5" style="border-collapse: collapse;">
@@ -16,7 +15,7 @@ email:
             <tr>
               <th>ID Produto</th>
               <th>Quantidade</th>
-              <th>Observação</th>
+              <th>Prioridade</th>
             </tr>
           </thead>
           <tbody>
