@@ -21,7 +21,7 @@ export const cancel_button = {
     height: 40,
     fontFamily: (theme) => theme.typography.fontFamily,
     fontWeight: (theme) => theme.typography.fontWeightLight,
-    backgroundColor: (theme) => theme.palette.uploadBox.main,
+    backgroundColor: (theme) => "none",
     "&:hover": {
         backgroundColor: (theme) => theme.palette.button.hover,
         color: theme => theme.palette.common.black,
