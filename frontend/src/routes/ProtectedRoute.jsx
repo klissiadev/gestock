@@ -5,13 +5,13 @@ export const ProtectedRoute = ({ allowedRoles }) => {
   const { user, loading } = useAuth();
 
   // Tela de carregamento
-  if (loading) {
-    return (
-      <div style={{ display: 'flex', justifyContent: 'center', marginTop: '50px' }}>
-        Carregando sessão...
-      </div>
-    );
-  }
+  // if (loading) {
+  //   return (
+  //     <div style={{ display: 'flex', justifyContent: 'center', marginTop: '50px' }}>
+  //       Carregando sessão...
+  //     </div>
+  //   );
+  // }
 
   if (!user) {
     return <Navigate to="/login" replace />;

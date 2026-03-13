@@ -10,10 +10,26 @@ import StepConcluido from "../components/StepConcluido";
 
 
 const RegisterUserPage = () => {
-  const [activeStep, setActiveStep] = useState(1);
+  const [activeStep, setActiveStep] = useState(() => {
+    const saved = localStorage.getItem("register_step");
+    return saved ? parseInt(saved) : 1;
+  });
 
-  const handleNext = () => setActiveStep((prev) => prev + 1);
-  const handleBack = () => setActiveStep((prev) => prev - 1);
+  const handleNext = () => {
+    setActiveStep((prev) => {
+      const next = prev + 1;
+      localStorage.setItem("register_step", next);
+      return next;
+    });
+  };
+
+  const handleBack = () => {
+  setActiveStep((prev) => {
+    const next = prev - 1;
+    localStorage.setItem("register_step", next);
+    return next;
+  });
+};
 
   const [formData, setFormData] = useState({
     nome: "",
@@ -24,6 +40,7 @@ const RegisterUserPage = () => {
 
   const updateFormData = (newData) => {
     setFormData((prev) => ({ ...prev, ...newData }));
+    console.log("Active Step agora: ", activeStep);
   };
 
   return (
@@ -49,21 +66,21 @@ const RegisterUserPage = () => {
           height: "100%"
         }}
       >
-        {activeStep === 1 && 
-        <StepDadosGerais
-          data={formData}
-          updateData={updateFormData}
-          onNext={handleNext} 
+        {activeStep === 1 &&
+          <StepDadosGerais
+            data={formData}
+            updateData={updateFormData}
+            onNext={handleNext}
           />}
 
         {activeStep === 2 && (
-          <StepCriarSenha 
-          data={formData} 
-          updateData={updateFormData}
-          onNext={handleNext} 
-          onBack={handleBack} 
-          mode="register"/>
-          
+          <StepCriarSenha
+            data={formData}
+            updateData={updateFormData}
+            onNext={handleNext}
+            onBack={handleBack}
+            mode="register" />
+
         )}
         {activeStep === 3 && <StepConcluido />}
       </Box>
