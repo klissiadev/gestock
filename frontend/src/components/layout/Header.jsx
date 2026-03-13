@@ -6,7 +6,7 @@ import { fetchUnreadNotifications } from "../../features/notifications/services/
 import PerfilSvg from "../../assets/icon/iconPerfil.svg?react";
 import NotificationSvg from "../../assets/icon/iconNotify.svg?react";
 import AddUserSvg from "../../assets/icon/iconAddUser.svg?react";
-import AddSvg from "../../assets/icon/iconAdd.svg?react";
+import HistoryIcon from "@mui/icons-material/History";
 
 import PeriodSelector from "../ui/PeriodSelector";
 import { useHeader } from "../../HeaderContext";
@@ -60,10 +60,20 @@ const Header = () => {
           </Button>
         );
 
-      default:
+      case "requests":
         return (
-          <></>
+          <Button
+            variant="contained"
+            startIcon={<HistoryIcon width={18} height={18} />}
+            sx={buttonStyle}
+            onClick={() => navigate("/history-requests")}
+          >
+            Ver requisições
+          </Button>
         );
+
+      default:
+        return <></>;
     }
   };
 

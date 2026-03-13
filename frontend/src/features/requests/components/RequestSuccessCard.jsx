@@ -1,9 +1,15 @@
 import { Box, Typography, Button } from "@mui/material";
 import CheckCircleIcon from "@mui/icons-material/CheckCircle";
 import { useNavigate } from "react-router-dom";
+import { accept_button, cancel_button } from "../../../features/users/styles/style"; 
 
-const RequestSuccessCard = () => {
+const RequestSuccessCard = ({ setRequestSent }) => {
   const navigate = useNavigate();
+
+  const handleFinish = () => {
+    setRequestSent(false);
+    navigate("/requests");
+  };
 
   return (
     <Box
@@ -15,7 +21,7 @@ const RequestSuccessCard = () => {
         boxShadow: "0 10px 30px rgba(0,0,0,0.15)",
         display: "flex",
         flexDirection: "column",
-        gap: 2,
+        gap: 2
       }}
     >
       {/* HEADER */}
@@ -23,7 +29,7 @@ const RequestSuccessCard = () => {
         <CheckCircleIcon
           sx={{
             fontSize: 28,
-            color: "primary.main",
+            color: (theme) => theme.palette.admin.main,
           }}
         />
 
@@ -42,17 +48,17 @@ const RequestSuccessCard = () => {
       {/* BOTÕES */}
       <Box display="flex" gap={1} mt={1}>
         <Button
-          variant="outlined"
           fullWidth
+          sx={cancel_button}
           onClick={() => navigate("/requests")}
         >
           Visualizar
         </Button>
 
         <Button
-          variant="contained"
           fullWidth
-          onClick={() => navigate("/requests")}
+          sx={accept_button}
+          onClick={handleFinish}
         >
           Concluído
         </Button>

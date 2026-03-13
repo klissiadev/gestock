@@ -5,7 +5,7 @@ import RequestForm from "./RequestForm";
 import ChatSvg from "../../../assets/icon/iconChat.svg?react";
 import ExpandableIconButton from "../../../components/ui/ExpandableIconButton.jsx";
 
-const RequestCartPanel = ({ products, setProducts }) => {
+const RequestCartPanel = ({ products, setProducts, setRequestSent }) => {
 
   const increaseQty = (id) => {
     setProducts((prev) =>
@@ -92,7 +92,7 @@ const RequestCartPanel = ({ products, setProducts }) => {
         ))}
       </Box>
 
-      <RequestForm products={products} />
+      <RequestForm products={products} setRequestSent={setRequestSent}/>
     </Box>
   );
 };
