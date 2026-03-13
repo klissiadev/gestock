@@ -37,12 +37,17 @@ export default function StepCriarSenha({
     validations.number &&
     validations.match;
 
-  const handleAction = async () => {
+  const handleAction = async (e) => {
+    if (e && e.preventDefault) e.preventDefault();
+
     if (!senhaValida) return;
 
     if (mode === "register") {
       const result = await register(data.nome, data.email, data.password, data.papel);
-      if (result.success) onNext();
+      if (result.success) {
+        console.log("tela de sucesso ");
+        onNext();
+      }
     }
     else if (mode === "recovery") {
       // const result = await resetPassword(data.token, data.password);
@@ -123,8 +128,9 @@ export default function StepCriarSenha({
       <Box display="flex" flexDirection="row" gap={2} mt={4} mr={4} width={"70%"} justifySelf={"flex-end"}>
         <Button sx={cancel_button} onClick={onBack}>Cancelar</Button>
         <Button
+          type="button"
           sx={accept_button}
-          onClick={handleAction}
+          onClick={(e) => handleAction(e)}
           disabled={!senhaValida || loading}
         >
           {loading ? <CircularProgress size={24} /> : (mode === "register" ? "Concluir" : "Salvar")}

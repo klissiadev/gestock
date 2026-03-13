@@ -23,7 +23,7 @@ export default function StepConcluido() {
         </Typography>
 
         <Box mt={4}  width={"100%"} align={'center'} >
-            <Button sx={accept_button} onClick={() => navigate("/users")}>
+            <Button sx={accept_button} onClick={() => {navigate("/users"); localStorage.removeItem("register_step"); }}>
               Voltar para usuários
             </Button>
         </Box>
