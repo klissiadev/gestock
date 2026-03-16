@@ -37,7 +37,7 @@ def _preparar_dados_para_tft(movimentacoes: List[FieldSaida], data_inicio: date,
     df.set_index('date', inplace=True)
     df = df.reindex(calendario_completo)
     
-    # Tratamento de valores nulos (dias sem venda, que nao tem registro de movimentacao)
+    # Tratamento de valores nulos (dias sem venda, que nao tem registro de movimentacao, deixa zero e repete valor de venda anterior)
     df['y'] = df['y'].fillna(0)
     df['item_id'] = df['item_id'].fillna(produto_id)
     df['sell_price'] = df['sell_price'].ffill().fillna(0)
@@ -60,10 +60,10 @@ def _preparar_dados_para_tft(movimentacoes: List[FieldSaida], data_inicio: date,
 
 def formatacao_dados(conexao, produto_id: int, tft_days: int=60):
     """
-    Orquestra o fluxo completo: Busca no banco, formata e mostra o dado formatado (testes)
+    Orquestra o fluxo completo: Busca no banco, formata e retorna no padrão Pandas
     """
     
-    # Definir a janela de tempo (O TFT exige 112 dias exatos de passado)
+    # Definir a janela de tempo 
     data_fim = date.today()
     data_inicio = data_fim - timedelta(tft_days)
 
@@ -91,8 +91,7 @@ def formatacao_dados(conexao, produto_id: int, tft_days: int=60):
     
     return df_formatado
 
-
-if __name__ == '__main__':
+def teste():
     from forecasting_module.core.env_loader import load_env_from_root
     import os
     load_env_from_root()
@@ -112,4 +111,17 @@ if __name__ == '__main__':
             
     except Exception as e:
         print(f"Erro no teste: {e}")
+        
+def load_database(produto_id: int, tft_days: int):
+    """ Recebe o id do produto e quantos dias no passado voce quer.
+    Retorna: Dataframe dos ultimos X dias de movimentação de saida formatados no padrão esperado"""
+    STRING_CONEXAO = os.getenv("DATABASE_URL")
+    with psycopg.connect(STRING_CONEXAO) as conn:
+        resultado_df = formatacao_dados(conexao=conn, produto_id=produto_id, tft_days=tft_days)
+    return resultado_df
 
+
+
+if __name__ == '__main__':
+    teste()
+    
