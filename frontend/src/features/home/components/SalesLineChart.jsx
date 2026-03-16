@@ -20,7 +20,7 @@ export default function SalesLineChart({ salesByMonth }) {
       </Typography>
 
       <LineChart
-        height={220}
+        height={160}
         series={[
             {
             data: salesByMonth.map((d) => d.value),

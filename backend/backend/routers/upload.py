@@ -1,3 +1,4 @@
+#backend\backend\routers\upload.py
 from fastapi import APIRouter, UploadFile, Depends, HTTPException
 from datetime import date
 from uuid import UUID
@@ -8,18 +9,23 @@ from typing import Annotated
 from backend.database.base import get_db
 from backend.services.import_service import process_import
 from backend.services.log_importacao_service import LogImportacaoService
+from backend.services.event_service import EventService
+from backend.services.stock_event_service import StockEventService
+from backend.database.repository import Repository
 from backend.utils.file_validation import validate_upload_file
+from backend.database.schemas import NotificationEventCreate
+from backend.services.expiration_event_service import ExpirationEventService   
 
-from auth_module.utils.security import get_current_user
+from auth_module.utils.security import require_role
 from auth_module.models.User import UserPublic
 
-router = APIRouter(prefix="/upload", tags=["upload"], dependencies=[Depends(get_current_user)])
+router = APIRouter(prefix="/upload", tags=["upload"])
 
 
 @router.post("/{tipo}")
 def upload_file(tipo: str, 
                 file: UploadFile, 
-                user: Annotated[UserPublic, Depends(get_current_user)],
+                user: Annotated[UserPublic, Depends(require_role(["gestor"]))],
                 db=Depends(get_db)
             ):
     tipo = tipo.lower().strip()
@@ -69,6 +75,58 @@ def upload_file(tipo: str,
         "msg_erro": None if not result.get("errors") else "Importação com erros",
         "user_id": UUID(f'{user.id}')
     })
+
+    event_service = EventService(db)
+
+    inserted = result.get("inserted", 0)
+    rejected = result.get("rejected", 0)
+
+    if inserted == 0 and rejected > 0:
+        event_type = "ERROR"
+        state = "IMPORT_ERROR"
+
+    elif inserted > 0 and rejected > 0:
+        event_type = "WARNING"
+        state = "IMPORT_PARTIAL"
+
+    else:
+        event_type = "SUCCESS"
+        state = "IMPORT_SUCCESS"
+
+
+    event = NotificationEventCreate(
+        type=event_type,
+        context={
+            "state": state,
+            "data": {
+                "file_name": file.filename,
+                "inserted": inserted,
+                "rejected": rejected
+            }
+        },
+        reference={
+            "id": log["id"],
+            "type": "IMPORT"
+        }
+    )
+
+    event_id = event_service.criar_evento(event, user.id)
+
+        # verifica ruptura após importação
+    stock_service = StockEventService(
+        Repository(db),
+        event_service
+    )
+
+    stock_service.check_stock_events(user.id)
+
+    # verifica produtos vencidos
+    expiration_service = ExpirationEventService(
+        Repository(db),
+        event_service
+    )
+
+    expiration_service.check_expiration_events(user.id)
 
     print(log)
     

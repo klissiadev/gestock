@@ -1,8 +1,14 @@
-import { notificationEventsMock } from "../mocks/notificationsEvents.mock";
-import { normalizeNotification } from "./notificationNormalizer";
+import {
+  fetchAllNotifications,
+  fetchUnreadNotifications,
+} from "./notificationApi";
 
-export function getNotificationsMocked() {
-  return notificationEventsMock
-    .map(normalizeNotification)
-    .filter(Boolean);
+export async function getUnreadNotifications(limit = 5, cursor = null) {
+  const data = await fetchUnreadNotifications(limit, cursor);
+  return data;
+}
+
+export async function getAllNotifications(limit = 20, cursor = null) {
+  const data = await fetchAllNotifications(limit, cursor);
+  return data;
 }

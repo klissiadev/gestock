@@ -15,7 +15,9 @@ TLS_PORT = int(os.getenv("TLS_PORT", 587))
 EMAIL = os.getenv("EMAIL", "")
 PASSWORD = os.getenv("PASSWORD", "")
 
-def load_template(path="C:\\Users\\Usuario\\Documents\\GitHub\\gestock\\auth_module\\auth_module\\templates\\recovery_template.yaml"):
+TEMPLATE_PATH = os.getenv("FORGOT_PASSWORD")
+
+def load_template(path=TEMPLATE_PATH):
     try:
         # Tenta carregar o YAML. Se não existir, usamos um fallback hardcoded
         with open(path, "r", encoding="utf-8") as f:

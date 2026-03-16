@@ -20,6 +20,7 @@ from backend.routers.views_router import router as view_router
 from backend.routers.event_router import router as event_router
 from backend.routers.notification_router import router as notification_router
 from backend.routers.analytics_router import router as analytics_router
+from backend.routers.system_router import router as system_router
 
 # =========================
 # IMPORTS DE LOGGING
@@ -47,6 +48,11 @@ from auth_module.routers.user_router import router as auth_router
 from auth_module.routers.recovery_router import router as recovery_router
 
 # =========================
+# IMPORT DO MODULO REQUISICAO
+# =========================
+from request_module.router.request_router import router as request_router
+
+# =========================
 # CONFIGURA LOGGING (1x)
 # =========================
 setup_logging()
@@ -59,6 +65,7 @@ app_logger_instance = get_logger()
 load_env_from_root()
 async def check_conn(conn):
     await conn.execute("SELECT 1")
+    
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     # =========================
@@ -69,7 +76,7 @@ async def lifespan(app: FastAPI):
         check=check_conn,
         min_size=0, 
         max_size=30,
-        timeout=5.0,
+        timeout=10.0,
         kwargs={
             "autocommit": True,
             "row_factory": dict_row, # 💡 ESSENCIAL: Faz o banco retornar dicionários
@@ -173,14 +180,14 @@ def print_routes():
 
 # =========================
 # DEPENDENCIA
-# Ideal é proteger todos os routers com get_current_user!!
+# Ideal é proteger todos os routers com require_role!!
 # =========================
-from auth_module.utils.security import get_current_user
+from auth_module.utils.security import get_current_user, require_role
 
 # =========================
 # REGISTRO DOS ROUTERS
 # =========================
-app.include_router(upload_service)
+app.include_router(upload_service, dependencies=[Depends(require_role(["gestor"]))])
 app.include_router(mail_service)
 app.include_router(produto_router)
 app.include_router(view_router)
@@ -189,10 +196,13 @@ app.include_router(event_router)
 app.include_router(notification_router)
 app.include_router(llm_router)
 app.include_router(analytics_router, prefix="/analytics", tags=["Analytics"])
+app.include_router(system_router)
 
-app.include_router(health_router, dependencies=[Depends(get_current_user)], tags=["Módulo de Administração"])
-app.include_router(status_router, dependencies=[Depends(get_current_user)], tags=["Módulo de Administração"])
-app.include_router(logs_router, dependencies=[Depends(get_current_user)], tags=["Módulo de Administração"])
+app.include_router(health_router, dependencies=[Depends(require_role(["admin"]))], tags=["Módulo de Administração"])
+app.include_router(status_router, dependencies=[Depends(require_role(["admin"]))], tags=["Módulo de Administração"])
+app.include_router(logs_router, dependencies=[Depends(require_role(["admin"]))], tags=["Módulo de Administração"])
 
 app.include_router(auth_router)
 app.include_router(recovery_router)
+
+app.include_router(request_router)
