@@ -6,6 +6,8 @@ class ModelRegistry:
     def __init__(self, model_path):
 
         data = joblib.load(model_path)
+        
+        print(f"DEBUG: Keys found in pickle: {data.keys() if isinstance(data, dict) else 'Not a dict'}")
 
         self.models = data["models"]
         self.scalers = data["scalers"]
