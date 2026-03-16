@@ -13,16 +13,18 @@ load_env_from_root()
 # Inicializamos o Pool Globalmente
 db_pool = ConnectionPool(
     conninfo=os.getenv("DATABASE_URL"),
-    min_size=0, 
+    min_size=1, 
     max_size=15,
-    timeout=5.0
+    timeout=5.0,
+    max_idle=500,
+    num_workers=2
 )
 
 atexit.register(db_pool.close)
 
 def get_db_connection(timeout=None):
     """Função utilitária para os módulos pegarem uma conexão"""
-    return db_pool.connection(timeout=timeout)
+    return db_pool.connection()
 
 
 def this_user_exists(email: EmailStr) -> Literal["ativo", "inativo", "nao_existe"]:
