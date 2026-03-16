@@ -1,0 +1,1 @@
+# Endpoints de informaca de previsao aqui
