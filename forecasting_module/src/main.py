@@ -2,8 +2,7 @@ from forecasting_module.core.data_loader import load_database
 from forecasting_module.services.batch_detector import BatchDetector
 from forecasting_module.services.model_loader import ModelRegistry
 
-import os
-print(os.getcwd())
+
 # Ficaria na pasta ml_artifacs
 MODEL_PATH = "src\\forecasting_module\\ml_artifacts\\modelos_vendas_completo.pkl"
 
