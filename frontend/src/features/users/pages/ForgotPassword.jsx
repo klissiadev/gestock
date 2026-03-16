@@ -1,8 +1,8 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { Box, Typography, TextField, Button, Stack, CircularProgress } from "@mui/material";
+import { Box, Paper, Typography, TextField, Button, Stack, CircularProgress } from "@mui/material";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
-import { useAuth } from "../../AuthContext";
+import { useAuth } from "../../../AuthContext"
 import { accept_button, cancel_button } from "../styles/style"; // Reaproveitando seus estilos
 
 const ForgotPassword = () => {
@@ -29,7 +29,7 @@ const ForgotPassword = () => {
       justifyContent="center"
       sx={{ height: "100vh", backgroundColor: "#FFFFFF", px: 2 }}
     >
-      <Box sx={{ width: "100%", maxWidth: 400 }}>
+      <Paper elevation={2}  sx={{ width: "100%", maxWidth: 400, p: 4 }}>
         {/* Botão Voltar */}
         <Button
           startIcon={<ArrowBackIcon />}
@@ -96,7 +96,7 @@ const ForgotPassword = () => {
             </Button>
           </Stack>
         )}
-      </Box>
+      </Paper>
     </Box>
   );
 };

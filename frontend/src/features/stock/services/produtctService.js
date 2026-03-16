@@ -1,4 +1,4 @@
-
+//frontend\src\features\stock\services\produtctService.js
 export async function fetchProdutos(filters) {
     try {
         const response = await fetch(

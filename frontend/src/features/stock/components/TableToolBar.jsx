@@ -85,6 +85,9 @@ const TableToolBar = ({ titulo, filters, onFilterChange }) => {
           <SearchBar
             value={filters.searchTerm}
             onChange={onFilterChange}
+            name="product"
+            placeholder="Buscar produto..."
+            debounce={300}
           />
         </Box>
 

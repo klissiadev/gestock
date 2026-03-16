@@ -18,32 +18,43 @@ import ChatSvg from "../../assets/icon/iconChat.svg?react";
 import InvetorySvg from "../../assets/icon/iconInventory.svg?react";
 import ShoppingSvg from "../../assets/icon/iconShop.svg?react";
 import ChartSvg from "../../assets/icon/iconBars.svg?react";
-import ReportsSvg from "../../assets/icon/iconRecord.svg?react";
 import LogOutSvg from "../../assets/icon/iconOut.svg?react";
 import MovSvg from "../../assets/icon/iconMove.svg?react";
 import UploadSvg from "../../assets/icon/iconUpload.svg?react";
+import TeamSvg from "../../assets/icon/iconTeam.svg?react";
 
 import ChevronRightIcon from "@mui/icons-material/ChevronRight";
 import ChevronLeftIcon from "@mui/icons-material/ChevronLeft";
+import ArchiveIcon from "../../assets/icon/iconFiles.svg?react";
 
 import { useAuth } from "../../AuthContext";
 
 
-const menuItems = [
+const commonItems = [
   { id: "home", icon: HomeSvg, title: "Home" },
   { id: "ai", icon: ChatSvg, title: "Chat"},
   { id: "upload", icon: UploadSvg, title: "Upload" },
   { id: "sheets", icon: InvetorySvg, title: "Inventory" },
   { id: "movements", icon: MovSvg, title: "Movements" },
   { id: "requests", icon: ShoppingSvg, title: "Request" },
-  { id: "forecast", icon: ChartSvg, title: "Forecast"},
-  { id: "reports", icon: ReportsSvg, title: "Reports" },
+  { id: "forecast", icon: ChartSvg, title: "Forecast"}
+];
+
+const adminItems = [
+  { id: "debug2", icon: HomeSvg, title: "Home" },
+  { id: "users", icon: TeamSvg, title: "Users"},
+  { id: "log-imports", icon: ArchiveIcon, title: "Log Imports"},
+  { id: "log-chats", icon: ChatSvg, title: "Log Chats"}
 ];
 
 export default function SideBar({ active, onChange, expanded, onToggle }) {
   const COLLAPSED_WIDTH = 66;
-  const EXPANDED_WIDTH = 180;
-  const {logout } = useAuth();
+  const EXPANDED_WIDTH = 180; 
+  const { logout, isAdmin } = useAuth();
+
+  const menuItems = isAdmin
+  ? adminItems
+  : commonItems;
 
   return (
     <Drawer
@@ -126,7 +137,7 @@ export default function SideBar({ active, onChange, expanded, onToggle }) {
                   justifyContent: "center",
                 }}
               >
-                <AppIcon component={item.icon} />
+                <AppIcon component={item.icon}/>
               </ListItemIcon>
 
               {expanded && (
