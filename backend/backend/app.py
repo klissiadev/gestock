@@ -113,9 +113,14 @@ async def lifespan(app: FastAPI):
 # CRIA A APLICAÇÃO
 # =========================
 app = FastAPI(
-    title="API Geral do Gestock",
-    description="API com sistema de logging",
-    version="2.0.0",
+    title="Gestock Core Engine",
+    description="""
+    Plataforma unificada de gestão de estoque e inteligência artificial preditiva.
+    Fornece endpoints de alto desempenho para o dashboard de controle e alimenta o 
+    contexto da assistente Minerva com cálculos de necessidade de produção e 
+    análise de tendências de consumo em tempo real.
+    """,
+    version="3.0.0",
     lifespan=lifespan
 )
 
