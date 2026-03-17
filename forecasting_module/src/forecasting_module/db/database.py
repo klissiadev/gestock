@@ -76,3 +76,26 @@ class Repository:
         except Exception as e:
             print(f"Erro ao buscar histórico do produto {produto_id}: {e}")
             raise e
+        
+    async def buscar_historico_saidas(self, produto_id: int):
+        query = """
+            SELECT 
+                TO_CHAR(DATE_TRUNC('month', data_de_venda), 'YYYY-MM') AS mes,
+                SUM(quantidade) AS demanda_real
+            FROM 
+                app_core.movimentacoes_saida
+            WHERE 
+                produto_id = %s
+            GROUP BY 
+                DATE_TRUNC('month', data_de_venda)
+            ORDER BY 
+                DATE_TRUNC('month', data_de_venda) ASC;
+        """
+        try:
+            async with self.conn.cursor() as cursor:
+                await cursor.execute(query, (produto_id,))
+                registros = await cursor.fetchall()
+                return registros
+        except Exception as e:
+            print(f"Erro ao buscar histórico de saídas: {e}")
+            raise e
