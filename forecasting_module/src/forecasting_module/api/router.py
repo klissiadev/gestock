@@ -1,5 +1,5 @@
 from fastapi import APIRouter, Depends, Query, Request
-from forecasting_module.schemas.models import SugestaoCompraInsumo, PontoGrafico
+from forecasting_module.schemas.models import SugestaoCompraInsumo, PontoGrafico, ProdutoDropdown
 from forecasting_module.db.database import Repository
 import psycopg
 
@@ -9,6 +9,20 @@ async def get_db_connection(request: Request):
     """Busca uma conexão da ConnectionPool do backend"""
     async with request.app.state.db_pool.connection() as conn:
         yield conn
+
+
+@router.get("/produtos-com-historico", response_model=list[ProdutoDropdown])
+async def obter_produtos_para_grafico(
+    connection: psycopg.AsyncConnection = Depends(get_db_connection)
+):
+    """
+    Retorna apenas os produtos acabados que possuem movimentação de saída,
+    ideal para popular selects/dropdowns no frontend.
+    """
+    repo = Repository(conexao=connection)
+    produtos = await repo.listar_produtos_com_vendas()
+    return produtos
+
 
 @router.get("/sugestoes-compra-insumos", response_model=list[SugestaoCompraInsumo])
 async def obter_sugestoes_compra(
@@ -82,4 +96,7 @@ async def obter_previsao_demanda(
         })
 
     return dados_grafico
+
+
+
     

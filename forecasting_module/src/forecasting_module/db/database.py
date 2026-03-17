@@ -99,3 +99,30 @@ class Repository:
         except Exception as e:
             print(f"Erro ao buscar histórico de saídas: {e}")
             raise e
+        
+    async def listar_produtos_com_vendas(self):
+        query = """
+            SELECT 
+                p.id, 
+                p.nome
+            FROM 
+                app_core.vw_product p
+            WHERE 
+                p.tipo = 'Produto Acabado' 
+                AND p.ativo = true
+                AND EXISTS (
+                    -- O banco só lista o produto se achar pelo menos 1 saída dele
+                    SELECT 1 
+                    FROM app_core.movimentacoes_saida v
+                    WHERE v.produto_id = p.id
+                )
+            ORDER BY 
+                p.nome;
+        """
+        try:
+            async with self.conn.cursor() as cursor:
+                await cursor.execute(query)
+                return await cursor.fetchall()
+        except Exception as e:
+            print(f"Erro ao listar produtos para o dropdown: {e}")
+            raise e

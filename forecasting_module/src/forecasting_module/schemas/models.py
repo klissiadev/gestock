@@ -18,3 +18,7 @@ class PontoGrafico(BaseModel):
     mes: str
     demanda_real: float | None 
     previsao: float | None
+    
+class ProdutoDropdown(BaseModel):
+    id: int
+    nome: str
