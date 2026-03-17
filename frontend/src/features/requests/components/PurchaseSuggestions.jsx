@@ -1,7 +1,26 @@
-import { Box, Typography, Chip} from "@mui/material";
+import { Box, Typography, Chip, CircularProgress} from "@mui/material";
 import LampSvg from "../../../assets/icon/iconLamp.svg?react";
 
-const PurchaseSuggestions = ({ onSelectSuggestion, suggestions }) => {
+const PurchaseSuggestions = ({ onSelectSuggestion, suggestions, loading }) => {
+
+  if (loading) {
+    return (
+      <Box display="flex" justifyContent="center" mt={2}>
+        <CircularProgress size={20} />
+      </Box>
+    );
+  }
+
+  if (!suggestions || suggestions.length === 0) {
+    return (
+      <Box mt={2} textAlign="center">
+        <Typography fontSize={13} color="text.secondary">
+          Sem sugestões no momento
+        </Typography>
+      </Box>
+    );
+  }
+
   return (
     <Box
       sx={{
@@ -83,7 +102,7 @@ const PurchaseSuggestions = ({ onSelectSuggestion, suggestions }) => {
                         maxWidth: "100%",
                       }}
                     >
-                      {product.description}
+                      {product.type}
                     </Typography>
                   </>
                 }

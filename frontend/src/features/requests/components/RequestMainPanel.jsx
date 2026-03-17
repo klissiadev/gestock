@@ -6,7 +6,7 @@ import PurchaseSuggestions from "./PurchaseSuggestions";
 import SearchProductList from "./SearchProductList";
 import { useProductSearch } from "../hooks/useProductSearch";
 
-const RequestMainPanel = ({ suggestions, onSelectSuggestion }) => {
+const RequestMainPanel = ({ suggestions, onSelectSuggestion, loadingSuggestions }) => {
 
   const [search, setSearch] = useState("");
 
@@ -73,6 +73,7 @@ const RequestMainPanel = ({ suggestions, onSelectSuggestion }) => {
         <PurchaseSuggestions
           suggestions={suggestions}
           onSelectSuggestion={onSelectSuggestion}
+          loading={loadingSuggestions}
         />
       )}
     </Box>
