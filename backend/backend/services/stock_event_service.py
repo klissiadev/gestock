@@ -48,8 +48,8 @@ class StockEventService:
             "context": {
                 "state": state,
                 "data": {
-                    "currentStock": estoque,
-                    "minimumStock": minimo
+                    "currentStock": float(estoque),
+                    "minimumStock": int(minimo)
                 }
             },
             "reference": {

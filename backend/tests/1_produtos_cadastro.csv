@@ -1,0 +1,13 @@
+id,nome,descricao,estoque_minimo,data_validade,tipo
+1,Notebook Gamer,Produto Acabado,10,2028-12-31,PA
+2,Placa-Mãe,Matéria-Prima,20,,MP
+3,Memória RAM,Matéria-Prima,20,,MP
+4,SSD NVMe,Matéria-Prima,20,,MP
+5,Fonte ATX,Matéria-Prima,20,,MP
+6,Tela LED,Matéria-Prima,20,,MP
+7,Smartphone Pro,Produto Acabado,10,2028-12-31,PA
+8,Bateria Li-ion,Matéria-Prima,20,,MP
+9,Tela OLED,Matéria-Prima,20,,MP
+10,Placa Lógica,Matéria-Prima,20,,MP
+11,Câmera Frontal,Matéria-Prima,20,,MP
+12,Carcaça,Matéria-Prima,20,,MP

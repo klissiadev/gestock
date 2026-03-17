@@ -1,0 +1,21 @@
+produto_id,quantidade,data_de_venda,preco_de_venda,cliente
+1,1,2026-03-06,4649.73,Cliente Final
+1,2,2026-03-25,4783.29,Cliente Final
+1,3,2026-03-16,2123.52,Cliente Final
+1,1,2026-03-07,3660.55,Cliente Final
+1,2,2026-03-14,3822.19,Cliente Final
+1,3,2026-03-20,2617.88,Cliente Final
+1,3,2026-03-20,2860.46,Cliente Final
+1,1,2026-03-27,3716.49,Cliente Final
+1,2,2026-03-07,4875.07,Cliente Final
+1,3,2026-03-09,2581.49,Cliente Final
+7,2,2026-04-01,3197.61,Cliente Final
+7,3,2026-04-01,2868.03,Cliente Final
+7,3,2026-03-16,2758.27,Cliente Final
+7,3,2026-03-24,2285.36,Cliente Final
+7,2,2026-03-24,2281.43,Cliente Final
+7,3,2026-03-30,4567.73,Cliente Final
+7,3,2026-03-03,4955.97,Cliente Final
+7,3,2026-03-05,3967.75,Cliente Final
+7,2,2026-03-07,4658.71,Cliente Final
+7,3,2026-03-17,4729.68,Cliente Final
