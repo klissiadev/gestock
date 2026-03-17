@@ -3,7 +3,6 @@ from typing import Optional, Dict, Any
 from backend.database.schemas import NotificationCreate
 from backend.database.schemas import (
     NotificationSeverity,
-    NotificationEventType
 )
 from datetime import datetime, date
 
@@ -173,6 +172,24 @@ def normalize_event(evento: dict) -> Optional[NotificationCreate]:
                 f"Pode ser um bom momento para repor o produto {nome_texto}. "
                 f"Verifique o painel de estoque."
             )
+        )
+    
+    # ======================
+    # REQUEST
+    # ======================
+
+    if state == "REQUEST_SUCCESS":
+        qty_product = data.get("qty", 0)
+        titulo = data.get("titulo", "")
+
+        return NotificationCreate(
+            **base,
+            severity=NotificationSeverity.SUCCESS,
+            title="Requisição enviada",
+            message=(
+                f"Requisição {titulo} enviada. "
+                f"{qty_product} produtos pedidos."
+            ),
         )
 
     return None

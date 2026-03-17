@@ -204,6 +204,7 @@ class NotificationEventType(str, Enum):
     VALIDITY = "VALIDITY"
     SUCCESS = "SUCCESS"
     SUGGESTION = "SUGGESTION"
+    REQUEST = "REQUEST"
     ERROR = "ERROR"
 
 
@@ -219,6 +220,8 @@ class NotificationEventState(str, Enum):
     IMPORT_ERROR = "IMPORT_ERROR"
 
     SUGGEST_REPLENISHMENT = "SUGGEST_REPLENISHMENT"
+
+    REQUEST_SUCCESS = "REQUEST_SUCESS"
 
     ERROR = "ERROR"
 

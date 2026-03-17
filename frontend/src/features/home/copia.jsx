@@ -1,12 +1,13 @@
 // frontend/src/features/home/HomePage.jsx
-import { Box } from "@mui/material";
+import { Box, Typography,Button } from "@mui/material";
 import { useEffect, useState } from "react";
 
 import CardStock from "./components/CardStock";
 import SalesLineChart from "./components/SalesLineChart";
 import TopSalesChart from "./components/TopSalesChart";
 import CriticalItemsCard from "./components/CriticalItensCard";
-import FinancialBarChart from "./components/FinancialBarChart"; 
+import FinancialBarChart from "./components/FinancialBarChart";
+import { accept_button, cancel_button } from "../users/styles/style";
 
 import { useHeader } from "../../HeaderContext";
 
@@ -45,6 +46,8 @@ export default function HomePage() {
   const [TOP_SALES, setTopSales] = useState([]);
   const [EXPIRING_ITEMS, setExpiringItems] = useState([]);
   const [FINANCIAL_DATA, setFinancialData] = useState([]);
+
+  const [viewType, setViewType] = useState("quantidade");
 
   const { setHeaderConfig } = useHeader();
 
@@ -190,8 +193,49 @@ export default function HomePage() {
         </Box>
 
         <Box sx={{ width: "55%" }}>
-          <SalesLineChart salesByMonth={SALES_BY_MONTH} />
-          <FinancialBarChart data={FINANCIAL_DATA} />
+          <Box
+            sx={{
+              width: "100%",
+              backgroundColor: "#efefef",
+              borderRadius: 3,
+              mb: 2,
+              p: 2,
+            }}
+          >
+            <Typography
+              fontSize={18}
+              textAlign="center"
+              sx={{ mb: 2, fontWeight: 500 }}
+            >
+              Meses com mais vendas
+            </Typography>
+
+            
+
+            {viewType === "quantidade" ? (
+              <SalesLineChart salesByMonth={SALES_BY_MONTH} />
+            ) : (
+              <FinancialBarChart data={FINANCIAL_DATA} />
+            )}
+
+            <Box sx={{ display: "flex", gap: 2, mb: 2, width:"30%", height:"20px", ml:4}}>
+              <Button
+                sx={viewType === "quantidade" ? accept_button : cancel_button}
+                onClick={() => setViewType("quantidade")}
+              >
+                Quantidade
+              </Button>
+
+              <Button
+                sx={viewType === "valor" ? accept_button : cancel_button}
+                height = "25px"
+                onClick={() => setViewType("valor")}
+              >
+                Valor
+              </Button>
+            </Box>
+          </Box>
+          
           <TopSalesChart
             topSales={TOP_SALES}
             period={getMonthName(month)}
