@@ -13,3 +13,12 @@ class SugestaoCompraInsumo(BaseModel):
     materia_prima_id: int
     nome_materia_prima: str
     quantidade_sugerida_compra: float
+    
+class PontoGrafico(BaseModel):
+    mes: str
+    demanda_real: float | None 
+    previsao: float | None
+    
+class ProdutoDropdown(BaseModel):
+    id: int
+    nome: str
