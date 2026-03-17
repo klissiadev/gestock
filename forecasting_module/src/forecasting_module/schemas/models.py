@@ -9,3 +9,7 @@ class FieldSaida(BaseModel):
     data_de_venda: date
     preco_de_venda: Decimal
     
+class SugestaoCompraInsumo(BaseModel):
+    materia_prima_id: int
+    nome_materia_prima: str
+    quantidade_sugerida_compra: float

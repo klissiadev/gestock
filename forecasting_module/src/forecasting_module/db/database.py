@@ -6,10 +6,10 @@ from typing import List, Tuple
 from forecasting_module.schemas.models import FieldSaida
 
 class Repository:
-    def __init__(self, conexao: psycopg.Connection):
+    def __init__(self, conexao: psycopg.AsyncConnection):
         self.conn = conexao
 
-    def buscar_historico_vendas(self, produto_id: int, data_corte: date) -> List[FieldSaida]:
+    async def buscar_historico_vendas(self, produto_id: int, data_corte: date) -> List[FieldSaida]:
         """
         Busca as movimentações de saída de um Produto a partir de uma data específica.
         Retorna uma lista de tuplas com os resultados.
@@ -27,9 +27,9 @@ class Repository:
         """
         
         try:
-            with self.conn.cursor(row_factory=dict_row) as cursor:
-                cursor.execute(query, (produto_id, data_corte))
-                registros = cursor.fetchall()
+            async with self.conn.cursor(row_factory=dict_row) as cursor:
+                await cursor.execute(query, (produto_id, data_corte))
+                registros = await cursor.fetchall()
                 
                 movimentacoes_validadas = [FieldSaida(**row) for row in registros]
                 
@@ -40,9 +40,39 @@ class Repository:
             raise e
     
     
-if __name__ == '__main__':
-    repo = Repository(psycopg.connect("postgresql://neondb_owner:npg_ifdqC3DUy0aG@ep-autumn-darkness-ac5hhgfe.sa-east-1.aws.neon.tech/neondb"))
-    
-    
-    print(repo.buscar_historico_vendas(produto_id=32, 
-                                      data_corte=datetime.strptime("01/01/2026", '%d/%m/%Y').date()))
+    async def necessidade_compra(self):
+        query_calculo = """
+            WITH ProdutosFaltantes AS (
+                SELECT 
+                    id AS produto_final_id,
+                    ((estoque_minimo * 2) - estoque_atual) AS deficit_fabricacao
+                FROM 
+                    app_core.vw_product
+                WHERE 
+                    estoque_atual <= estoque_minimo AND ativo = true AND tipo = 'Produto Acabado'
+            )
+
+            SELECT 
+                ft.materia_prima_id,
+                mp.nome AS nome_materia_prima,
+                SUM(pf.deficit_fabricacao * ft.quantidade_necessaria) AS quantidade_sugerida_compra
+            FROM 
+                ProdutosFaltantes pf
+            JOIN 
+                app_core.ficha_tecnica ft ON pf.produto_final_id = ft.produto_final_id
+            JOIN 
+                app_core.vw_product mp ON ft.materia_prima_id = mp.id 
+            GROUP BY 
+                ft.materia_prima_id, 
+                mp.nome;
+            """
+        try:
+            async with self.conn.cursor(row_factory=dict_row) as cursor:
+                await cursor.execute(query_calculo)
+                registros = await cursor.fetchall()
+                
+                return registros
+                
+        except Exception as e:
+            print(f"Erro ao buscar histórico do produto {produto_id}: {e}")
+            raise e

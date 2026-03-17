@@ -53,6 +53,11 @@ from auth_module.routers.recovery_router import router as recovery_router
 from request_module.router.request_router import router as request_router
 
 # =========================
+# IMPORT DO MODULO PREVISAO
+# =========================
+from forecasting_module.api.router import router as previsao_router
+
+# =========================
 # CONFIGURA LOGGING (1x)
 # =========================
 setup_logging()
@@ -206,3 +211,4 @@ app.include_router(auth_router)
 app.include_router(recovery_router)
 
 app.include_router(request_router)
+app.include_router(previsao_router)
