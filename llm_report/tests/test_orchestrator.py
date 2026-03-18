@@ -1,5 +1,5 @@
 import asyncio
-from llm_module.services.report_orchestrator import ReportOrchestratorService
+from llm_report.services.report_orchestrator import ReportOrchestratorService
 
 
 async def main():

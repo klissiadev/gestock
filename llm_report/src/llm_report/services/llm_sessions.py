@@ -3,7 +3,7 @@ from typing import List, Dict
 from uuid import uuid4
 from datetime import datetime
 
-from llm_module.services.llm_service import LLMService
+from llm_report.services.llm_service import LLMService
 
 
 class LLMSessionService:

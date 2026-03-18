@@ -13,7 +13,7 @@ from psycopg_pool import AsyncConnectionPool
 from psycopg.rows import dict_row
 from langchain_core.messages import SystemMessage, HumanMessage
 from langchain.tools import tool
-from llm_module.services.report_orchestrator import ReportOrchestratorService
+from llm_report.services.report_orchestrator import ReportOrchestratorService
 from pydantic import BaseModel, Field
 from typing import Literal, Optional
 from datetime import datetime
@@ -194,7 +194,7 @@ class ChatBotService:
             SummarizationMiddleware(
                 model=self.summary_model,
                 trigger=("tokens", 5000),
-                keep=("messages", 10),
+                keep=("messages", 5),
             )
         ]
 

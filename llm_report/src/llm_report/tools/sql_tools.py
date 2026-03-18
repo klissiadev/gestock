@@ -1,4 +1,4 @@
-from llm_module.utils.postgres_client import PostgresClient
+from llm_report.utils.postgres_client import PostgresClient
 from langchain.tools import tool
 from datetime import date
 import unicodedata
@@ -45,25 +45,25 @@ def tool_buscar_produto(termo: str) -> dict:
     """
     Busca produtos no sistema a partir de um termo livre do usuário.
     A normalização e variações são tratadas internamente.
-    Retorna o produto com os campos: nome_produto, descricao, estoque_atual, estoque_minimo, ativo, data_validade
+    Retorna o produto com os campos: nome, descricao, estoque_atual, estoque_minimo, ativo, data_validade
     """
     
     where_ilike = " OR ".join(
-        f"nome_produto ILIKE '%{v}%'"
+        f"nome ILIKE '%{v}%'"
         for v in _normalizar_variacoes(termo)
     )
 
     query = f"""
         SELECT
-            nome_produto,
+            nome,
             descricao,
             estoque_atual,
             estoque_minimo,
             ativo,
             data_validade
-        FROM app_core.v_produtos
+        FROM app_core.vw_product
         WHERE {where_ilike}
-        ORDER BY nome_produto;
+        ORDER BY nome;
     """
 
     return _wrap_rows(database.fetch_all(query=query))
@@ -75,14 +75,14 @@ def tool_buscar_movimentacao(termo: str, tipo: str = None) -> dict:
     Busca movimentações (entrada e saída) a partir de um termo livre do usuário.
     A normalização e variações são tratadas internamente.
     Valor Padrao de tipo: None -> busca tanto entradas quanto saídas
-    Retorna o produto com os campos: nome_produto, quantidade, data_movimentacao, entidade, tipo_movimentacao, adicionado_em
+    Retorna o produto com os campos: nome, quantidade, data_movimentacao, entidade, tipo_movimentacao, adicionado_em
     """
     
     # Condição para o termo
     where_clauses = []
     if termo:
         where_ilike = " OR ".join(
-            f"nome_produto ILIKE '%{v}%'"
+            f"nome ILIKE '%{v}%'"
             for v in _normalizar_variacoes(termo)
         )
         where_clauses.append(f"({where_ilike})")
@@ -98,7 +98,7 @@ def tool_buscar_movimentacao(termo: str, tipo: str = None) -> dict:
     
     query = f"""
         SELECT
-            nome_produto,
+            produto_nome,
             quantidade,
             data_movimentacao,
             entidade,
@@ -118,19 +118,19 @@ def tool_buscar_movimentacao(termo: str, tipo: str = None) -> dict:
 def tool_listar_produtos(apenas_ativos: bool = True) -> dict:
     """
     Lista produtos do sistema. Pode filtrar apenas os ativos.
-    Retorna o produto com os campos: nome_produto, descricao, estoque_atual
+    Retorna o produto com os campos: nome, descricao, estoque_atual
     """
 
     filtro = "WHERE ativo = true" if apenas_ativos else ""
 
     query = f"""
         SELECT
-            nome_produto,
+            produto_nome,
             descricao,
             estoque_atual
-        FROM app_core.v_produtos
+        FROM app_core.vw_product
         {filtro}
-        ORDER BY nome_produto;
+        ORDER BY nome;
     """
 
     return _wrap_rows(database.fetch_all(query=query))
@@ -144,7 +144,7 @@ def tool_listar_movimentacoes(tipo: str = None) -> dict:
     'entrada': apenas movimentaçoes de entrada; 
     'saida': apenas movimentações de saída;
     None: Movimentações de ambos os tipos.
-    Retorna o produto com os campos: nome_produto, quantidade, tipo_movimentacao, data_movimentacao
+    Retorna o produto com os campos: nome, quantidade, tipo_movimentacao, data_movimentacao
     """
 
     filtro = ""
@@ -153,7 +153,7 @@ def tool_listar_movimentacoes(tipo: str = None) -> dict:
 
     query = f"""
         SELECT
-            nome_produto,
+            nome,
             quantidade,
             tipo_movimentacao,
             data_movimentacao
@@ -191,7 +191,7 @@ def buscar_produtos_a_vencer(data: str = None, termo: str = ""):
     Busca produtos no sistema que tenham uma data de validade menor do que a variável 'data' 
     e permite uso de termos de pesquisa, sendo isso opcional.
     'data' deve estar no padrão YYYY-MM-DD; valor padrão: data atual.
-    Retorna os campos: nome_produto, descricao, estoque_atual, estoque_minimo, ativo, data_validade
+    Retorna os campos: nome, descricao, estoque_atual, estoque_minimo, ativo, data_validade
     """
     # Se data não for informada, usa a data de hoje
     if data is None:
@@ -200,20 +200,20 @@ def buscar_produtos_a_vencer(data: str = None, termo: str = ""):
     # Monta cláusula de termos, se fornecido
     where_ilike = ""
     if termo.strip():
-        termos = " OR ".join(f"nome_produto ILIKE '%{v}%'" for v in _normalizar_variacoes(termo))
+        termos = " OR ".join(f"nome ILIKE '%{v}%'" for v in _normalizar_variacoes(termo))
         where_ilike = f" AND ({termos})"
 
     query = f"""
     SELECT
-        nome_produto,
+        nome,
         descricao,
         estoque_atual,
         estoque_minimo,
         ativo,
         data_validade
-    FROM app_core.v_produtos
+    FROM app_core.vw_product
     WHERE data_validade < '{data}' {where_ilike}
-    ORDER BY data_validade, nome_produto;
+    ORDER BY data_validade, nome;
     """
     
     rows = database.fetch_all(query=query)
@@ -226,24 +226,24 @@ def buscar_produtos_abaixo_estoque(termo: str = ""):
     """
     Busca produtos no sistema que estejam abaixo do estoque
     e permite uso de termos de pesquisa, sendo isso opcional.
-    Retorna os campos: nome_produto, descricao, estoque_atual, estoque_minimo, ativo, data_validade
+    Retorna os campos: nome, descricao, estoque_atual, estoque_minimo, ativo, data_validade
     """
     where_term = ""
     if termo:
-        termos = " OR ".join(f"nome_produto ILIKE '%{v}%'" for v in _normalizar_variacoes(termo))
+        termos = " OR ".join(f"nome ILIKE '%{v}%'" for v in _normalizar_variacoes(termo))
         where_term = f" AND ({termos})"
 
     query = f"""
     SELECT
-        nome_produto,
+        nome,
         descricao,
         estoque_atual,
         estoque_minimo,
         ativo,
         data_validade
-    FROM app_core.v_produtos
+    FROM app_core.vw_product
     WHERE estoque_atual <= estoque_minimo {where_term}
-    ORDER BY nome_produto;
+    ORDER BY nome;
     """
     
     rows = database.fetch_all(query=query)

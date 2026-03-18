@@ -2,7 +2,7 @@ import pytest_asyncio
 import pytest
 import json
 import re, unicodedata
-from llm_module.models.chatbot import chat_bot_service
+from llm_report.models.chatbot import chat_bot_service
 
 def carregar_testes():
     with open('test_cases.json', 'r', encoding='utf-8') as f:

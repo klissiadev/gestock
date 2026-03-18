@@ -1,7 +1,7 @@
 from datetime import date, timedelta
 from typing import Any, Dict, List
 
-from llm_module.utils.postgres_client import PostgresClient
+from llm_report.utils.postgres_client import PostgresClient
 
 
 class ReportRepository:

@@ -1,8 +1,8 @@
 from langchain_ollama import ChatOllama
 
-from llm_module.agents.report_agent import ReportAgent, ReportInput
-from llm_module.reports.report_service import ReportService
-from llm_module.reports.report_repository import ReportRepository
+from llm_report.agents.report_agent import ReportAgent, ReportInput
+from llm_report.reports.report_service import ReportService
+from llm_report.reports.report_repository import ReportRepository
 
 
 class ReportOrchestratorService:

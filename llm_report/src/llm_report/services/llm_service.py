@@ -1,4 +1,4 @@
-from llm_module.models.chatbot import ChatBotService
+from llm_report.models.chatbot import ChatBotService
 import asyncio
 
 class LLMService:

@@ -3,10 +3,10 @@ from typing import Any, Dict, List, Callable
 from datetime import datetime, date, timedelta
 from decimal import Decimal, ROUND_HALF_UP
 
-from llm_module.builders.analysis_builder import AnalysisBuilder
-from llm_module.builders.movement_builder import MovementBuilder
-from llm_module.reports.report_repository import ReportRepository
-from llm_module.utils.llm_normalizer import normalize_llm_data
+from llm_report.builders.analysis_builder import AnalysisBuilder
+from llm_report.builders.movement_builder import MovementBuilder
+from llm_report.reports.report_repository import ReportRepository
+from llm_report.utils.llm_normalizer import normalize_llm_data
 
 
 class ReportType(Enum):

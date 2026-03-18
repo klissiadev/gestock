@@ -1,6 +1,6 @@
 from langchain.tools import tool
 
-from llm_module.services.report_orchestrator import ReportOrchestratorService
+from llm_report.services.report_orchestrator import ReportOrchestratorService
 
 orchestrator = ReportOrchestratorService()
 

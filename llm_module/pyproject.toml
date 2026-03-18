@@ -20,6 +20,7 @@ dependencies = [
     "psycopg[binary]>=3.3.2",
     "langgraph-checkpoint-postgres>=3.0.3",
     "auth-module",
+    "llm-report",
 ]
 
 [tool.poetry]
@@ -27,6 +28,7 @@ packages = [{include = "llm_module", from = "src"}]
 
 [tool.uv.sources]
 auth-module = { path = "../auth_module", editable = true }
+llm-report = { path = "../llm_report", editable = true }
 
 [build-system]
 requires = ["poetry-core>=2.0.0,<3.0.0"]

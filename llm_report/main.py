@@ -1,7 +1,7 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from llm_module.routers.llm_router import router as llm_router
-from llm_module.services.llm_service import LLMService
+from llm_report.routers.llm_router import router as llm_router
+from llm_report.services.llm_service import LLMService
 
 llm_service = LLMService()
 app = FastAPI()

@@ -1,8 +1,8 @@
 from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel
 
-from llm_module.services.llm_service import LLMService
-from llm_module.services.llm_sessions import LLMSessionService
+from llm_report.services.llm_service import LLMService
+from llm_report.services.llm_sessions import LLMSessionService
 from fastapi.responses import StreamingResponse
 
 router = APIRouter(tags=["LLM"])

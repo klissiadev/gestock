@@ -94,18 +94,23 @@ async def lifespan(app: FastAPI):
     # Inicializa os serviços de LLM uma única vez
     from llm_module.services.llm_service import LLMService
     from llm_module.services.llm_sessions import LLMSessionService
+    from llm_module.services.router_service import MinervaGateway
+    
     llm_service = LLMService(pool)
     session_service = LLMSessionService(pool)
+    minerva_gateway = MinervaGateway(pool)
 
     app.state.llm_service = llm_service
     app.state.session_service = session_service
+    app.state.minerva_gateway = minerva_gateway
+    app.state.llm_service = minerva_gateway.general_service
 
     yield # O app roda aqui
 
     # =========================
     # 2. ENCERRAMENTO (SHUTDOWN)
     # =========================
-    await llm_service.close() 
+    await minerva_gateway.close()
     await pool.close()
 
 

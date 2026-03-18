@@ -6,7 +6,7 @@ from langchain_ollama import ChatOllama
 from langchain_core.messages import SystemMessage, HumanMessage
 
 from prompts.report_prompts import PROMPTS
-from llm_module.formatters.formatter_factory import FORMATTERS
+from llm_report.formatters.formatter_factory import FORMATTERS
 
 
 # =========================

@@ -1,5 +1,5 @@
-from llm_module.reports.report_repository import ReportRepository
-from llm_module.reports.report_service import ReportService
+from llm_report.reports.report_repository import ReportRepository
+from llm_report.reports.report_service import ReportService
 
 
 def test_repository():
