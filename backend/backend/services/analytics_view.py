@@ -120,17 +120,23 @@ class AnalyticsService:
                 p.nome,
                 p.estoque_atual,
                 p.estoque_minimo,
+                p.data_validade,
+                p.vencido,
                 COALESCE(SUM(m.quantidade), 0) AS total_saidas
             FROM app_core.vw_product p
             LEFT JOIN app_core.mv_movimentacao m
                 ON m.produto_nome = p.nome
                 AND m.tipo_movimento = 'SAIDA'
-            WHERE p.estoque_atual <= p.estoque_minimo
+            WHERE 
+                p.estoque_atual <= p.estoque_minimo 
+                OR p.vencido = TRUE
             GROUP BY
                 p.id,
                 p.nome,
                 p.estoque_atual,
-                p.estoque_minimo
+                p.estoque_minimo,
+                p.data_validade,
+                p.vencido
             ORDER BY total_saidas DESC
         """)
     
