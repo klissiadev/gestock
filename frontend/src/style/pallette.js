@@ -12,7 +12,7 @@ export const palette = {
     },
 
     background: {
-      default: '#989898',
+      default: '#F6F0FF',
     },
 
     table: {
@@ -22,10 +22,10 @@ export const palette = {
 
     iconButton: {
       main: "#ffffff",
-      hover: "#f1f1f1",
-      active: "#b4b4b4",
-      selected: "#d5d5d5",
-      disabled: "#9CA3AF",
+      hover: "#e7e4ea",
+      active: "#9480b4",
+      selected: "#cec7d9",
+      disabled: "#6d5692",
     },
 
     errors: {
@@ -40,7 +40,7 @@ export const palette = {
     },
 
     card: {
-      background: "#cfcfcf",
+      background: "#cec7d9",
     },
 
     admin: {
@@ -50,6 +50,10 @@ export const palette = {
       good: "#2AFF00",
       degraded: "#ff9800",
       offline: "#f44336"
+    },
+    
+    primary:{
+      main: "#634494"
     }
 };
 

@@ -23,7 +23,7 @@ const QuantityStepper = ({ value = 1, onIncrease, onDecrease }) => {
 
       <Box
         sx={{
-          width: 30,
+          width: 40,
           height: "100%",
           bgcolor: "white",
           display: "flex",

@@ -7,12 +7,13 @@ export const accept_button = {
     fontFamily: (theme) => theme.typography.fontFamily,
     fontWeight: (theme) => theme.typography.fontWeightLight,
     color: theme => theme.palette.common.white,
-    backgroundColor: (theme) => theme.palette.uploadBox.button,
+    backgroundColor: (theme) => theme.palette.primary.main,
     "&:hover": {
         backgroundColor: (theme) => theme.palette.button.hover,
         color: theme => theme.palette.common.black,
     },
     textTransform: "none",
+    boxShadow: "0 4px 20px rgba(0, 0, 0, 0.16)",
 };
 
 export const cancel_button = {
@@ -27,7 +28,5 @@ export const cancel_button = {
         color: theme => theme.palette.common.black,
     },
     textTransform: "none",
-    borderStyle: "solid",
-    borderWidth: "1px",
-    borderColor: (theme) => theme.palette.common.black,
+    boxShadow: "0 4px 20px rgba(0, 0, 0, 0.16)",
 };

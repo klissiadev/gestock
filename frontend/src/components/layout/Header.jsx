@@ -125,14 +125,13 @@ const containerStyle = {
 const iconStyle = {
   borderRadius: "12px",
   border: "1.5px solid",
-  borderColor: "common.black",
+  boxShadow: "0 4px 20px rgba(0,0,0,0.16)",
 };
 
 const buttonStyle = {
   textTransform: "none",
   borderRadius: "12px",
-  border: "1.5px solid",
-  borderColor: "common.black",
+  boxShadow: "0 4px 20px rgba(0, 0, 0, 0.16)",
   fontSize: 14,
 };
 

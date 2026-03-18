@@ -84,14 +84,14 @@ export default function HomePage() {
           criticalProductsRes,
           salesByMonthRes,
           topSellingRes,
-          financialRes, // 👈 NOVO
+          financialRes,
         ] = await Promise.all([
           getTotalStock(),
           getStockByType(),
           getCriticalProducts(),
           getSalesByMonth(year),
           getTopSellingProductsByMonth(year, month),
-          getFinancialKpisByYear(year), // 👈 NOVO
+          getFinancialKpisByYear(year), 
         ]);
 
         // =============================
@@ -151,8 +151,8 @@ export default function HomePage() {
         const criticalFormatted = criticalProductsRes.map((p) => ({
           product: p.nome,
           quantity: p.estoque_atual,
-          due: p.data_validade,
-          status: "Crítico",
+          date: p.data_validade,
+          status: p.vencido? "Vencido": "Abaixo do estoque",
         }));
 
         setExpiringItems(criticalFormatted);
@@ -196,7 +196,7 @@ export default function HomePage() {
           <Box
             sx={{
               width: "100%",
-              backgroundColor: "#efefef",
+              backgroundColor:  (theme) => theme.palette.iconButton.hover,
               borderRadius: 3,
               mb: 2,
               p: 2,
