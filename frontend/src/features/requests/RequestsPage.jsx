@@ -5,12 +5,15 @@ import { useHeader } from "../../HeaderContext";
 import RequestMainPanel from "./components/RequestMainPanel";
 import RequestCartPanel from "./components/RequestCartPanel";
 import RequestSuccessCard from "./components/RequestSuccessCard";
+import { fetchSuggestions } from "../../features/requests/services/suggestionApi";
 
 const RequestPage = () => {
 
   const [products, setProducts] = useState([]);
   const [requestSent, setRequestSent] = useState(false);
   const { setHeaderConfig } = useHeader();
+  const [suggestions, setSuggestions] = useState([]);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     setHeaderConfig({
@@ -18,12 +21,30 @@ const RequestPage = () => {
     });
   }, []);
 
-  const suggestionsMock = [
-    { id: 10, name: "Conector USB-C", type: "Matéria prima", qty: 10, priority: true },
-    { id: 9, name: "Conector USB", type: "Matéria prima", qty: 20, priority: true },
-    { id: 8, name: "Memória Flash", type: "Matéria prima", qty: 25, priority: true },
-    { id: 5, name: "LED RGB", type: "Matéria prima", qty: 10, priority: true },
-  ];
+  useEffect(() => {
+  let isMounted = true;
+
+  const loadSuggestions = async () => {
+      try {
+        const data = await fetchSuggestions();
+        if (isMounted) {
+          setSuggestions(data);
+        }
+      } catch (error) {
+        console.error(error);
+      } finally {
+        if (isMounted) {
+          setLoading(false);
+        }
+      }
+    };
+
+    loadSuggestions();
+
+    return () => {
+      isMounted = false;
+    };
+  }, []); 
 
   const handleSelectSuggestion = (product) => {
     setProducts((prev) => {
@@ -58,8 +79,9 @@ const RequestPage = () => {
       }}
     >
       <RequestMainPanel
-        suggestions={suggestionsMock}
+        suggestions={suggestions}
         onSelectSuggestion={handleSelectSuggestion}
+        loadingSuggestions={loading}
       />
 
       <RequestCartPanel
