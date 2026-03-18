@@ -9,34 +9,21 @@ class Repository:
     def __init__(self, conexao: psycopg.Connection):
         self.conn = conexao
 
-    def buscar_historico_vendas(self, produto_id: int, data_corte: date) -> List[FieldSaida]:
-        """
-        Busca as movimentações de saída de um Produto a partir de uma data específica.
-        Retorna uma lista de tuplas com os resultados.
-        """
+    def buscar_dados_anomalia(self, data_corte: date):
         query = """
-            SELECT 
-                id, 
-                produto_id, 
-                quantidade, 
-                data_de_venda, 
-                preco_de_venda
-            FROM app_core.movimentacoes_saida
-            WHERE produto_id = %s AND data_de_venda >= %s
-            ORDER BY data_de_venda ASC;
+            SELECT *
+            FROM vw_anomaly_input
+            WHERE date >= %s
+            ORDER BY date ASC;
         """
-        
+
         try:
             with self.conn.cursor(row_factory=dict_row) as cursor:
-                cursor.execute(query, (produto_id, data_corte))
-                registros = cursor.fetchall()
-                
-                movimentacoes_validadas = [FieldSaida(**row) for row in registros]
-                
-                return movimentacoes_validadas
-                
+                cursor.execute(query, (data_corte,))
+                return cursor.fetchall()
+
         except Exception as e:
-            print(f"Erro ao buscar histórico do produto {produto_id}: {e}")
+            print(f"Erro ao buscar dados de anomalia: {e}")
             raise e
     
     
