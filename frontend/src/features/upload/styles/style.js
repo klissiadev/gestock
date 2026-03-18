@@ -48,7 +48,7 @@ export const accept_button = {
     fontFamily: (theme) => theme.typography.fontFamily,
     fontWeight: (theme) => theme.typography.fontWeightLight,
     color: theme => theme.palette.common.white,
-    backgroundColor: (theme) => theme.palette.uploadBox.button,
+    backgroundColor: (theme) => theme.palette.primary.main,
     "&:hover": {
         backgroundColor: (theme) => theme.palette.button.hover,
         color: theme => theme.palette.common.black,

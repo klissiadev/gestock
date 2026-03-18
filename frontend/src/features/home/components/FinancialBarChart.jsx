@@ -17,7 +17,7 @@ export default function FinancialBarChart({ data }) {
         {
           data: data.map((d) => d.compras),
           label: "Compras",
-          color: theme.palette.uploadBox.button,
+          color: theme.palette.primary.main,
         },
         {
           data: data.map((d) => d.vendas),
