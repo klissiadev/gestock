@@ -80,7 +80,7 @@ class ChatBotService:
     def __init__(self):
         # MODELOS
         self.main_model = ChatOllama(model="llama3.1:8b", temperature=0.0)
-        self.summary_model = ChatOllama(model="gemma3:270m", temperature=0.0)
+        self.summary_model = ChatOllama(model="gemma3:1b", temperature=0.0)
 
         # ORQUESTRADOR DE RELATÓRIOS
         self.report_orchestrator = ReportOrchestratorService()

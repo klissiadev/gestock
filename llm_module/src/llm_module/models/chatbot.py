@@ -36,7 +36,7 @@ load_env_from_root()
 class ChatBotService:
     def __init__(self):
         self.main_model = ChatOllama(model="qwen2.5:7B", temperature=0.0)
-        self.summary_model = ChatOllama(model="gemma3:270m", temperature=0.0)
+        self.summary_model = ChatOllama(model="gemma3:1b", temperature=0.0)
         self._initialized = False
         self.agent = None
         self.tools = [
