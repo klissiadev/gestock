@@ -17,7 +17,9 @@ class ReportOrchestratorService:
             model=ChatOllama(
                 model="llama3.1:8b",
                 temperature=0,
-                top_p=0.1
+                top_p=0.1,
+                callbacks=[],
+                streaming=False
             )
         )
         print("Modelo do report agent:", self.report_agent.model.model)

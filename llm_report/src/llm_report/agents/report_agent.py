@@ -125,7 +125,7 @@ REGRAS ABSOLUTAS:
             HumanMessage(content=prompt)
         ]
 
-        response = await self.model.ainvoke(messages)
+        response = await self.model.ainvoke(messages, config={"callbacks": []})
 
         return response.content.strip()
 
@@ -174,7 +174,7 @@ REGRAS ABSOLUTAS:
                 HumanMessage(content=prompt)
             ]
 
-            response = await self.model.ainvoke(messages)
+            response = await self.model.ainvoke(messages, config={"callbacks": []})
             registros_formatados.append(response.content)
 
             contador_global += len(chunk)

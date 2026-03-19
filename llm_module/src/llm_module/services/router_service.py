@@ -58,5 +58,4 @@ class MinervaGateway:
         
     async def close(self):
         await self.general_service.close()
-        await self.report_service.close()
         

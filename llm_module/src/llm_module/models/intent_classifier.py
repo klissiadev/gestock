@@ -7,7 +7,7 @@ logger = logging.getLogger(__name__)
 
 class IntentClassifier:
     def __init__(self):
-        self.classifier_model = ChatOllama(model="gemma3:270m", temperature=0.0)
+        self.classifier_model = ChatOllama(model="gemma3:1b", temperature=0.0, callbacks=[])
         
         self.system_prompt = """Você é um classificador de intenções estrito. Sua única função é ler a mensagem do usuário e responder com EXATAMENTE UMA das duas palavras abaixo, sem explicações:
         
@@ -24,8 +24,8 @@ class IntentClassifier:
         - produtos por custo (ou custo de produtos)
         Exemplos de RELATORIO: "Faça a geração de relatório de estoque baixo", "Qual a curva ABC?", "Relatório de validade", "Gere um inventário".
         
-        GERAL - Se o usuário estiver fazendo perguntas do dia a dia, buscando informações de UM produto específico, dúvidas operacionais ou bate-papo. 
-        Exemplos de GERAL: "Onde está o produto X?", "Quais as movimentações de ontem do item Y?", "Olá, tudo bem?"
+        GERAL - Se o usuário estiver fazendo perguntas do dia a dia,fazendo saudações, buscando informações de UM produto específico, dúvidas operacionais ou bate-papo. 
+        Exemplos de GERAL: "Onde está o produto X?", "Quais as movimentações de ontem do item Y?", "Olá, tudo bem?", "Bom dia, Minerva"
         """
 
     async def classify_intent(self, user_message: str) -> str:

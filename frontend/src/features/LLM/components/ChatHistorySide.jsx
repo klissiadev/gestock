@@ -25,7 +25,7 @@ const ChatHistorySide = ({
         borderRadius: 2,
         display: "flex",
         flexDirection: "column",
-        bgcolor: theme.palette.iconButton.hover,
+        bgcolor: theme.palette.admin.secondary,
       })}
     >
       <Box
@@ -43,14 +43,14 @@ const ChatHistorySide = ({
           alignItems="center"
           p={2}
         >
-          <Typography fontWeight={500} color="textDisabled">Histórico</Typography>
+          <Typography fontWeight={500} color="secondary">Histórico</Typography>
           <IconButton onClick={onClose}
             sx={(theme) => ({
               width: 30,
               height: 30,
               borderRadius: '50%',
               backgroundColor: theme.palette.iconButton.active,
-              color: "black"
+              color: "white"
             })}
           >
             <CloseIcon />

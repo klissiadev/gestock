@@ -129,12 +129,14 @@ class ChatBotService:
                     report_type,
                     parametros
                 )
+                
+                return resposta
 
-                return {
-                    "titulo": report_type,
-                    "metadata": {},
-                    "dados": resposta
-                }
+                # return {
+                #     "titulo": report_type,
+                #     "metadata": {},
+                #     "dados": resposta
+                # }
 
             except Exception as e:
                 logger.error(f"Erro ao gerar relatório '{report_type}': {e}", exc_info=True)
@@ -212,7 +214,7 @@ class ChatBotService:
 
             self.main_model = ChatOllama(
                 model="llama3.1:8b",
-                temperature=0.0
+                temperature=0.0,
             ).bind_tools(self.tools)
 
             self.agent = create_agent(
