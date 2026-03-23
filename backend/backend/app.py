@@ -13,7 +13,6 @@ from backend.utils.env_loader import load_env_from_root
 # IMPORTS DOS ROUTERS
 # =========================
 from backend.routers.upload import router as upload_service
-from backend.routers.mail_router import router as mail_service
 from backend.routers.produto_router import router as produto_router
 from backend.routers.movimentacao_router import router as movimentacao_router
 from backend.routers.views_router import router as view_router
@@ -203,7 +202,6 @@ from auth_module.utils.security import get_current_user, require_role
 # REGISTRO DOS ROUTERS
 # =========================
 app.include_router(upload_service, dependencies=[Depends(require_role(["gestor"]))])
-app.include_router(mail_service)
 app.include_router(produto_router)
 app.include_router(view_router)
 app.include_router(movimentacao_router)

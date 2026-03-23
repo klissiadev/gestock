@@ -35,11 +35,12 @@ class Config:
     DB_HOST = os.getenv("DB_HOST")
     DB_PORT = os.getenv("DB_PORT")
     DB_NAME = os.getenv("DB_NAME")
+    SSL= os.getenv("SSLMODE")
 
     DB_URI = (
         f"postgres://{DB_USER}:{DB_PASSWORD}"
         f"@{DB_HOST}:{DB_PORT}/{DB_NAME}"
-        "?sslmode=require&channel_binding=require"
+        f"?sslmode={SSL}&channel_binding={SSL}"
     )
 
 class ReportToolSchema(BaseModel):
