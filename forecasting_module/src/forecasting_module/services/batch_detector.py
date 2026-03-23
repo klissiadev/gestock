@@ -33,7 +33,7 @@ class BatchDetector:
             row_result = row.copy()
             row_result["anomaly"] = result["anomaly"]
             row_result["score"] = result["score"]
-            row_result["result"] = (-1 if result["anomaly"] == -1 else self.classify_result(result["score"]))
+            row_result["result"] = min(result["anomaly"], self.classify_result(result["score"]))
 
             results.append(row_result)
 
