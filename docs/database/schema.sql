@@ -203,7 +203,8 @@ CREATE TABLE app_core.produtos (
 );
 
 CREATE MATERIALIZED VIEW app_core.mv_movimentacao AS
- SELECT t.unique_id,
+ SELECT 
+    gen_random_uuid() AS unique_id,
     p.nome AS produto_nome,
     t.quantidade,
     t.data_evento,
@@ -212,40 +213,42 @@ CREATE MATERIALIZED VIEW app_core.mv_movimentacao AS
     t.local_destino,
     t.tipo_movimento,
     t.created_at
-
-            movimentacoes_entrada.produto_id,
-            movimentacoes_entrada.quantidade,
-            movimentacoes_entrada.data_de_compra AS data_evento,
-            movimentacoes_entrada.preco_de_compra AS valor_unitario,
-            movimentacoes_entrada.fornecedor AS parceiro_origem,
-            'ESTOQUE'::character varying AS local_destino,
-            'ENTRADA'::text AS tipo_movimento,
-            movimentacoes_entrada.created_at
-           FROM app_core.movimentacoes_entrada
-        UNION ALL
-
-            movimentacoes_saida.produto_id,
-            movimentacoes_saida.quantidade,
-            movimentacoes_saida.data_de_venda,
-            movimentacoes_saida.preco_de_venda,
-            'ESTOQUE'::character varying,
-            movimentacoes_saida.cliente,
-            'SAIDA'::text,
-            movimentacoes_saida.created_at
-           FROM app_core.movimentacoes_saida
-        UNION ALL
-
-            movimentacoes_internas.produto_id,
-            movimentacoes_internas.quantidade,
-            movimentacoes_internas.data,
-            NULL::numeric,
-            movimentacoes_internas.origem,
-            movimentacoes_internas.destino,
-            'INTERNA'::text,
-            movimentacoes_internas.data
-           FROM app_core.movimentacoes_internas) t
-     JOIN app_core.produtos p ON ((p.id = t.produto_id)))
-  WITH NO DATA;
+ FROM (
+    SELECT
+        produto_id,
+        quantidade,
+        data_de_compra AS data_evento,
+        preco_de_compra AS valor_unitario,
+        fornecedor AS parceiro_origem,
+        'ESTOQUE'::character varying AS local_destino,
+        'ENTRADA'::text AS tipo_movimento,
+        created_at
+    FROM app_core.movimentacoes_entrada
+    UNION ALL
+    SELECT
+        produto_id,
+        quantidade,
+        data_de_venda AS data_evento,
+        preco_de_venda AS valor_unitario,
+        'ESTOQUE'::character varying AS parceiro_origem,
+        cliente AS local_destino,
+        'SAIDA'::text AS tipo_movimento,
+        created_at
+    FROM app_core.movimentacoes_saida
+    UNION ALL
+    SELECT
+        produto_id,
+        quantidade,
+        data AS data_evento,
+        NULL::numeric AS valor_unitario,
+        origem AS parceiro_origem,
+        destino AS local_destino,
+        'INTERNA'::text AS tipo_movimento,
+        data AS created_at
+    FROM app_core.movimentacoes_internas
+ ) t
+ JOIN app_core.produtos p ON p.id = t.produto_id
+ WITH NO DATA;
 
 CREATE TABLE app_core.notificacoes (
     id integer NOT NULL,
@@ -378,7 +381,7 @@ CREATE VIEW app_core.v_produtos AS
                 ELSE NULL::numeric
             END), ((0)::bigint)::numeric)
             ELSE ((0)::bigint)::numeric
-
+        END) - 
         CASE
             WHEN ((p.tipo)::text = ANY ((ARRAY['MP'::character varying, 'SA'::character varying])::text[])) THEN COALESCE(sum(
             CASE
@@ -386,7 +389,7 @@ CREATE VIEW app_core.v_produtos AS
                 ELSE NULL::numeric
             END), ((0)::bigint)::numeric)
             ELSE ((0)::bigint)::numeric
-
+        END) - 
         CASE
             WHEN ((p.tipo)::text = 'PA'::text) THEN COALESCE(sum(ms.quantidade), (0)::bigint)
             ELSE (0)::bigint
@@ -406,7 +409,7 @@ CREATE VIEW app_core.v_produtos AS
                 ELSE NULL::numeric
             END), ((0)::bigint)::numeric)
             ELSE ((0)::bigint)::numeric
-
+        END) - 
         CASE
             WHEN ((p.tipo)::text = ANY ((ARRAY['MP'::character varying, 'SA'::character varying])::text[])) THEN COALESCE(sum(
             CASE
@@ -414,7 +417,7 @@ CREATE VIEW app_core.v_produtos AS
                 ELSE NULL::numeric
             END), ((0)::bigint)::numeric)
             ELSE ((0)::bigint)::numeric
-
+        END) - 
         CASE
             WHEN ((p.tipo)::text = 'PA'::text) THEN COALESCE(sum(ms.quantidade), (0)::bigint)
             ELSE (0)::bigint
@@ -441,14 +444,14 @@ CREATE VIEW app_core.v_produtos_custo AS
         )
  SELECT p.id AS produto_id,
     p.nome AS nome_produto,
-
-        CASE
-
-            ELSE round((COALESCE(e.valor_total_entrada, (0)::numeric) / (NULLIF(e.total_entrada, 0))::numeric), 2)
-        END AS custo_medio,
-        CASE
-
-        END AS valor_total
+    CASE
+        WHEN COALESCE(e.total_entrada, 0) = 0 THEN 0
+        ELSE round((COALESCE(e.valor_total_entrada, (0)::numeric) / (NULLIF(e.total_entrada, 0))::numeric), 2)
+    END AS custo_medio,
+    CASE
+        WHEN COALESCE(e.total_entrada, 0) = 0 THEN 0
+        ELSE round(((COALESCE(e.total_entrada, 0) - COALESCE(s.total_saida, 0)) * (COALESCE(e.valor_total_entrada, 0) / NULLIF(e.total_entrada, 0)))::numeric, 2)
+    END AS valor_total
    FROM ((app_core.produtos p
      LEFT JOIN entradas e ON ((p.id = e.produto_id)))
      LEFT JOIN saidas s ON ((p.id = s.produto_id)));
@@ -511,7 +514,6 @@ CREATE MATERIALIZED VIEW app_core.vw_product AS
             sum(
                 CASE
                     WHEN ((movimentacoes_internas.tipo)::text = 'PRODUCAO'::text) THEN movimentacoes_internas.quantidade
-
                     ELSE (0)::numeric
                 END) AS total_mov
            FROM app_core.movimentacoes_internas
