@@ -183,3 +183,4 @@ pyrightconfig.json
 # Generated using ignr.py - github.com/Antrikshy/ignr.py
 
 backend/logs/app.log.1
+forecasting_module/src/forecasting_module/ml_artifacts/modelos_vendas_completo.pkl
