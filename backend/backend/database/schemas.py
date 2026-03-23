@@ -221,7 +221,7 @@ class NotificationEventState(str, Enum):
 
     SUGGEST_REPLENISHMENT = "SUGGEST_REPLENISHMENT"
 
-    REQUEST_SUCCESS = "REQUEST_SUCESS"
+    REQUEST_SUCCESS = "REQUEST_SUCCESS"
 
     ERROR = "ERROR"
 
@@ -244,7 +244,7 @@ class NotificationEventContext(BaseModel):
 # ------------------------- 
 
 class NotificationEventReference(BaseModel):
-    type: Literal["PRODUCT", "IMPORT"]
+    type: Literal["PRODUCT", "IMPORT", "REQUEST"]
     id: int
 
 # -------------------------
