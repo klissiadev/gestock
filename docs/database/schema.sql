@@ -20,6 +20,10 @@ CREATE EXTENSION IF NOT EXISTS unaccent WITH SCHEMA app_ai;
 CREATE EXTENSION IF NOT EXISTS unaccent WITH SCHEMA app_core;
 CREATE EXTENSION IF NOT EXISTS unaccent WITH SCHEMA app_logs;
 
+CREATE EXTENSION IF NOT EXISTS "uuid-ossp" WITH SCHEMA app_ai;
+CREATE EXTENSION IF NOT EXISTS "uuid-ossp" WITH SCHEMA app_core;
+CREATE EXTENSION IF NOT EXISTS "uuid-ossp" WITH SCHEMA app_logs;
+
 COMMENT ON EXTENSION unaccent IS 'text search dictionary that removes accents';
 
 CREATE FUNCTION app_core.refresh_stock_view() RETURNS trigger
