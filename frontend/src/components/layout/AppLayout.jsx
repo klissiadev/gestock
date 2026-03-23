@@ -34,7 +34,13 @@ export default function AppLayout() {
 
     return (
         <HeaderProvider>
-            <Box display="flex" height="100vh" sx={{ overflow: "hidden" }}>
+            <Box
+                display="flex"
+                height="100vh"
+                sx={{
+                    overflow: "hidden",
+                }}
+            >
                 <ToastContainer />
                 <SideBar 
                     active={active}

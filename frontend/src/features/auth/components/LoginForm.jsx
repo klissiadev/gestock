@@ -9,13 +9,14 @@ import {
 import { useNavigate } from "react-router-dom";
 import ErrorOutlineIcon from "../../../assets/icon/iconError.svg?react";
 import { useAuth } from "../../../AuthContext"
+import LogoSvg from "../../../assets/icon/logo-icon.svg?react";
 
 const LoginForm = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [localValidationError, setLocalValidationError] = useState(false);
 
-  const { loading, error, login } = useAuth();
+  const { error, login } = useAuth();
   const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
@@ -52,7 +53,6 @@ const LoginForm = () => {
         sx={{
           width: 50,
           height: 50,
-          border: "1px solid #bbb",
           borderRadius: 2,
           alignSelf: "center",
           display: "flex",
@@ -62,7 +62,7 @@ const LoginForm = () => {
           color: "#888",
         }}
       >
-        ÍCONE
+        <LogoSvg/>
       </Box>
 
       <Typography variant="body2">Email</Typography>
@@ -122,10 +122,10 @@ const LoginForm = () => {
           color: "#fff",
           fontWeight: 500,
           textTransform: "none",
-          backgroundColor: "#6b6b6b",
+          backgroundColor: (theme) => theme.palette.primary.main,
           borderRadius: "8px",
           "&:hover": {
-            backgroundColor: "#555",
+            backgroundColor:  (theme) => theme.palette.iconButton.active,
           },
         }}
       >

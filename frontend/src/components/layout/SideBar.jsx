@@ -22,6 +22,7 @@ import LogOutSvg from "../../assets/icon/iconOut.svg?react";
 import MovSvg from "../../assets/icon/iconMove.svg?react";
 import UploadSvg from "../../assets/icon/iconUpload.svg?react";
 import TeamSvg from "../../assets/icon/iconTeam.svg?react";
+import LogoSvg from "../../assets/icon/logo-icon.svg?react";
 
 import ChevronRightIcon from "@mui/icons-material/ChevronRight";
 import ChevronLeftIcon from "@mui/icons-material/ChevronLeft";
@@ -105,12 +106,12 @@ export default function SideBar({ active, onChange, expanded, onToggle }) {
 
        {/* Logo */}
       <Box display="flex" justifyContent="center">
-        <IconButton>
-          <img src="/logo.svg" width={28} />
+        <IconButton sx={{width:"34px"}}>
+          <LogoSvg sx={{ color: "#fff" }}/>
         </IconButton>
       </Box>
 
-      <Divider sx={{ mt: 2, mb: 1, borderWidth: 1.3}} />
+      <Divider sx={{ mt: 1, mb: 1, borderWidth: 1.3}} />
 
       {/* Menu */}
       <Box sx={{ flex: 1 }}>
