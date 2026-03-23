@@ -20,13 +20,14 @@ O objetivo é fornecer um script simples e portátil para recriar a estrutura do
 
 ### Usando linha de comando (psql)
 ```bash
-psql -h <host> -U <usuario> -d <dbname> -f schema.sql
+psql -h <host> -U <usuario> -d gestock -f schema.sql
 ```
 
 ---
 
 ## ⚠️ Observações importantes
 - Este arquivo **não contém roles nem owners**.  
+- O nome do banco de dados **DEVE SER** gestock
 - O sistema **Gestock depende de um único usuário com permissão geral** para executar todas as operações (inserções, consultas e manutenção).  
   - Certifique-se de rodar o script conectado com esse usuário, sabendo suas credenciais.  
   - Essas credenciais devem ser **configuradas no arquivo `.env` do sistema**, para que o Gestock consiga acessar o banco de dados corretamente.  
