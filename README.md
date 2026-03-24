@@ -1,9 +1,15 @@
 # 📦 Gestock: Sistema Inteligente de Gestão de Estoque
 
-![GitHub repo size](https://img.shields.io/github/repo-size/iuricode/README-template?style=for-the-badge)
-![GitHub language count](https://img.shields.io/github/languages/count/iuricode/README-template?style=for-the-badge)
+  <p align="center">
+  <img src="https://img.shields.io/github/repo-size/klissiadev/gestock?style=for-the-badge" alt="GitHub repo size">
+  <img src="https://img.shields.io/github/languages/count/klissiadev/gestock?style=for-the-badge" alt="GitHub language count">
+</p>
 
-[![Linguagens](https://skillicons.dev/icons?i=react,postgres,tailwind,js,python,fastapi,docker)]()
+<p align="center">
+  <a href="https://skillicons.dev">
+    <img src="https://skillicons.dev/icons?i=react,postgres,python,fastapi,js,vite,tailwind,docker" />
+  </a>
+</p>
 
 <p align="center">
   <img src="https://media.istockphoto.com/id/1138429558/pt/foto/rows-of-shelves.jpg?s=612x612&w=0&k=20&c=Q_IQ0T-vjlcsCPUrQj79xkifkD6nhmjWNAQQ4WQwHgo=" alt="Imagem do gestock">
@@ -166,7 +172,7 @@ Agradecemos às seguintes pessoas que contribuíram para este projeto:
 <table>
   <tr>
   <td align="center">
-      <a href="#" title="defina o título do link">
+      <a href="#" title="Antonio Gabriel">
         <img src="https://imgur.com/Gc0pH7H.png" width="100px;"  height="100px;" alt="Foto de Antonio Gabriel"/><br>
         <sub>
           <b>Antonio Gabriel</b>
@@ -174,7 +180,7 @@ Agradecemos às seguintes pessoas que contribuíram para este projeto:
       </a>
     </td>
     <td align="center">
-      <a href="#" title="defina o título do link">
+      <a href="#" title="Ana Klissia">
         <img src="https://i.imgur.com/0EMpIgW.png" width="100px;"  height="100px;" alt="Foto de Ana Klissia"/><br>
         <sub>
           <b>Ana Klissia</b>
@@ -182,7 +188,7 @@ Agradecemos às seguintes pessoas que contribuíram para este projeto:
       </a>
     </td>
     <td align="center">
-      <a href="#" title="defina o título do link">
+      <a href="#" title="Thais Carolina">
         <img src="https://i.imgur.com/7BpjjOZ.jpeg" width="100px;"  height="100px;" alt="Foto de Thais Carolina"/><br>
         <sub>
           <b>Thais Carolina</b>
@@ -198,7 +204,7 @@ Agradecemos às seguintes pessoas que contribuíram para este projeto:
       </a>
     </td>
     <td align="center">
-      <a href="#" title="defina o título do link">
+      <a href="#" title="Erick Roberto">
         <img src="https://imgur.com/QIKonAp.png" width="100px;"  height="100px;" alt="Foto de Erick Roberto"/><br>
         <sub>
           <b>Erick Roberto</b>
@@ -206,8 +212,8 @@ Agradecemos às seguintes pessoas que contribuíram para este projeto:
       </a>
     </td>
     <td align="center">
-      <a href="#" title="defina o título do link">
-        <img src="https://t4.ftcdn.net/jpg/17/79/86/53/360_F_1779865388_fomebP6faaqwzY8HV7US4CPywz9ryYVM.jpg" width="100px;"  height="100px;" alt="Foto de Erick Roberto"/><br>
+      <a href="#" title="Gabriel Ribeiro">
+        <img src="https://t4.ftcdn.net/jpg/17/79/86/53/360_F_1779865388_fomebP6faaqwzY8HV7US4CPywz9ryYVM.jpg" width="100px;"  height="100px;" alt="Foto de Gabriel Ribeiro"/><br>
         <sub>
           <b>Gabriel Ribeiro</b>
         </sub>
