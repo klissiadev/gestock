@@ -2,8 +2,6 @@
 
 Este documento descreve os padrões, a arquitetura e as diretrizes para o desenvolvimento do módulo frontend do **Gestock**. O objetivo é garantir a consistência do código, a facilidade de manutenção e a escalabilidade da interface.
 
-> **Vai dar manutenção neste código ou criar novas funcionalidades?** Leia o nosso [Guia de Desenvolvimento](DEVELOPMENT.md) para entender a arquitetura de Features, Services e Tematização (MUI).
-
 ## 🛠️ Tecnologias e Dependências Base
 
 * **Framework:** [React 19](https://react.dev/).

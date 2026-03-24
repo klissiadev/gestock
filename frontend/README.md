@@ -2,6 +2,8 @@
 
 Este é o módulo frontend do projeto Gestock, um sistema avançado de gestão de estoque que integra aplicações de LLM (Large Language Models) e Machine Learning. A interface foi desenvolvida para ser rápida, responsiva e de fácil manutenção, utilizando um ecossistema moderno de ferramentas baseadas em React.
 
+> **Vai dar manutenção neste código ou criar novas funcionalidades?** Leia o nosso [Guia de Desenvolvimento](DEVELOPMENT.md) para entender a arquitetura de Features, Services e Tematização (MUI).
+
 ## 🚀 Tecnologias Principais
 
 O projeto utiliza as seguintes tecnologias e bibliotecas:
