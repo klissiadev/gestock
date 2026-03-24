@@ -11,6 +11,11 @@
   </a>
 </p>
 
+<p align="center">
+  <img src="https://media.istockphoto.com/id/1138429558/pt/foto/rows-of-shelves.jpg?s=612x612&w=0&k=20&c=Q_IQ0T-vjlcsCPUrQj79xkifkD6nhmjWNAQQ4WQwHgo=" alt="Imagem do gestock">
+  <br>creditos: istockphoto
+</p>
+
 O **Gestock** é uma plataforma avançada de gerenciamento de estoque que integra o poder da Inteligência Artificial (LLMs) e Machine Learning para transformar dados operacionais em insights estratégicos. O sistema automatiza processos, prevê demandas e oferece uma interface conversacional para consulta de dados complexos.
 
 -----
