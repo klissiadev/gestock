@@ -33,7 +33,7 @@ export const SearchBar = ({
       sx={{
         border: "1px solid",
         borderRadius: 3,
-        borderColor: (theme) => theme.palette.common.black,
+        borderColor: (theme) => theme.palette.iconButton.hover,
         padding: "2px 6px",
       }}
     >
@@ -43,7 +43,7 @@ export const SearchBar = ({
         gap={2}
         padding={0.4}
       >
-        <SearchOutlinedIcon />
+        <SearchOutlinedIcon sx={{color: (theme) => theme.palette.primary.main}} />
 
         <InputBase
           value={displayValue}

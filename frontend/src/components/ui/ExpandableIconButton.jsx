@@ -62,7 +62,7 @@ export default function ExpandableIconButton({
           justifyContent: "center",
           alignItems: "center",
           borderRadius: "12px",
-          backgroundColor: theme.palette.iconButton.active,
+          backgroundColor: theme.palette.primary.main,
         })}
       >
         {icon}
@@ -77,6 +77,7 @@ export default function ExpandableIconButton({
           fontSize: 18,
           fontWeight: 500,
           marginLeft: 2,
+          color: (theme) => theme.palette.primary.main
         }}
       >
         {label}

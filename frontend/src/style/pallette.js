@@ -16,14 +16,14 @@ export const palette = {
     },
 
     table: {
-      main: '#DBDBDB',
-      hover: '#C8C8C8',
+      main: '#fff',
+      hover: '#f9f6fd',
     },
 
     iconButton: {
       main: "#ffffff",
       hover: "#e7e4ea",
-      active: "#9480b4",
+      active: "#F6F0FF",
       selected: "#cec7d9",
       disabled: "#6d5692",
     },
@@ -36,7 +36,7 @@ export const palette = {
 
     uploadBox: {
       main: "#DBDBDB",
-      button: "#676767",
+      button: "#634494",
     },
 
     card: {

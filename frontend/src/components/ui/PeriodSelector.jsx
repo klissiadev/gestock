@@ -1,6 +1,5 @@
 import { Box, IconButton, MenuItem, Select, Typography } from "@mui/material";
-import CalendarSvg from "../../assets/icon/iconCalendar.svg?react";
-
+import CalendarSvg from '@mui/icons-material/CalendarToday';
 const months = [
   { value: 1, label: "Jan" },
   { value: 2, label: "Fev" },
@@ -32,16 +31,16 @@ export default function PeriodSelector({ value, onChange }) {
       sx={{
         display: "flex",
         alignItems: "center",
-        border: "1.5px solid",
-        borderColor: "common.black",
+        boxShadow: "0 4px 20px rgba(0,0,0,0.16)",
         borderRadius: "14px",
         px: 2,
         py: 0.5,
         gap: 1,
         bgcolor: "background.paper",
+        color:(theme)=> theme.palette.primary.main
       }}
     >
-      <CalendarSvg width={18} height={18} />
+      <CalendarSvg sx={{color:(theme)=> theme.palette.primary.main, width:"16px"}}/>
 
       <Select
         value={month}

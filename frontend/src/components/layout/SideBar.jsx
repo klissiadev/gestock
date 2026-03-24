@@ -15,14 +15,20 @@ import AppIcon from "../ui/AppIcon";
 
 import HomeSvg from "../../assets/icon/iconHome.svg?react";
 import ChatSvg from "../../assets/icon/iconChat.svg?react";
+import ChatActiveSvg from "../../assets/icon/icon-minerva-purple.svg?react";
 import InvetorySvg from "../../assets/icon/iconInventory.svg?react";
+import InvetoryActiveSvg from "../../assets/icon/icon-box-purple.svg?react";
 import ShoppingSvg from "../../assets/icon/iconShop.svg?react";
+import ShoppingActiveSvg from "../../assets/icon/icon-car-purple.svg?react";
 import ChartSvg from "../../assets/icon/iconBars.svg?react";
 import LogOutSvg from "../../assets/icon/iconOut.svg?react";
 import MovSvg from "../../assets/icon/iconMove.svg?react";
+import MovActiveSvg from "../../assets/icon/icon-movement-purple.svg?react";
 import UploadSvg from "../../assets/icon/iconUpload.svg?react";
 import TeamSvg from "../../assets/icon/iconTeam.svg?react";
+import TeamActiveSvg from "../../assets/icon/icon-team-purple.svg?react";
 import LogoSvg from "../../assets/icon/logo-icon.svg?react";
+import LogoTextSvg from "../../assets/icon/logo-text-purple.svg?react";
 
 import ChevronRightIcon from "@mui/icons-material/ChevronRight";
 import ChevronLeftIcon from "@mui/icons-material/ChevronLeft";
@@ -32,20 +38,20 @@ import { useAuth } from "../../AuthContext";
 
 
 const commonItems = [
-  { id: "home", icon: HomeSvg, title: "Home" },
-  { id: "ai", icon: ChatSvg, title: "Chat"},
-  { id: "upload", icon: UploadSvg, title: "Upload" },
-  { id: "sheets", icon: InvetorySvg, title: "Inventory" },
-  { id: "movements", icon: MovSvg, title: "Movements" },
-  { id: "requests", icon: ShoppingSvg, title: "Request" },
-  { id: "forecast", icon: ChartSvg, title: "Forecast"}
+  { id: "home", icon: HomeSvg, title: "Home", iconActive: HomeSvg },
+  { id: "ai", icon: ChatSvg, title: "Chat", iconActive: ChatActiveSvg},
+  { id: "upload", icon: UploadSvg, title: "Upload", iconActive: UploadSvg },
+  { id: "sheets", icon: InvetorySvg, title: "Inventory", iconActive: InvetoryActiveSvg },
+  { id: "movements", icon: MovSvg, title: "Movements", iconActive: MovActiveSvg },
+  { id: "requests", icon: ShoppingSvg, title: "Request", iconActive: ShoppingActiveSvg },
+  { id: "forecast", icon: ChartSvg, title: "Forecast", iconActive: HomeSvg}
 ];
 
 const adminItems = [
-  { id: "debug2", icon: HomeSvg, title: "Home" },
-  { id: "users", icon: TeamSvg, title: "Users"},
-  { id: "log-imports", icon: ArchiveIcon, title: "Log Imports"},
-  { id: "log-chats", icon: ChatSvg, title: "Log Chats"}
+  { id: "debug2", icon: HomeSvg, title: "Home", iconActive: HomeSvg },
+  { id: "users", icon: TeamSvg, title: "Users", iconActive: TeamActiveSvg},
+  { id: "log-imports", icon: ArchiveIcon, title: "Log Imports", iconActive: ArchiveIcon},
+  { id: "log-chats", icon: ChatSvg, title: "Log Chats", iconActive: ChatActiveSvg}
 ];
 
 export default function SideBar({ active, onChange, expanded, onToggle }) {
@@ -90,24 +96,24 @@ export default function SideBar({ active, onChange, expanded, onToggle }) {
             width: 25,
             height: 25,
             borderRadius: '8px',
-            backgroundColor: "#DBDBDB",
+            backgroundColor: (theme) => theme.palette.primary.main,
             color: "#000",
             fontWeight: "bold",
 
             "&:hover": {
-              backgroundColor: "#f5f5f5",
+              backgroundColor: (theme) => theme.palette.iconButton.selected,
             },
           }}
         >
-          {expanded ? <ChevronLeftIcon /> : <ChevronRightIcon />}
+          {expanded ? <ChevronLeftIcon sx={{ color: "#fff" }} /> : <ChevronRightIcon sx={{ color: "#fff" }} />}
         </IconButton>
       </Box>
 
 
        {/* Logo */}
       <Box display="flex" justifyContent="center">
-        <IconButton sx={{width:"34px"}}>
-          <LogoSvg sx={{ color: "#fff" }}/>
+        <IconButton sx={{width:expanded ? "120px":"34px"}}>
+          {expanded ? <LogoTextSvg/> : <LogoSvg sx={{ color: "#fff" }}/>}
         </IconButton>
       </Box>
 
@@ -138,7 +144,7 @@ export default function SideBar({ active, onChange, expanded, onToggle }) {
                   justifyContent: "center",
                 }}
               >
-                <AppIcon component={item.icon}/>
+                <AppIcon component={active === item.id ? item.iconActive : item.icon} />
               </ListItemIcon>
 
               {expanded && (
@@ -148,6 +154,7 @@ export default function SideBar({ active, onChange, expanded, onToggle }) {
                     whiteSpace: "nowrap",
                     maxWidth: expanded ? "100%" : 0,
                     transition: "opacity 0.2s",
+                    color: (theme) => active === item.id ? theme.palette.primary.main : "#000"
                   }}
                 />
               )}

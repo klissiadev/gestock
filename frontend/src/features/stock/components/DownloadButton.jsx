@@ -41,14 +41,13 @@ const DownloadButton = ({ filter, whatTable }) => {
         variant="outlined"
         startIcon={loading ? <CircularProgress size={20} color="inherit" /> : <CloudDownloadRoundedIcon />}
         sx={{
-          color: (theme) => theme.palette.common.black,
-          borderColor: (theme) => theme.palette.common.black,
+          color: (theme) => theme.palette.iconButton.hover,
+          backgroundColor: (theme) => theme.palette.primary.main,
           borderRadius: 2,
           padding: 2,
           textTransform: "none",
           "&:hover": {
-            borderColor: (theme) => theme.palette.common.black,
-            backgroundColor: (theme) => theme.palette.table.main,
+            backgroundColor: (theme) => theme.palette.iconButton.selected,
           },
           width: "fit-content",
           minWidth: "auto",

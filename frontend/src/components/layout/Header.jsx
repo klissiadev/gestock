@@ -4,7 +4,7 @@ import {  } from "@mui/material";
 import { useEffect, useState } from "react";
 import { fetchUnreadNotifications } from "../../features/notifications/services/notificationApi";
 import PerfilSvg from "../../assets/icon/iconPerfil.svg?react";
-import NotificationSvg from "../../assets/icon/iconNotify.svg?react";
+import NotificationSvg from "../../assets/icon/icon-notification-purple.svg?react";
 import AddUserSvg from "../../assets/icon/iconAddUser.svg?react";
 import HistoryIcon from "@mui/icons-material/History";
 
