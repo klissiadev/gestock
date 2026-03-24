@@ -1,13 +1,14 @@
 # 📦 Gestock: Sistema Inteligente de Gestão de Estoque
 
-![GitHub repo size](https://img.shields.io/github/repo-size/iuricode/README-template?style=for-the-badge)
-![GitHub language count](https://img.shields.io/github/languages/count/iuricode/README-template?style=for-the-badge)
-
-[![Linguagens](https://skillicons.dev/icons?i=react,postgres,tailwind,js,python,fastapi,docker,mui)]()
+  <p align="center">
+  <img src="https://img.shields.io/github/repo-size/klissiadev/gestock?style=for-the-badge" alt="GitHub repo size">
+  <img src="https://img.shields.io/github/languages/count/klissiadev/gestock?style=for-the-badge" alt="GitHub language count">
+</p>
 
 <p align="center">
-  <img src="https://media.istockphoto.com/id/1138429558/pt/foto/rows-of-shelves.jpg?s=612x612&w=0&k=20&c=Q_IQ0T-vjlcsCPUrQj79xkifkD6nhmjWNAQQ4WQwHgo=" alt="Imagem do gestock">
-  <br>creditos: istockphoto
+  <a href="https://skillicons.dev">
+    <img src="https://skillicons.dev/icons?i=react,postgres,python,fastapi,js,vite,tailwind,docker" />
+  </a>
 </p>
 
 O **Gestock** é uma plataforma avançada de gerenciamento de estoque que integra o poder da Inteligência Artificial (LLMs) e Machine Learning para transformar dados operacionais em insights estratégicos. O sistema automatiza processos, prevê demandas e oferece uma interface conversacional para consulta de dados complexos.
