@@ -1,7 +1,7 @@
 [project]
 name = "llm_report"
-version = "0.1.0"
-description = ""
+version = "1.0.0"
+description = "Módulo gerador de relatórios do Gestock. Utiliza Inteligência Artificial (LLMs) aliada a chunking de dados para formatar e resumir grandes listagens do banco de dados com alta precisão."
 authors = [
     {name = "Thais Carolina Braga de Magalhães",email = "tcbdma.snf24@uea.edu.br"}
 ]
