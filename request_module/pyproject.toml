@@ -1,7 +1,7 @@
 [project]
 name = "request-module"
-version = "0.1.0"
-description = "Add your description here"
+version = "1.0.0"
+description = "Módulo do Gestock responsável pela gestão de requisições de compra e notificação automatizada por e-mail ao setor financeiro."
 readme = "README.md"
 authors = [
     { name = "Thais Carolina Braga de Magalhães", email = "tcbdma.snf24@uea.edu.br" }
