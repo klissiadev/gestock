@@ -30,10 +30,27 @@ class BatchDetector:
             if result.get("status") == "model_not_found":
                 continue
 
-            row_result = row.copy()
-            row_result["anomaly"] = result["anomaly"]
-            row_result["score"] = result["score"]
-            row_result["result"] = min(result["anomaly"], self.classify_result(result["score"]))
+            allowed_fields = [
+                "item_id",
+                "nome",
+                "descricao",
+                "tipo",
+                "estoque_minimo",
+                "data_validade",
+                "ativo",
+                "cliente",
+                "created_at",
+                "quantidade",
+                "preco_de_venda"
+            ]
+
+            row_result = {k: row[k] for k in allowed_fields if k in row}
+
+            row_result.update({
+                "anomaly": result["anomaly"],
+                "score": result["score"],
+                "result": min(result["anomaly"], self.classify_result(result["score"]))
+            })
 
             results.append(row_result)
 

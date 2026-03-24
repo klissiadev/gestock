@@ -13,7 +13,7 @@ def load_anomaly_data(data_corte):
 
     query = """
         SELECT *
-        FROM vw_anomaly_input
+        FROM app_core.vw_anomaly_input
         WHERE date >= %s
         ORDER BY date ASC;
     """
@@ -41,5 +41,5 @@ def load_anomaly_data(data_corte):
 
     # Remover possíveis NaN
     df = df.dropna(subset=["value", "sell_price"])
-
+    
     return df

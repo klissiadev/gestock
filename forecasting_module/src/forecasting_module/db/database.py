@@ -12,7 +12,7 @@ class Repository:
     def buscar_dados_anomalia(self, data_corte: date):
         query = """
             SELECT *
-            FROM vw_anomaly_input
+            FROM app_core.vw_anomaly_input
             WHERE date >= %s
             ORDER BY date ASC;
         """

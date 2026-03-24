@@ -16,7 +16,8 @@ class AnomalyAppService:
                 "count": 0
             }
 
-        resultado["date"] = resultado["date"].astype(str)
+        for col in resultado.select_dtypes(include=["datetime64[ns]", "datetime64[ns, UTC]"]):
+            resultado[col] = resultado[col].astype(str)
 
         return {
             "data": resultado.to_dict(orient="records"),
