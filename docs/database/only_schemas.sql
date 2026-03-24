@@ -14,23 +14,19 @@ CREATE SCHEMA app_ai;
 CREATE SCHEMA app_core;
 CREATE SCHEMA app_logs;
 
-ALTER DATABASE gestock SET search_path TO app_ai;
-
 CREATE EXTENSION IF NOT EXISTS unaccent WITH SCHEMA app_ai;
 CREATE EXTENSION IF NOT EXISTS unaccent WITH SCHEMA app_core;
 CREATE EXTENSION IF NOT EXISTS unaccent WITH SCHEMA app_logs;
-
 CREATE EXTENSION IF NOT EXISTS "uuid-ossp" WITH SCHEMA app_ai;
 CREATE EXTENSION IF NOT EXISTS "uuid-ossp" WITH SCHEMA app_core;
 CREATE EXTENSION IF NOT EXISTS "uuid-ossp" WITH SCHEMA app_logs;
 
-COMMENT ON EXTENSION unaccent IS 'text search dictionary that removes accents';
+ALTER DATABASE gestock SET search_path TO app_ai;
 
 CREATE FUNCTION app_core.refresh_stock_view() RETURNS trigger
     LANGUAGE plpgsql
     AS $$
 BEGIN
-
     REFRESH MATERIALIZED VIEW CONCURRENTLY app_core.vw_product;
     REFRESH MATERIALIZED VIEW CONCURRENTLY app_core.mv_movimentacao;
     REFRESH MATERIALIZED VIEW CONCURRENTLY app_core.mv_imports;
@@ -38,7 +34,6 @@ BEGIN
 END;
 $$;
 
-SET default_tablespace = '';
 
 SET default_table_access_method = heap;
 
@@ -202,9 +197,10 @@ CREATE TABLE app_core.produtos (
     CONSTRAINT produtos_status_check CHECK (((tipo)::text = ANY ((ARRAY['MP'::character varying, 'SA'::character varying, 'PA'::character varying, 'INVALIDO'::character varying])::text[])))
 );
 
+
+
 CREATE MATERIALIZED VIEW app_core.mv_movimentacao AS
- SELECT 
-    gen_random_uuid() AS unique_id,
+ SELECT t.unique_id,
     p.nome AS produto_nome,
     t.quantidade,
     t.data_evento,
@@ -213,42 +209,42 @@ CREATE MATERIALIZED VIEW app_core.mv_movimentacao AS
     t.local_destino,
     t.tipo_movimento,
     t.created_at
- FROM (
-    SELECT
-        produto_id,
-        quantidade,
-        data_de_compra AS data_evento,
-        preco_de_compra AS valor_unitario,
-        fornecedor AS parceiro_origem,
-        'ESTOQUE'::character varying AS local_destino,
-        'ENTRADA'::text AS tipo_movimento,
-        created_at
-    FROM app_core.movimentacoes_entrada
-    UNION ALL
-    SELECT
-        produto_id,
-        quantidade,
-        data_de_venda AS data_evento,
-        preco_de_venda AS valor_unitario,
-        'ESTOQUE'::character varying AS parceiro_origem,
-        cliente AS local_destino,
-        'SAIDA'::text AS tipo_movimento,
-        created_at
-    FROM app_core.movimentacoes_saida
-    UNION ALL
-    SELECT
-        produto_id,
-        quantidade,
-        data AS data_evento,
-        NULL::numeric AS valor_unitario,
-        origem AS parceiro_origem,
-        destino AS local_destino,
-        'INTERNA'::text AS tipo_movimento,
-        data AS created_at
-    FROM app_core.movimentacoes_internas
- ) t
- JOIN app_core.produtos p ON p.id = t.produto_id
- WITH NO DATA;
+   FROM (( SELECT (movimentacoes_entrada.id || '-ENT'::text) AS unique_id,
+            movimentacoes_entrada.produto_id,
+            movimentacoes_entrada.quantidade,
+            movimentacoes_entrada.data_de_compra AS data_evento,
+            movimentacoes_entrada.preco_de_compra AS valor_unitario,
+            movimentacoes_entrada.fornecedor AS parceiro_origem,
+            'ESTOQUE'::character varying AS local_destino,
+            'ENTRADA'::text AS tipo_movimento,
+            movimentacoes_entrada.created_at
+           FROM app_core.movimentacoes_entrada
+        UNION ALL
+         SELECT (movimentacoes_saida.id || '-SAI'::text),
+            movimentacoes_saida.produto_id,
+            movimentacoes_saida.quantidade,
+            movimentacoes_saida.data_de_venda,
+            movimentacoes_saida.preco_de_venda,
+            'ESTOQUE'::character varying,
+            movimentacoes_saida.cliente,
+            'SAIDA'::text,
+            movimentacoes_saida.created_at
+           FROM app_core.movimentacoes_saida
+        UNION ALL
+         SELECT (movimentacoes_internas.id || '-INT'::text),
+            movimentacoes_internas.produto_id,
+            movimentacoes_internas.quantidade,
+            movimentacoes_internas.data,
+            NULL::numeric,
+            movimentacoes_internas.origem,
+            movimentacoes_internas.destino,
+            'INTERNA'::text,
+            movimentacoes_internas.data
+           FROM app_core.movimentacoes_internas) t
+     JOIN app_core.produtos p ON ((p.id = t.produto_id)))
+  WITH NO DATA;
+
+
 
 CREATE TABLE app_core.notificacoes (
     id integer NOT NULL,
@@ -263,6 +259,7 @@ CREATE TABLE app_core.notificacoes (
     user_id uuid NOT NULL
 );
 
+
 CREATE TABLE app_core.notificacoes_eventos (
     id integer NOT NULL,
     type text NOT NULL,
@@ -272,6 +269,7 @@ CREATE TABLE app_core.notificacoes_eventos (
     user_id uuid
 );
 
+
 ALTER TABLE app_core.notificacoes_eventos ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTITY (
     SEQUENCE NAME app_core.notificacoes_eventos_id_seq
     START WITH 1
@@ -280,6 +278,7 @@ ALTER TABLE app_core.notificacoes_eventos ALTER COLUMN id ADD GENERATED ALWAYS A
     NO MAXVALUE
     CACHE 1
 );
+
 
 CREATE SEQUENCE app_core.notificacoes_id_seq
     AS integer
@@ -381,7 +380,7 @@ CREATE VIEW app_core.v_produtos AS
                 ELSE NULL::numeric
             END), ((0)::bigint)::numeric)
             ELSE ((0)::bigint)::numeric
-        END) - 
+        END) -
         CASE
             WHEN ((p.tipo)::text = ANY ((ARRAY['MP'::character varying, 'SA'::character varying])::text[])) THEN COALESCE(sum(
             CASE
@@ -389,7 +388,7 @@ CREATE VIEW app_core.v_produtos AS
                 ELSE NULL::numeric
             END), ((0)::bigint)::numeric)
             ELSE ((0)::bigint)::numeric
-        END) - 
+        END) - (
         CASE
             WHEN ((p.tipo)::text = 'PA'::text) THEN COALESCE(sum(ms.quantidade), (0)::bigint)
             ELSE (0)::bigint
@@ -409,7 +408,7 @@ CREATE VIEW app_core.v_produtos AS
                 ELSE NULL::numeric
             END), ((0)::bigint)::numeric)
             ELSE ((0)::bigint)::numeric
-        END) - 
+        END) -
         CASE
             WHEN ((p.tipo)::text = ANY ((ARRAY['MP'::character varying, 'SA'::character varying])::text[])) THEN COALESCE(sum(
             CASE
@@ -417,7 +416,7 @@ CREATE VIEW app_core.v_produtos AS
                 ELSE NULL::numeric
             END), ((0)::bigint)::numeric)
             ELSE ((0)::bigint)::numeric
-        END) - 
+        END) - (
         CASE
             WHEN ((p.tipo)::text = 'PA'::text) THEN COALESCE(sum(ms.quantidade), (0)::bigint)
             ELSE (0)::bigint
@@ -444,23 +443,28 @@ CREATE VIEW app_core.v_produtos_custo AS
         )
  SELECT p.id AS produto_id,
     p.nome AS nome_produto,
-    CASE
-        WHEN COALESCE(e.total_entrada, 0) = 0 THEN 0
-        ELSE round((COALESCE(e.valor_total_entrada, (0)::numeric) / (NULLIF(e.total_entrada, 0))::numeric), 2)
-    END AS custo_medio,
-    CASE
-        WHEN COALESCE(e.total_entrada, 0) = 0 THEN 0
-        ELSE round(((COALESCE(e.total_entrada, 0) - COALESCE(s.total_saida, 0)) * (COALESCE(e.valor_total_entrada, 0) / NULLIF(e.total_entrada, 0)))::numeric, 2)
-    END AS valor_total
+    (COALESCE(e.total_entrada, (0)::bigint) - COALESCE(s.total_saida, (0)::bigint)) AS estoque_atual,
+        CASE
+            WHEN ((COALESCE(e.total_entrada, (0)::bigint) - COALESCE(s.total_saida, (0)::bigint)) <= 0) THEN (0)::numeric
+            ELSE round((COALESCE(e.valor_total_entrada, (0)::numeric) / (NULLIF(e.total_entrada, 0))::numeric), 2)
+        END AS custo_medio,
+        CASE
+            WHEN ((COALESCE(e.total_entrada, (0)::bigint) - COALESCE(s.total_saida, (0)::bigint)) <= 0) THEN (0)::numeric
+            ELSE round((((COALESCE(e.total_entrada, (0)::bigint) - COALESCE(s.total_saida, (0)::bigint)))::numeric * (COALESCE(e.valor_total_entrada, (0)::numeric) / (NULLIF(e.total_entrada, 0))::numeric)), 2)
+        END AS valor_total
    FROM ((app_core.produtos p
      LEFT JOIN entradas e ON ((p.id = e.produto_id)))
      LEFT JOIN saidas s ON ((p.id = s.produto_id)));
+
+
 
 CREATE VIEW app_core.v_ultima_movimentacao_produto AS
  SELECT nome_produto,
     max(data_movimentacao) AS ultima_movimentacao
    FROM app_core.v_movimentacao
   GROUP BY nome_produto;
+
+
 
 CREATE VIEW app_core.vw_anomaly_input AS
  SELECT m.created_at AS date,
@@ -475,7 +479,7 @@ CREATE VIEW app_core.vw_anomaly_input AS
         END AS category,
         CASE m.cliente
             WHEN 'Tech Solutions'::text THEN 'CA_1'::text
-
+            WHEN 'E-commerce X'::text THEN 'CA_2'::text
             WHEN 'Empresa Corporativa Y'::text THEN 'CA_3'::text
             WHEN 'Comercial Alpha'::text THEN 'CA_4'::text
             WHEN 'Central Eletrônicos'::text THEN 'TX_1'::text
@@ -489,6 +493,8 @@ CREATE VIEW app_core.vw_anomaly_input AS
    FROM (app_core.movimentacoes_saida m
      JOIN app_core.produtos p ON ((p.id = m.produto_id)));
 
+
+
 CREATE MATERIALIZED VIEW app_core.vw_product AS
  SELECT p.id,
     p.nome,
@@ -499,9 +505,9 @@ CREATE MATERIALIZED VIEW app_core.vw_product AS
             ELSE p.tipo
         END AS tipo,
     p.descricao,
-
+    (((COALESCE(ent.total_entrada, (0)::bigint))::numeric + COALESCE(mov.total_mov, (0)::numeric)) - (COALESCE(sai.total_saida, (0)::bigint))::numeric) AS estoque_atual,
     p.estoque_minimo,
-
+    ((((COALESCE(ent.total_entrada, (0)::bigint))::numeric + COALESCE(mov.total_mov, (0)::numeric)) - (COALESCE(sai.total_saida, (0)::bigint))::numeric) <= (p.estoque_minimo)::numeric) AS baixo_estoque,
     (p.data_validade < CURRENT_DATE) AS vencido,
     p.data_validade,
     p.ativo
@@ -514,6 +520,7 @@ CREATE MATERIALIZED VIEW app_core.vw_product AS
             sum(
                 CASE
                     WHEN ((movimentacoes_internas.tipo)::text = 'PRODUCAO'::text) THEN movimentacoes_internas.quantidade
+                    WHEN ((movimentacoes_internas.tipo)::text = 'CONSUMO'::text) THEN (- movimentacoes_internas.quantidade)
                     ELSE (0)::numeric
                 END) AS total_mov
            FROM app_core.movimentacoes_internas
@@ -524,12 +531,16 @@ CREATE MATERIALIZED VIEW app_core.vw_product AS
           GROUP BY movimentacoes_saida.produto_id) sai ON ((p.id = sai.produto_id)))
   WITH NO DATA;
 
+
+
 CREATE TABLE app_logs.arquivos_importados (
     id integer NOT NULL,
     file_hash text NOT NULL,
     file_name text,
     created_at timestamp without time zone DEFAULT now()
 );
+
+
 
 CREATE SEQUENCE app_logs.arquivos_importados_id_seq
     AS integer
@@ -539,7 +550,11 @@ CREATE SEQUENCE app_logs.arquivos_importados_id_seq
     NO MAXVALUE
     CACHE 1;
 
+
+
 ALTER SEQUENCE app_logs.arquivos_importados_id_seq OWNED BY app_logs.arquivos_importados.id;
+
+
 
 CREATE TABLE app_logs.importacoes (
     id bigint NOT NULL,
@@ -553,6 +568,8 @@ CREATE TABLE app_logs.importacoes (
     CONSTRAINT importacoes_status_check CHECK (((status)::text = ANY (ARRAY[('SUCESSO'::character varying)::text, ('ERRO'::character varying)::text, ('PROCESSANDO'::character varying)::text])))
 );
 
+
+
 ALTER TABLE app_logs.importacoes ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTITY (
     SEQUENCE NAME app_logs.importacoes_id_seq
     START WITH 1
@@ -561,6 +578,8 @@ ALTER TABLE app_logs.importacoes ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTIT
     NO MAXVALUE
     CACHE 1
 );
+
+
 
 CREATE TABLE app_logs.log_emails (
     id bigint NOT NULL,
@@ -574,6 +593,8 @@ CREATE TABLE app_logs.log_emails (
     CONSTRAINT log_emails_status_envio_check CHECK (((status_envio)::text = ANY (ARRAY[('ENVIADO'::character varying)::text, ('ERRO'::character varying)::text, ('PENDENTE'::character varying)::text])))
 );
 
+
+
 ALTER TABLE app_logs.log_emails ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTITY (
     SEQUENCE NAME app_logs.log_emails_id_seq
     START WITH 1
@@ -582,6 +603,8 @@ ALTER TABLE app_logs.log_emails ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTITY
     NO MAXVALUE
     CACHE 1
 );
+
+
 
 CREATE TABLE app_logs.log_llm (
     id bigint NOT NULL,
@@ -595,6 +618,8 @@ CREATE TABLE app_logs.log_llm (
     CONSTRAINT log_llm_tokens_check CHECK ((tokens >= 0))
 );
 
+
+
 ALTER TABLE app_logs.log_llm ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTITY (
     SEQUENCE NAME app_logs.log_llm_id_seq
     START WITH 1
@@ -603,6 +628,8 @@ ALTER TABLE app_logs.log_llm ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTITY (
     NO MAXVALUE
     CACHE 1
 );
+
+
 
 CREATE MATERIALIZED VIEW app_logs.mv_imports AS
  SELECT i.id,
@@ -616,158 +643,274 @@ CREATE MATERIALIZED VIEW app_logs.mv_imports AS
      JOIN app_core.usuarios u ON ((i.user_id = u.id)))
   WITH NO DATA;
 
+
+
 ALTER TABLE ONLY app_ai.conversation_logs ALTER COLUMN id SET DEFAULT nextval('app_ai.conversation_logs_id_seq'::regclass);
+
+
 
 ALTER TABLE ONLY app_core.movimentacoes_internas ALTER COLUMN id SET DEFAULT nextval('app_core.movimentacoes_internas_id_seq'::regclass);
 
+
+
 ALTER TABLE ONLY app_core.notificacoes ALTER COLUMN id SET DEFAULT nextval('app_core.notificacoes_id_seq'::regclass);
 
+
+
 ALTER TABLE ONLY app_logs.arquivos_importados ALTER COLUMN id SET DEFAULT nextval('app_logs.arquivos_importados_id_seq'::regclass);
+
+
 
 ALTER TABLE ONLY app_ai.checkpoint_blobs
     ADD CONSTRAINT checkpoint_blobs_pkey PRIMARY KEY (thread_id, checkpoint_ns, channel, version);
 
+
+
 ALTER TABLE ONLY app_ai.checkpoint_migrations
     ADD CONSTRAINT checkpoint_migrations_pkey PRIMARY KEY (v);
+
+
 
 ALTER TABLE ONLY app_ai.checkpoint_writes
     ADD CONSTRAINT checkpoint_writes_pkey PRIMARY KEY (thread_id, checkpoint_ns, checkpoint_id, task_id, idx);
 
+
+
 ALTER TABLE ONLY app_ai.checkpoints
     ADD CONSTRAINT checkpoints_pkey PRIMARY KEY (thread_id, checkpoint_ns, checkpoint_id);
+
+
 
 ALTER TABLE ONLY app_ai.conversation_logs
     ADD CONSTRAINT conversation_logs_pkey PRIMARY KEY (id);
 
+
+
 ALTER TABLE ONLY app_ai.conversation_sessions
     ADD CONSTRAINT conversation_sessions_pkey PRIMARY KEY (session_id);
+
+
 
 ALTER TABLE ONLY app_core.ficha_tecnica
     ADD CONSTRAINT ficha_tecnica_pkey PRIMARY KEY (produto_final_id, materia_prima_id);
 
+
+
 ALTER TABLE ONLY app_core.itens_requisicoes
     ADD CONSTRAINT itens_requisicoes_pkey PRIMARY KEY (id);
+
+
 
 ALTER TABLE ONLY app_core.itens_requisicoes
     ADD CONSTRAINT itens_requisicoes_requisicao_id_produto_id_key UNIQUE (requisicao_id, produto_id);
 
+
+
 ALTER TABLE ONLY app_core.movimentacoes_entrada
     ADD CONSTRAINT movimentacoes_entrada_pkey PRIMARY KEY (id);
+
+
 
 ALTER TABLE ONLY app_core.movimentacoes_internas
     ADD CONSTRAINT movimentacoes_internas_pkey PRIMARY KEY (id);
 
+
+
 ALTER TABLE ONLY app_core.movimentacoes_saida
     ADD CONSTRAINT movimentacoes_saida_pkey PRIMARY KEY (id);
+
+
 
 ALTER TABLE ONLY app_core.notificacoes_eventos
     ADD CONSTRAINT notificacoes_eventos_pkey PRIMARY KEY (id);
 
+
+
 ALTER TABLE ONLY app_core.notificacoes
     ADD CONSTRAINT notificacoes_pkey PRIMARY KEY (id);
+
+
 
 ALTER TABLE ONLY app_core.produtos
     ADD CONSTRAINT produtos_pkey PRIMARY KEY (id);
 
+
+
 ALTER TABLE ONLY app_core.requisicoes
     ADD CONSTRAINT requisicoes_pkey PRIMARY KEY (id);
+
+
 
 ALTER TABLE ONLY app_core.usuarios
     ADD CONSTRAINT usuarios_email_key UNIQUE (email);
 
+
+
 ALTER TABLE ONLY app_core.usuarios
     ADD CONSTRAINT usuarios_pkey PRIMARY KEY (id);
+
+
 
 ALTER TABLE ONLY app_logs.arquivos_importados
     ADD CONSTRAINT arquivos_importados_file_hash_key UNIQUE (file_hash);
 
+
+
 ALTER TABLE ONLY app_logs.arquivos_importados
     ADD CONSTRAINT arquivos_importados_pkey PRIMARY KEY (id);
+
+
 
 ALTER TABLE ONLY app_logs.importacoes
     ADD CONSTRAINT importacoes_pkey PRIMARY KEY (id);
 
+
+
 ALTER TABLE ONLY app_logs.log_emails
     ADD CONSTRAINT log_emails_pkey PRIMARY KEY (id);
+
+
 
 ALTER TABLE ONLY app_logs.log_llm
     ADD CONSTRAINT log_llm_pkey PRIMARY KEY (id);
 
+
+
 CREATE INDEX checkpoint_blobs_thread_id_idx ON app_ai.checkpoint_blobs USING btree (thread_id);
+
+
 
 CREATE INDEX checkpoint_writes_thread_id_idx ON app_ai.checkpoint_writes USING btree (thread_id);
 
+
+
 CREATE INDEX checkpoints_thread_id_idx ON app_ai.checkpoints USING btree (thread_id);
+
+
 
 CREATE INDEX idx_conversation_logs_session ON app_ai.conversation_logs USING btree (session_id, created_at);
 
+
+
 CREATE INDEX idx_conversation_sessions_updated_at ON app_ai.conversation_sessions USING btree (updated_at DESC);
+
+
 
 CREATE INDEX idx_itens_requisicoes_produto ON app_core.itens_requisicoes USING btree (produto_id);
 
+
+
 CREATE UNIQUE INDEX idx_unique_mv_id ON app_core.mv_movimentacao USING btree (unique_id);
+
+
 
 CREATE INDEX idx_usuarios_ativo ON app_core.usuarios USING btree (ativo);
 
+
+
 CREATE UNIQUE INDEX idx_vw_product_unique_id ON app_core.vw_product USING btree (id);
+
+
 
 CREATE INDEX idx_importacoes_created_at ON app_logs.importacoes USING btree (created_at);
 
+
+
 CREATE INDEX idx_log_emails_created_at ON app_logs.log_emails USING btree (created_at);
+
+
 
 CREATE INDEX idx_log_llm_created_at ON app_logs.log_llm USING btree (created_at);
 
+
+
 CREATE UNIQUE INDEX idx_mv_imports_id ON app_logs.mv_imports USING btree (id);
+
+
 
 CREATE INDEX idx_mv_imports_user_file ON app_logs.mv_imports USING btree (responsavel_por, nome_arquivo);
 
+
+
 CREATE TRIGGER trg_refresh_view_entrada AFTER INSERT OR DELETE OR UPDATE ON app_core.movimentacoes_entrada FOR EACH STATEMENT EXECUTE FUNCTION app_core.refresh_stock_view();
+
+
 
 CREATE TRIGGER trg_refresh_view_product AFTER INSERT OR DELETE OR UPDATE ON app_core.produtos FOR EACH STATEMENT EXECUTE FUNCTION app_core.refresh_stock_view();
 
+
+
 CREATE TRIGGER trg_refresh_view_saida AFTER INSERT OR DELETE OR UPDATE ON app_core.movimentacoes_saida FOR EACH STATEMENT EXECUTE FUNCTION app_core.refresh_stock_view();
 
-CREATE TRIGGER trg_refresh_view_interna AFTER INSERT OR DELETE OR UPDATE ON app_core.movimentacoes_internas FOR EACH STATEMENT EXECUTE FUNCTION app_core.refresh_stock_view();
+
 
 ALTER TABLE ONLY app_ai.conversation_logs
     ADD CONSTRAINT fk_session FOREIGN KEY (session_id) REFERENCES app_ai.conversation_sessions(session_id) ON DELETE CASCADE;
 
+
+
 ALTER TABLE ONLY app_ai.conversation_sessions
     ADD CONSTRAINT id_usuario_fkey FOREIGN KEY (id_usuario) REFERENCES app_core.usuarios(id);
+
+
 
 ALTER TABLE ONLY app_core.ficha_tecnica
     ADD CONSTRAINT ficha_tecnica_materia_prima_id_fkey FOREIGN KEY (materia_prima_id) REFERENCES app_core.produtos(id);
 
+
+
 ALTER TABLE ONLY app_core.ficha_tecnica
     ADD CONSTRAINT ficha_tecnica_produto_final_id_fkey FOREIGN KEY (produto_final_id) REFERENCES app_core.produtos(id);
+
+
 
 ALTER TABLE ONLY app_core.notificacoes
     ADD CONSTRAINT fk_notificacoes_evento FOREIGN KEY (event_id) REFERENCES app_core.notificacoes_eventos(id) ON DELETE CASCADE;
 
+
+
 ALTER TABLE ONLY app_core.movimentacoes_internas
     ADD CONSTRAINT fk_produto FOREIGN KEY (produto_id) REFERENCES app_core.produtos(id) ON DELETE RESTRICT;
+
+
 
 ALTER TABLE ONLY app_core.itens_requisicoes
     ADD CONSTRAINT itens_requisicoes_produto_id_fkey FOREIGN KEY (produto_id) REFERENCES app_core.produtos(id) ON DELETE RESTRICT;
 
+
+
 ALTER TABLE ONLY app_core.itens_requisicoes
     ADD CONSTRAINT itens_requisicoes_requisicao_id_fkey FOREIGN KEY (requisicao_id) REFERENCES app_core.requisicoes(id) ON DELETE RESTRICT;
+
+
 
 ALTER TABLE ONLY app_core.movimentacoes_entrada
     ADD CONSTRAINT movimentacoes_entrada_produto_id_fkey FOREIGN KEY (produto_id) REFERENCES app_core.produtos(id) ON DELETE RESTRICT;
 
+
+
 ALTER TABLE ONLY app_core.movimentacoes_saida
     ADD CONSTRAINT movimentacoes_saida_produto_id_fkey FOREIGN KEY (produto_id) REFERENCES app_core.produtos(id) ON DELETE RESTRICT;
+
+
 
 ALTER TABLE ONLY app_core.requisicoes
     ADD CONSTRAINT user_id_fk FOREIGN KEY (user_id) REFERENCES app_core.usuarios(id);
 
+
+
 ALTER TABLE ONLY app_core.notificacoes
     ADD CONSTRAINT user_id_fk FOREIGN KEY (user_id) REFERENCES app_core.usuarios(id);
+
+
 
 ALTER TABLE ONLY app_logs.log_emails
     ADD CONSTRAINT log_emails_requisicao_id_fkey FOREIGN KEY (requisicao_id) REFERENCES app_core.requisicoes(id) ON DELETE SET NULL;
 
+
+
 ALTER TABLE ONLY app_logs.importacoes
     ADD CONSTRAINT user_fk FOREIGN KEY (user_id) REFERENCES app_core.usuarios(id);
+
+
 

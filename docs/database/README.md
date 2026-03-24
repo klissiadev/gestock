@@ -1,46 +1,56 @@
-# 📄 README – Estrutura do Banco de Dados (schema.sql)
+# 📄 README – Banco de Dados Gestock
 
 ## 📌 Descrição
-Este arquivo contém a definição da estrutura do banco de dados utilizada pelo Gestock, incluindo:
-- Criação de **tabelas**  
-- Definição de **views**  
-- Criação de **triggers** para manter as views materializadas atualizadas  
+Este diretório contém os scripts SQL necessários para a inicialização e teste do banco de dados do sistema **Gestock**.
 
-O objetivo é fornecer um script simples e portátil para recriar a estrutura do banco em qualquer ambiente PostgreSQL para o pleno funcionamento do Gestock
+Os arquivos disponíveis são:
+
+1.  **`only_schemas.sql`**: Contém apenas a definição da estrutura (DDL), incluindo:
+    * Criação de **tabelas** e relacionamentos.
+    * Definição de **views** e **materialized views**.
+    * Criação de **functions** e **triggers** (incluindo o refresh automático das views).
+    * *Ideal para produção ou ambientes limpos.*
+
+2.  **`database_testing.sql`**: Contém a estrutura completa + **dados mockados** (DML), incluindo:
+    * Toda a estrutura do arquivo anterior.
+    * Registros de teste para todas as tabelas.
+    * Usuários pré-cadastrados com e-mails higienizados para validação de fluxos.
+    * *Ideal para desenvolvedores e homologação.*
+    * Usuario Admin padrão: `email-falso2@teste.com`
+    * Senha Admin padrão: `Senha123`
 
 ---
 
-## 🚀 Como carregar o arquivo
+## 🚀 Como carregar os arquivos
 
 ### Usando pgAdmin 4
-1. Conecte-se ao banco desejado.  
-2. Clique com o botão direito → **Query Tool**.  
-3. Vá em **File → Open...** e selecione `schema.sql`.  
-4. Clique em **Execute (ícone de raio)** para rodar o script.  
+1.  Conecte-se ao servidor PostgreSQL.
+2.  Crie um banco de dados vazio chamado `gestock`.
+3.  Clique com o botão direito no banco `gestock` → **Query Tool**.
+4.  Vá em **File → Open...** e selecione o arquivo desejado (`only_schemas.sql` ou `database_testing.sql`).
+5.  Clique em **Execute (F5 ou ícone de raio)**.
 
 ### Usando linha de comando (psql)
 ```bash
-psql -h <host> -U <usuario> -d gestock -f schema.sql
+# Para carregar apenas a estrutura
+psql -h <host> -U <usuario> -d gestock -f only_schemas.sql
+
+# Para carregar estrutura + dados de teste
+psql -h <host> -U <usuario> -d gestock -f database_testing.sql
 ```
 
 ---
 
 ## ⚠️ Observações importantes
-- Este arquivo **não contém roles nem owners**.  
-- O nome do banco de dados **DEVE SER** gestock
-- O sistema **Gestock depende de um único usuário com permissão geral** para executar todas as operações (inserções, consultas e manutenção).  
-  - Certifique-se de rodar o script conectado com esse usuário, sabendo suas credenciais.  
-  - Essas credenciais devem ser **configuradas no arquivo `.env` do sistema**, para que o Gestock consiga acessar o banco de dados corretamente.  
-  - Caso contrário, as tabelas, views e triggers podem ser criadas sem permissões adequadas e o Gestock não terá acesso às mesmas.  
-- Se precisar definir permissões específicas, faça isso manualmente após rodar o script.  
-- Os triggers de refresh foram incluídos para manter as views materializadas consistentes.  
-  - Avalie o impacto de performance se houver grande volume de dados.  
 
+* **Sem Roles/Owners:** Os arquivos foram gerados sem definições de `OWNER` ou `PRIVILEGES`. Os objetos pertencerão ao usuário que executar o script.
+* **Nome do Banco:** O sistema está configurado para buscar o banco de nome `gestock`.
+* **Permissões:** O Gestock utiliza um único usuário com permissão geral configurado via `.env`. Certifique-se de que este usuário tenha permissão de `SUPERUSER` ou seja o dono dos schemas para que os triggers de refresh das Materialized Views funcionem corretamente.
+* **Triggers de Refresh:** Os triggers foram incluídos para garantir a consistência dos dados em tempo real. Em ambientes de altíssimo volume, monitore o impacto de performance nos disparos de `REFRESH MATERIALIZED VIEW`.
+* **Dados Sensíveis:** No arquivo de teste, todos os e-mails reais foram substituídos por endereços fictícios por motivos de segurança e privacidade.
 ---
 
-## 📊 Estrutura esperada
-- **Tabelas**: definidas com `CREATE TABLE ...`  
-- **Views**: `CREATE VIEW ...`  
-- **Triggers**: funções PL/pgSQL que disparam `REFRESH MATERIALIZED VIEW`  
-
----
+## 📊 Estrutura Técnica
+* **Engine:** PostgreSQL 12+
+* **Componentes:** Tabelas, Views, Materialized Views e Triggers PL/pgSQL.
+* **Segurança:** Senhas no ambiente de teste utilizam hash Argon2id (compatível com a biblioteca de autenticação do sistema).
