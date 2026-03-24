@@ -1,7 +1,7 @@
 [project]
 name = "llm_module"
-version = "0.1.0"
-description = ""
+version = "1.0.0"
+description = "Módulo base da inteligência artificial (Minerva) do Gestock, responsável por roteamento de intenções, chamadas a ferramentas de banco de dados e gestão conversacional."
 authors = [
     {name = "Thais Carolina Braga de Magalhães",email = "tcbdma.snf24@uea.edu.br"}
 ]
@@ -20,6 +20,7 @@ dependencies = [
     "psycopg[binary]>=3.3.2",
     "langgraph-checkpoint-postgres>=3.0.3",
     "auth-module",
+    "llm-report",
 ]
 
 [tool.poetry]
@@ -27,6 +28,7 @@ packages = [{include = "llm_module", from = "src"}]
 
 [tool.uv.sources]
 auth-module = { path = "../auth_module", editable = true }
+llm-report = { path = "../llm_report", editable = true }
 
 [build-system]
 requires = ["poetry-core>=2.0.0,<3.0.0"]

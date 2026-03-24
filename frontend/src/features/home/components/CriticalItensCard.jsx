@@ -6,12 +6,13 @@ function StatusPill({ label }) {
   return (
     <Box
       sx={{
-        bgcolor: "#919191", 
+        bgcolor: (theme) => theme.palette.iconButton.active, 
         borderRadius: "20px",
         fontSize: 12,
         textAlign: "center",
         minWidth: 60,
-        ml:1
+        ml:1,
+        p:1
       }}
     >
       {label}
@@ -23,7 +24,7 @@ export default function CriticalItemsCard({ criticalItems }) {
   return (
     <Box
       sx={{
-        background: "#EDEDED",
+        background: (theme) => theme.palette.iconButton.hover,
         borderRadius: "24px",
         py: 2,
         px:1,
@@ -65,7 +66,7 @@ export default function CriticalItemsCard({ criticalItems }) {
       <Box
         sx={{
           display: "grid",
-          gridTemplateColumns: "2fr 1fr 1fr",
+          gridTemplateColumns: "2fr 1fr 1fr 1fr",
           px: 1,
           pb: 1,
           borderBottom: "1px solid #CFCFCF",
@@ -75,6 +76,7 @@ export default function CriticalItemsCard({ criticalItems }) {
       >
         <Typography fontSize={12} fontWeight={600}>Produto</Typography>
         <Typography fontSize={12} fontWeight={600}>Quantidade</Typography>
+        <Typography fontSize={12} fontWeight={600}>Data de validade</Typography>
         <Typography fontSize={12} fontWeight={600}>Status</Typography>
       </Box>
 
@@ -85,7 +87,7 @@ export default function CriticalItemsCard({ criticalItems }) {
             key={index}
             sx={{
               display: "grid",
-              gridTemplateColumns: "2fr 1fr 1fr",
+              gridTemplateColumns: "2fr 1fr 1fr 1fr",
               px: 1,
               justifyItems: "center"
             }}
@@ -103,6 +105,8 @@ export default function CriticalItemsCard({ criticalItems }) {
             </Typography>
 
             <Typography sx={{ fontSize: 14 }}>{item.quantity}</Typography>
+
+            <Typography sx={{ fontSize: 14 }}>{item.date}</Typography>
 
             <StatusPill label={item.status} />
           </Box>

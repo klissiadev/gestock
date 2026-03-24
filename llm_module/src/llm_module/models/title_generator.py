@@ -2,7 +2,7 @@ from langchain_ollama import ChatOllama
 
 class TitleGeneratorService:
     def __init__(self):
-        self.summary_model = ChatOllama(model="gemma3:270m", temperature=0.0)
+        self.summary_model = ChatOllama(model="gemma3:1b", temperature=0.0)
         self.prompt = None
 
 

@@ -3,7 +3,7 @@ from pydantic import BaseModel
 from datetime import date
 from typing import Literal
 from admin_module.models.logs_fetcher import LogFetcher
-from admin_module.pydantic.logs_model import MinervaLogsRequest, ImportLogsRequest
+from admin_module.pydantic.logs_model import MinervaLogsRequest, ImportLogsRequest, UserFetchRequest
 
 router = APIRouter(prefix="/admin")
 log_fetcher = LogFetcher()
@@ -48,8 +48,26 @@ def fetch_import_logs(request: ImportLogsRequest):
         }
 
     except Exception as e:
-        # Logar o erro internamente é sempre bom
         print(f"Erro na rota /logs/importacao: {e}")
         raise HTTPException(
             status_code=500, 
             detail="Falha ao recuperar logs de importação.")
+    
+@router.post("/logs/usuarios")
+def fetch_users(request: UserFetchRequest):
+    try: 
+        logs = log_fetcher.get_usuarios_data(
+            search_term=request.search_term,
+            order_by=request.order_by,
+            direction=request.direction
+        )
+
+        return {
+            "total": len(logs),
+            "logs": logs
+        }
+    except Exception as e:
+        print(f"Erro na rota /logs/users: {e}")
+        raise HTTPException(
+            status_code=500, 
+            detail="Falha ao recuperar lista de usuarios")

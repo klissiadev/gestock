@@ -1,11 +1,10 @@
 import { useEffect, useRef } from "react";
 import { toast, Zoom } from "react-toastify";
-import { useNotifications } from "../../../hooks/useNotifications";
+import { useUnreadNotifications } from "../../../hooks/useUnreadNotifications";
 
 export default function NotificationToast() {
-  const { notifications } = useNotifications();
+  const { notifications } = useUnreadNotifications({ limit: 5 });
 
-  // Guarda IDs já exibidos (anti-spam no front)
   const shownRef = useRef(new Set());
 
   useEffect(() => {
@@ -13,24 +12,24 @@ export default function NotificationToast() {
       if (shownRef.current.has(notification.id)) return;
 
       toast(
-      <div>
-        <strong style={{ display: "block", marginBottom: 4 }}>
-          {notification.title}
-        </strong>
-        <span>{notification.message}</span>
-      </div>,
-      {
-        type: mapSeverity(notification.severity),
-        position: "top-right",
-        autoClose: 5000,
-        hideProgressBar: true,
-        closeOnClick: false,
-        pauseOnHover: false,
-        draggable: false,
-        theme: "light",
-        transition: Zoom,
-      }
-    );
+        <div>
+          <strong style={{ display: "block", marginBottom: 4 }}>
+            {notification.title}
+          </strong>
+          <span>{notification.message}</span>
+        </div>,
+        {
+          type: mapSeverity(notification.severity),
+          position: "top-right",
+          autoClose: 5000,
+          hideProgressBar: true,
+          closeOnClick: false,
+          pauseOnHover: false,
+          draggable: false,
+          theme: "light",
+          transition: Zoom,
+        }
+      );
 
       shownRef.current.add(notification.id);
     });

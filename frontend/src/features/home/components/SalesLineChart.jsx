@@ -5,22 +5,12 @@ export default function SalesLineChart({ salesByMonth }) {
   return (
     <Box
       sx={{
-        width: "100%",
-        backgroundColor: "#efefef",
-        borderRadius: 3,
-        p: 1,
+        p:1
       }}
     >
-      <Typography
-        fontSize={18}
-        textAlign="center"
-        sx={{ mb: 2, fontWeight: 500 }}
-      >
-        Meses com mais vendas
-      </Typography>
 
       <LineChart
-        height={220}
+        height={190}
         series={[
             {
             data: salesByMonth.map((d) => d.value),

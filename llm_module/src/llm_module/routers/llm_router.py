@@ -5,19 +5,20 @@ from llm_module.services.llm_service import LLMService
 from llm_module.services.llm_sessions import LLMSessionService
 from fastapi.responses import StreamingResponse
 
-from auth_module.utils.security import get_current_user
+from auth_module.utils.security import require_role
 from auth_module.models.User import UserPublic
 
 class ChatRequest(BaseModel):
     message: str
     session_id: str | None = None
 
-router = APIRouter(tags=["LLM"], prefix="/llm", dependencies=[Depends(get_current_user)])
+router = APIRouter(tags=["LLM"], prefix="/llm", dependencies=[Depends(require_role(["gestor"]))])
 
-def get_llm_services(request: Request):
-    llm_service = request.app.state.llm_service
+def get_gateway_services(request: Request):
+    gateway = request.app.state.minerva_gateway 
     session_service = request.app.state.session_service
-    return llm_service, session_service
+    llm_service = request.app.state.llm_service 
+    return gateway, session_service, llm_service
 
 
 async def task_generate_session_title(
@@ -38,15 +39,15 @@ async def task_generate_session_title(
 # -------------------------
 @router.post("/chat")
 async def chat_llm(payload: ChatRequest,
-                   user: Annotated[UserPublic, Depends(get_current_user)],
-                   services: Annotated[tuple, Depends(get_llm_services)],
+                   user: Annotated[UserPublic, Depends(require_role(["gestor"]))],
+                   services: Annotated[tuple, Depends(get_gateway_services)],
                    background_tasks: BackgroundTasks
                    ):
 
-    llm_service, session_service = services
+    gateway, session_service, llm_service = services
     session_id = await session_service.ensure_session(payload.session_id, user.id)
 
-    response = await llm_service.send_message(
+    response = await gateway.send_message(
         message=payload.message,
         session_id=session_id,
     )
@@ -71,12 +72,13 @@ async def chat_llm(payload: ChatRequest,
 @router.post("/chat/stream")
 async def chat_llm_stream(
     payload: ChatRequest,
-    user: Annotated[UserPublic, Depends(get_current_user)],
-    services: Annotated[tuple, Depends(get_llm_services)],
+    user: Annotated[UserPublic, Depends(require_role(["gestor"]))],
+    services: Annotated[tuple, Depends(get_gateway_services)],
     background_tasks: BackgroundTasks
 ):
-    llm_service, session_service = services
+    gateway, session_service, llm_service = services
     session_id = await session_service.ensure_session(payload.session_id, user.id)
+    
     background_tasks.add_task(
         task_generate_session_title, 
         session_id, 
@@ -86,8 +88,7 @@ async def chat_llm_stream(
     )
 
     async def generator():
-        # 💡 O stream agora é gerenciado pelo LLMService, que também salva o log ao final
-        async for chunk in llm_service.stream_message(
+        async for chunk in gateway.stream_message(
             message=payload.message,
             session_id=session_id, 
         ):
@@ -106,26 +107,26 @@ async def chat_llm_stream(
 # GESTÃO DE SESSÕES E TÍTULOS
 # -------------------------
 @router.get("/sessions")
-async def list_sessions(user: Annotated[UserPublic, Depends(get_current_user)],
-                        services: Annotated[tuple, Depends(get_llm_services)]
+async def list_sessions(user: Annotated[UserPublic, Depends(require_role(["gestor"]))],
+                        services: Annotated[tuple, Depends(get_gateway_services)]
                         ):
     session_service = services[1]
     return await session_service.list_sessions(user.id)
 
 @router.post("/sessions")
-async def new_session(user: Annotated[UserPublic, Depends(get_current_user)],
-                      services: Annotated[tuple, Depends(get_llm_services)]):
-    _, session_service = services
+async def new_session(user: Annotated[UserPublic, Depends(require_role(["gestor"]))],
+                      services: Annotated[tuple, Depends(get_gateway_services)]):
+    _, session_service,_ = services
     session_id = await session_service.create_session(user.id)
     return {"session_id": session_id}
 
 @router.get("/sessions/{session_id}/messages")
 async def get_session_messages(session_id: str,
-                               user: Annotated[UserPublic, Depends(get_current_user)],
-                               services: Annotated[tuple, Depends(get_llm_services)], 
+                               user: Annotated[UserPublic, Depends(require_role(["gestor"]))],
+                               services: Annotated[tuple, Depends(get_gateway_services)], 
                                limit: int = 100, 
                                offset: int = 0):
-    _, session_service = services
+    _, session_service, _ = services
     if not await session_service.is_owner(session_id, user.id):
         raise HTTPException(status_code=403, detail="Acesso negado.")
 
@@ -134,9 +135,9 @@ async def get_session_messages(session_id: str,
 
 @router.get("/sessions/{session_id}/title")
 async def get_session_title(session_id: str,
-                            user: Annotated[UserPublic, Depends(get_current_user)],
-                            services: Annotated[tuple, Depends(get_llm_services)]):
-    _, session_service = services
+                            user: Annotated[UserPublic, Depends(require_role(["gestor"]))],
+                            services: Annotated[tuple, Depends(get_gateway_services)]):
+    _, session_service, _ = services
     if not await session_service.is_owner(session_id, user.id):
         raise HTTPException(status_code=403, detail="Acesso negado.")
     

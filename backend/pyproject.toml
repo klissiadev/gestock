@@ -1,7 +1,7 @@
 [project]
 name = "backend"
-version = "0.1.0"
-description = ""
+version = "1.0.0"
+description = "Orquestrador central do ecossistema Gestock: API de alta performance para gestão inteligente de inventário, integração com LLMs e análise preditiva."
 authors = [
     {name = "Thais Carolina Braga de Magalhães",email = "tcbdma.snf24@uea.edu.br"}
 ]
@@ -11,7 +11,6 @@ dependencies = [
     "python-dotenv (>=1.2.1,<2.0.0)",
     "fastapi[standard] (>=0.123.5,<0.124.0)",
     "psycopg2 (>=2.9.11,<3.0.0)",
-    "scikit-learn (>=1.7.2,<2.0.0)",
     "langchain (>=1.1.0,<2.0.0)",
     "sqlalchemy (>=2.0.44,<3.0.0)",
     "pandas (>=2.3.3,<3.0.0)",
@@ -22,12 +21,16 @@ dependencies = [
     "admin-module",
     "llm_module",
     "auth_module",
+    "request_module",
+    "forecasting_module",
 ]
 
 [tool.poetry.dependencies]
 llm_module = { path = "../llm_module", develop = true }
 admin-module = { path = "../admin_module", develop = true }
 auth_module = { path = "../auth_module", develop = true }
+request_module = { path = "../request_module", develop = true }
+forecasting_module = { path = "../forecasting_module", develop = true }
 
 [build-system]
 requires = ["poetry-core>=2.0.0,<3.0.0"]

@@ -9,5 +9,5 @@ class Config:
     DB_URI = (
         f"postgres://{os.getenv('DB_LLM_USER')}:{os.getenv('DB_LLM_PASSWORD')}"
         f"@{os.getenv('DB_HOST')}:{os.getenv('DB_PORT')}/{os.getenv('DB_NAME')}"
-        f"?sslmode=require&channel_binding=require"
+        f"?sslmode={os.getenv('SSLMODE')}"
     )

@@ -12,20 +12,20 @@ export const palette = {
     },
 
     background: {
-      default: '#989898',
+      default: '#F6F0FF',
     },
 
     table: {
-      main: '#DBDBDB',
-      hover: '#C8C8C8',
+      main: '#fff',
+      hover: '#f9f6fd',
     },
 
     iconButton: {
       main: "#ffffff",
-      hover: "#f1f1f1",
-      active: "#b4b4b4",
-      selected: "#d5d5d5",
-      disabled: "#9CA3AF",
+      hover: "#e7e4ea",
+      active: "#F6F0FF",
+      selected: "#cec7d9",
+      disabled: "#6d5692",
     },
 
     errors: {
@@ -36,11 +36,24 @@ export const palette = {
 
     uploadBox: {
       main: "#DBDBDB",
-      button: "#676767",
+      button: "#634494",
     },
 
     card: {
-      background: "#cfcfcf",
+      background: "#cec7d9",
+    },
+
+    admin: {
+      main: "#634494",
+      secondary: "#F8F4FD",
+      background: "#FFFFFF",
+      good: "#2AFF00",
+      degraded: "#ff9800",
+      offline: "#f44336"
+    },
+    
+    primary:{
+      main: "#634494"
     }
 };
 

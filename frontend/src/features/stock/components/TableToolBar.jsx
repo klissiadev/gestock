@@ -4,9 +4,9 @@ import SearchBar from "./SearchBar";
 import OrderSelector from "./OrderSelector";
 import OrderBySelect from "./OrderBySelect";
 import ExpandableIconButton from "../../../components/ui/ExpandableIconButton.jsx";
-import ChatSvg from "../../../assets/icon/iconChat.svg?react";
+import ChatSvg from "../../../assets/icon/icon-minerva.svg?react";
 
-import InvetorySvg from "../../../assets/icon/iconInventory.svg?react";
+import InvetorySvg from "../../../assets/icon/icon-box-purple.svg?react";
 import DownloadButton from "./DownloadButton.jsx";
 
 const TableToolBar = ({ titulo, filters, onFilterChange }) => {
@@ -25,7 +25,7 @@ const TableToolBar = ({ titulo, filters, onFilterChange }) => {
           }}
         >
           <InvetorySvg width={26} height={26} />
-          <Typography fontSize={20} fontWeight={500}>
+          <Typography fontSize={20} fontWeight={500} sx={{color: (theme) => theme.palette.primary.main}}>
             {titulo}
           </Typography>
         </Box>
@@ -85,6 +85,9 @@ const TableToolBar = ({ titulo, filters, onFilterChange }) => {
           <SearchBar
             value={filters.searchTerm}
             onChange={onFilterChange}
+            name="product"
+            placeholder="Buscar produto..."
+            debounce={300}
           />
         </Box>
 

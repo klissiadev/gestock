@@ -1,5 +1,6 @@
 import { Box, Paper } from "@mui/material";
 import LoginForm from "../components/LoginForm";
+import LogoSvg from "../../../assets/icon/logo_text.svg?react";
 
 const LoginPage = () => {
   return (
@@ -7,7 +8,7 @@ const LoginPage = () => {
       sx={{
         height: "100vh",
         display: "flex",
-        backgroundColor: "#d9d9d9",
+        background: "linear-gradient(244.56deg, #634494 33.22%, #351763 93.06%)",
         pt:2,
         pr:2,
         pb:2
@@ -23,9 +24,8 @@ const LoginPage = () => {
       >
         <Box
           sx={{
-            width: 300,
+            width: 400,
             height: 180,
-            border: "1px solid #999",
             borderRadius: 2,
             display: "flex",
             alignItems: "center",
@@ -35,7 +35,7 @@ const LoginPage = () => {
             fontSize: 24,
           }}
         >
-          LOGO
+          <LogoSvg/>
         </Box>
       </Box>
 

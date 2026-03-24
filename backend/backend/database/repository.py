@@ -4,6 +4,8 @@ from fastapi import HTTPException
 from typing import Optional, List, Dict, Any, Tuple, Union
 import re
 from psycopg2.extras import RealDictCursor, execute_values, register_uuid
+from psycopg2 import errors
+
 
 
 class Repository:
@@ -421,7 +423,7 @@ class Repository:
             execute_values(self.cursor, sql, values)
             return {"success": len(rows), "failed": []}
         
-        except psycopg2.errors.ForeignKeyViolation as e:
+        except errors.ForeignKeyViolation as e:
             return {
                 "success": 0,
                 "failed": [{"index": i, "error": "Chave estrangeira inválida"}]
@@ -436,3 +438,8 @@ class Repository:
                     for i in range(len(rows))
                 ]
             }
+        
+    def fetch_one_raw(self, query: str, params: tuple = None):
+        self.cursor.execute(query, params)
+        row = self.cursor.fetchone()
+        return row

@@ -37,7 +37,7 @@ function SaleTooltip({ product, total, children }) {
               sx={{
                 width: 12,
                 height: 12,
-                bgcolor: "#222626",
+                backgroundColor: (theme) => theme.palette.iconButton.hover,
                 borderRadius: "3px",
               }}
             />
@@ -57,33 +57,33 @@ export default function TopSalesManual({ topSales, period }) {
   return (
     <Box
       sx={{
-        background: "#EDEDED",
+        background: (theme) => theme.palette.iconButton.hover,
         borderRadius: "24px",
         px: 4,
         py: 2,
-        height: 440,
+        height: 300,
         width: "100%",
       }}
     >
       <Typography
-        sx={{ fontSize: 20, fontWeight: 500, textAlign: "center", mb: 2, mt:1}}
+        sx={{ fontSize: 18, fontWeight: 500, textAlign: "center", mb: 2}}
       >
         Top vendas - {period}
       </Typography>
 
-      <Box sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
+      <Box sx={{ display: "flex", flexDirection: "column", gap: 1 }}>
         {topSales.map((item) => (
           <Box key={item.product}>
-            <Typography sx={{ fontSize: 12, mb: 1}}>
+            <Typography sx={{ fontSize: 12}}>
               {item.product}
             </Typography>
 
             <SaleTooltip product={item.product} total={item.total}>
               <Box
                 sx={{
-                  height: 20,
+                  height: 16,
                   width: "100%",
-                  background: "#9E9E9E",
+                  background:  (theme) => theme.palette.iconButton.selected,
                   borderRadius: "20px",
                   overflow: "hidden",
                   cursor: "pointer",
@@ -93,7 +93,7 @@ export default function TopSalesManual({ topSales, period }) {
                   sx={{
                     height: "100%",
                     width: `${(item.total / MAX) * 100}%`,
-                    background: "#222626",
+                    background:  (theme) => theme.palette.primary.main,
                     borderRadius: "20px",
                     transition: "0.3s",
                   }}
@@ -108,7 +108,7 @@ export default function TopSalesManual({ topSales, period }) {
         sx={{
           display: "flex",
           justifyContent: "space-between",
-          mt: 3,
+          mt: 2,
           px: 1,
         }}
       >

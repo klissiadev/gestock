@@ -1,6 +1,6 @@
 from pydantic import BaseModel
 from datetime import date
-from typing import Literal
+from typing import Literal, Optional
 
 
 class MinervaLogsRequest(BaseModel):
@@ -14,3 +14,9 @@ class ImportLogsRequest(BaseModel):
     status: str | None = None
     periodo: tuple[date | None, date | None] | None = None
     apenas_erro: bool = False
+    
+class UserFetchRequest(BaseModel):
+    search_term: Optional[str]
+    order_by: str = "created_at"
+    direction: str = "DESC"
+    
