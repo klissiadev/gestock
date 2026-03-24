@@ -1,56 +1,41 @@
-# React + Vite
+# Gestock - Módulo Frontend
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+Este é o módulo frontend do projeto Gestock, um sistema avançado de gestão de estoque que integra aplicações de LLM (Large Language Models) e Machine Learning. A interface foi desenvolvida para ser rápida, responsiva e de fácil manutenção, utilizando um ecossistema moderno de ferramentas baseadas em React.
 
-Currently, two official plugins are available:
+## 🚀 Tecnologias Principais
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+O projeto utiliza as seguintes tecnologias e bibliotecas:
 
-## React Compiler
+* **Framework principal:** [React 19](https://react.dev/)
+* **Build Tool:** [Vite](https://vitejs.dev/) (configurado com Rolldown para otimização de performance)
+* **Estilização e Componentes:** 
+    * [Material UI (MUI)](https://mui.com/) para componentes de interface
+    * Tabelas de dados (`@mui/x-data-grid`)
+    * Gráficos (`@mui/x-charts`).
+* **Gestão de Estado:** [Zustand](https://github.com/pmndrs/zustand)
+* **Navegação:** [React Router DOM](https://reactrouter.com/)
+* **Requisições HTTP:** [Fetch API](https://developer.mozilla.org/pt-BR/docs/Web/API/Fetch_API) (Nativo do navegador)
+* **Outras utilidades:** 
+    * Manipulação de ícones SVG (`vite-plugin-svgr`)
+    * Suporte a Markdown (`react-markdown`) 
+    * Uploads via drag-and-drop (`react-dropzone`).
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+## 📦 Instalação e Execução
 
-## Expanding the ESLint configuration
+Certifica-te de que tens o Node.js instalado na tua máquina.
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
-
-## 🧩 Padrão de commits
-
-Usamos **Conventional Commits**:
-
-```
-<tipo>(<escopo>): <descrição>
-```
-
-**Tipos comuns:**  
-`feat`, `fix`, `docs`, `style`, `refactor`, `perf`, `test`, `build`, `ci`, `chore`, `revert`.
-
-**Exemplos:**
-```
-feat(auth): adicionar login com JWT
-fix(user): corrigir NPE ao buscar papeis
-docs(readme): instruções de swagger e h2
-chore: atualizar dependências do jjwt
+1. Instala as dependências do projeto:
+```bash
+npm install
 ```
 
-**Escopos sugeridos:** `auth`, `user`, `admin`, `security`, `config`, `docs`, `build`, `ci`.
+2. Executa o servidor de desenvolvimento:
+```bash
+npm run dev
+```
 
----
+### Outros scripts disponíveis
 
-## 🌱 Fluxo de branches e PRs
-
-**Branches principais:**
-- `main`: estável e versionada (merge via PR, protegida)
-- `develop`: integração contínua
-- `feature/*`: novas funcionalidades (ex.: `feature/auth-refresh-token`)
-- `fix/*`: correções (ex.: `fix/security-nullpointer`)
-- `chore/*`, `docs/*`, etc.
-
-**Regras de PR:**
-- Título em formato Conventional Commits (ex.: `feat(auth): suporte a refresh token (#123)`)
-- Descreva objetivo, passos de teste e impacto
-- 1 review obrigatório antes do merge
-- Preferir **squash merge** para manter histórico limpo
-
----
+* `npm run build`: Compila a aplicação para produção.
+* `npm run lint`: Executa o ESLint para encontrar e corrigir problemas no código.
+* `npm run preview`: Inicia um servidor local para testar a versão de produção gerada após o build.
