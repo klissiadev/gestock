@@ -2,6 +2,10 @@
 
 Este documento é destinado aos desenvolvedores que precisam dar manutenção, criar novas features ou rodar testes **exclusivamente dentro do código do `admin_module`**. Se você quer apenas usar o módulo no Gestock, consulte o [README.md](README.md).
 
+## 💻 Tecnologias e Dependências Base
+* **Python:** `>= 3.11`
+* **Dependências Principais:** `fastapi`, `psycopg`, `psycopg-pool`, `psutil`, `gputil`, `wmi`, `requests`.
+
 ## 📂 Arquitetura do Projeto
 
 O módulo segue uma estrutura baseada em Domain-Driven Design (DDD) simplificado e separação de responsabilidades (Routers, Models, Services).
@@ -29,9 +33,15 @@ admin_module/
             └── env_loader.py
 ```
 
-## 💻 Tecnologias e Dependências Base
-* **Python:** `>= 3.11`
-* **Dependências Principais:** `fastapi`, `psycopg`, `psycopg-pool`, `psutil`, `gputil`, `wmi`, `requests`.
+### 🧠 Guia de Responsabilidades das Pastas
+
+Para manter o código limpo e organizado, siga este padrão ao adicionar novas funcionalidades:
+
+* **`routers/`**: Deve conter **apenas** a definição das rotas HTTP (endpoints), injeção de dependências e tratamento de exceções web (HTTPExceptions). Não coloque regras de negócio aqui.
+* **`pydantic/`**: Todos os esquemas de validação de dados (entrada e saída) utilizando o Pydantic devem ficar nesta pasta. Isso garante que a API receba sempre dados tipados corretamente.
+* **`models/`**: Classes responsáveis por interagir com recursos externos, como consultas ao banco de dados (`LogFetcher`) ou interações com o sistema operativo (`HardwareMonitor`).
+* **`services/`**: Camada intermediária que aplica as regras de negócio. Um *service* é chamado por um *router* e pode orquestrar múltiplos *models*.
+* **`utils/`**: Funções utilitárias, carregamento de variáveis de ambiente e conexões persistentes (como o pool do banco de dados).
 
 ## ⚙️ Configurando o Ambiente Local
 
