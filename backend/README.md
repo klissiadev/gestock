@@ -1,98 +1,100 @@
-# ⚙️ Setup do Backend
-## 💻 Pré-requisitos
-Este projeto utiliza **Poetry** para gerenciamento de dependências e ambientes virtuais.  
-A instalação é feita via **pipx**, garantindo isolamento e praticidade.
+# ⚙️ Gestock - Backend
 
-### Instalação do PIPX + Poetry
-1. Instale o `pipx`:
-   ```bash
-   pip install --user pipx
+O backend do **Gestock** é uma API robusta construída com **FastAPI**, desenhada para ser o núcleo de um sistema avançado de gestão de inventário. Ele atua como um orquestrador central, integrando módulos de inteligência artificial, análise preditiva e monitorização de infraestrutura.
 
-2. Instale o poetry:
-    ```bash
-    pipx install poetry
+> **Vai dar manutenção neste código?** Leia o nosso [Guia de Desenvolvimento](DEVELOPMENT.md) para saber como configurar o ambiente local com o `poetry`.
 
-3. Durante a instalação, pode aparecer um WARNING semelhante a:
-    ```bash
-    WARNING: The script pipx.exe is installed in <USER folder>\AppData\Roaming\Python\Python3x\Scripts which is not on PATH
+A estrutura do projeto está dividida em duas camadas fundamentais:
 
-4. Para adicionar ao caminho PATH:
-    ```bash
-    cd <USER folder>\AppData\Roaming\Python\Python3x\Scripts
-    .\pipx.exe ensurepath
+* 🛠️ **Recursos Nativos**: Representam as funcionalidades essenciais integradas diretamente ao núcleo do backend, responsáveis pela operação transacional básica:
+* 🧩 **Módulos Integrados**: bibliotecas internas especializadas que garantem a escalabilidade da plataforma.
 
-5. Após isso, instale o Poetry:
-    ```bash
-    pipx install poetry
+## 💻 Setup do Ambiente (Poetry)
 
-6. Habilite o shell do Poetry (para adicionar o comando `poetry shell`):
-    ```bash
-    pipx inject poetry poetry-plugin-shell
+Este projeto utiliza o **Poetry** para gestão de dependências e ambientes virtuais.
 
-## 📂 Configuração do Projeto
-- Clone o repositório:
+### 1. Instalação de Ferramentas
+Caso ainda não tenha o Poetry instalado via `pipx`:
+```bash
+pip install --user pipx
+pipx install poetry
+pipx inject poetry poetry-plugin-shell
 ```
-git clone https://github.com/klissiadev/gestock.git
-cd backend
-```
-- Instale as dependências:
-`poetry install`
-- Ative o ambiente virtual: `poetry shell`
-- Execute o projeto: `task run`
 
-## Comandos úteis do Poetry
-- instalar dependências: `poetry install`
-- Adicionar dependência: `poetry add nome-pacote`
-- Remover dependência: `poetry remove nome-pacote`
-
-## Comandos existentes
-Os comandos definidos fazem o seguinte:
-
-* `task lint`: Faz a checagem de boas práticas do código python
-* `task pre_format`: Faz algumas correções de boas práticas automaticamente
-* `task format`: Executa a formatação do código em relação às convenções de estilo de código
-* `task run`: executa o servidor de desenvolvimento do FastAPI
-ATENÇÃO: PYTEST NAO CONFIGURADO DE FORMA ADEQUADA !!
-* `task pre_test`: executa a camada de lint antes de executar os testes
-* `task test`: executa os testes com pytest de forma verbosa (-vv) e adiciona nosso código como base de cobertura
-* `task post_test`: gera um report de cobertura após os testes
+### 2. Configuração e Ativação
+Dentro do diretório `/backend`:
+1.  **Instalar dependências**: `poetry install`.
+2.  **Ativar o ambiente virtual**:
+    * **Opção A**: `poetry shell`.
+    * **Opção B**: `iex (poetry env activate)` (para ativação direta no terminal atual, dependendo da sua preferência).
+3.  **Executar o projeto**: `task run`.
 
 ---
 
-## 🧩 Padrão de commits
+## 🚀 Recursos Principais (API Core)
 
-Usamos **Conventional Commits**:
+A API fornece endpoints essenciais para a operação do dia a dia:
 
-```
-<tipo>(<escopo>): <descrição>
-```
+### 📦 Gestão de Produtos (`/produtos`)
+* **Cadastro**: Criação de novos itens no catálogo.
+* **Listagem**: Recuperação de todos os produtos cadastrados.
+* **Busca Específica**: Consulta de nome de produto por ID.
 
-**Tipos comuns:**  
-`feat`, `fix`, `docs`, `style`, `refactor`, `perf`, `test`, `build`, `ci`, `chore`, `revert`.
+### 🔄 Movimentações de Estoque (`/movimentacoes`)
+Gerencia o fluxo físico de materiais através de três frentes:
+* **Entradas**: Registro e listagem de novos suprimentos.
+* **Saídas**: Registro e listagem de baixas de estoque.
+* **Interna**: Registro de transferências ou ajustes entre locais de armazenamento.
 
-**Exemplos:**
-```
-feat(auth): adicionar login com JWT
-fix(user): corrigir NPE ao buscar papeis
-docs(readme): instruções de swagger e h2
-chore: atualizar dependências do jjwt
-```
-
-**Escopos sugeridos:** `auth`, `user`, `admin`, `security`, `config`, `docs`, `build`, `ci`.
+### 📊 Analytics e KPIs (`/analytics`)
+Visões estratégicas baseadas nos dados de movimentação:
+* **Visão Geral**: Saldo total de estoque e divisão por tipo de material.
+* **Alertas Críticos**: Identificação de produtos com estoque baixo ou em risco.
+* **Desempenho de Vendas**: Relatórios mensais de vendas e ranking de "Top Produtos".
+* **KPIs Financeiros**: Indicadores financeiros mensais detalhados por período.
 
 ---
 
-## 🌱 Fluxo de branches e PRs
+## 🚀 Módulos Integrados
 
-**Branches principais:**
-- `main`: estável e versionada (merge via PR, protegida)
-- `develop`: integração contínua
-- `feature/*`: novas funcionalidades (ex.: `feature/auth-refresh-token`)
-- `fix/*`: correções (ex.: `fix/security-nullpointer`)
-- `chore/*`, `docs/*`, etc.
+O sistema é composto por bibliotecas internas especializadas que garantem a escalabilidade da plataforma:
 
-**Regras de PR:**
-- Título em formato Conventional Commits (ex.: `feat(auth): suporte a refresh token (#123)`)
-- Descreva objetivo, passos de teste e impacto
-- 1 review obrigatório antes do merge
-- Preferir **squash merge** para manter histórico limpo
+### 🔐 Módulo de Autenticação (`auth_module`)
+Centraliza a segurança do ecossistema:
+* **Identidade**: Registo e login com tokens JWT e cifragem Argon2.
+* **Controle de Acesso**: Sistema RBAC para níveis `admin` e `gestor`.
+* **Recuperação**: Fluxo de palavra-passe com envio de e-mail via SMTP Google.
+
+### 🧠 Módulo de IA - Minerva (`llm_module`)
+O motor de inteligência artificial conversacional:
+* **Assistente**: Baseada em `qwen2.5:7B` para processamento de linguagem natural.
+* **Tools**: Capacidade de consultar o banco de dados em tempo real para buscar produtos e movimentações.
+* **Memória**: Persistência de contexto de chat diretamente no PostgreSQL.
+
+### 📊 Módulo de Relatórios (`llm_report`)
+Especializado em transformar dados massivos em relatórios gerenciais:
+* **Processamento**: Utiliza `llama3.1:8b` com técnica de *Chunks* para evitar alucinações em grandes volumes.
+* **Análises**: Geração automática de Curva ABC, Giro de Estoque e Inventário.
+
+### 📉 Módulo de Previsão (`forecasting_module`)
+Inteligência preditiva para o estoque:
+* **Modelagem**: Utiliza `darts` e `scikit-learn` para prever a procura futura de produtos.
+
+### 🛒 Módulo de Requisições (`request_module`)
+Gere o fluxo de reposição de materiais:
+* **Automação**: Criação de pedidos de compra com notificação automática por e-mail ao setor financeiro.
+* **Integração**: Estritamente protegido por permissões do módulo de autenticação.
+
+### 🛠️ Módulo Administrativo (`admin_module`)
+Monitorização e saúde do sistema:
+* **Hardware**: Captura em tempo real de uso de CPU, RAM e telemetria de GPUs.
+* **Health Checks**: Verificação de latência do banco de dados e disponibilidade do motor de IA.
+
+---
+
+## 🛠️ Comandos Úteis (Taskipy)
+
+Automatize tarefas comuns de desenvolvimento:
+* `task lint`: Verifica boas práticas de código com Ruff.
+* `task format`: Aplica formatação automática.
+* `task test`: Executa a suíte de testes com relatório de cobertura.

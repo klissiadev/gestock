@@ -1,7 +1,7 @@
 [project]
 name = "backend"
-version = "0.1.0"
-description = ""
+version = "1.0.0"
+description = "Orquestrador central do ecossistema Gestock: API de alta performance para gestão inteligente de inventário, integração com LLMs e análise preditiva."
 authors = [
     {name = "Thais Carolina Braga de Magalhães",email = "tcbdma.snf24@uea.edu.br"}
 ]

@@ -1,7 +1,7 @@
 [project]
 name = "llm_module"
-version = "0.1.0"
-description = ""
+version = "1.0.0"
+description = "Módulo base da inteligência artificial (Minerva) do Gestock, responsável por roteamento de intenções, chamadas a ferramentas de banco de dados e gestão conversacional."
 authors = [
     {name = "Thais Carolina Braga de Magalhães",email = "tcbdma.snf24@uea.edu.br"}
 ]
