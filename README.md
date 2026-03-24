@@ -172,7 +172,7 @@ Agradecemos às seguintes pessoas que contribuíram para este projeto:
 <table>
   <tr>
   <td align="center">
-      <a href="#" title="defina o título do link">
+      <a href="#" title="Antonio Gabriel">
         <img src="https://imgur.com/Gc0pH7H.png" width="100px;"  height="100px;" alt="Foto de Antonio Gabriel"/><br>
         <sub>
           <b>Antonio Gabriel</b>
@@ -180,7 +180,7 @@ Agradecemos às seguintes pessoas que contribuíram para este projeto:
       </a>
     </td>
     <td align="center">
-      <a href="#" title="defina o título do link">
+      <a href="#" title="Ana Klissia">
         <img src="https://i.imgur.com/0EMpIgW.png" width="100px;"  height="100px;" alt="Foto de Ana Klissia"/><br>
         <sub>
           <b>Ana Klissia</b>
@@ -188,7 +188,7 @@ Agradecemos às seguintes pessoas que contribuíram para este projeto:
       </a>
     </td>
     <td align="center">
-      <a href="#" title="defina o título do link">
+      <a href="#" title="Thais Carolina">
         <img src="https://i.imgur.com/7BpjjOZ.jpeg" width="100px;"  height="100px;" alt="Foto de Thais Carolina"/><br>
         <sub>
           <b>Thais Carolina</b>
@@ -204,7 +204,7 @@ Agradecemos às seguintes pessoas que contribuíram para este projeto:
       </a>
     </td>
     <td align="center">
-      <a href="#" title="defina o título do link">
+      <a href="#" title="Erick Roberto">
         <img src="https://imgur.com/QIKonAp.png" width="100px;"  height="100px;" alt="Foto de Erick Roberto"/><br>
         <sub>
           <b>Erick Roberto</b>
@@ -212,8 +212,8 @@ Agradecemos às seguintes pessoas que contribuíram para este projeto:
       </a>
     </td>
     <td align="center">
-      <a href="#" title="defina o título do link">
-        <img src="https://t4.ftcdn.net/jpg/17/79/86/53/360_F_1779865388_fomebP6faaqwzY8HV7US4CPywz9ryYVM.jpg" width="100px;"  height="100px;" alt="Foto de Erick Roberto"/><br>
+      <a href="#" title="Gabriel Ribeiro">
+        <img src="https://t4.ftcdn.net/jpg/17/79/86/53/360_F_1779865388_fomebP6faaqwzY8HV7US4CPywz9ryYVM.jpg" width="100px;"  height="100px;" alt="Foto de Gabriel Ribeiro"/><br>
         <sub>
           <b>Gabriel Ribeiro</b>
         </sub>
