@@ -1,4 +1,4 @@
-# 📦 Gestock: Sistema Inteligente de Gestão de Estoque
+# Gestock: Sistema Inteligente de Gestão de Estoque
 
   <p align="center">
   <img src="https://img.shields.io/github/repo-size/klissiadev/gestock?style=for-the-badge" alt="GitHub repo size">
