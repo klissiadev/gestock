@@ -47,12 +47,12 @@ const TopBar = ({
         >
           {orderOptions.length > 0 && (
             <OrderSelector
-              name="order"
-              value={filters.order}
+              name="order_by"
+              value={filters.order_by}
               onChange={onFilterChange}
               options={orderOptions}
               placeholder="Ordenar por"
-              startingPoint=""
+              startingPoint={orderOptions[0]}
             />
           )}
         </Box>
@@ -66,9 +66,9 @@ const TopBar = ({
           }}
         >
           <SearchBar
-            value={filters.searchTerm}
+            value={filters.search_term}
             onChange={onFilterChange}
-            name="searchTerm"
+            name="search_term"
             placeholder={searchPlaceholder}
           />
         </Box>

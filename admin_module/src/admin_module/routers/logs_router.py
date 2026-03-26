@@ -56,6 +56,7 @@ def fetch_import_logs(request: ImportLogsRequest):
 @router.post("/logs/usuarios")
 def fetch_users(request: UserFetchRequest):
     try: 
+
         logs = log_fetcher.get_usuarios_data(
             search_term=request.search_term,
             order_by=request.order_by,

@@ -8,7 +8,7 @@ export const AuthProvider = ({ children }) => {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
     const [isAdmin, setIsAdmin] = useState(false);
-
+    const [isInitializing, setIsInitializing] = useState(true);
 
     // Da um ping pra verificar sessão e pega informacoes basicas do usuario
     const verificarSessao = useCallback(async (token) => {
@@ -22,15 +22,16 @@ export const AuthProvider = ({ children }) => {
                 const dadosUsuario = await response.json();
                 setUser(dadosUsuario);
                 setIsAdmin(dadosUsuario.papel === 'admin');
-                console.log("Sessão verificada, usuário:", dadosUsuario);
-            } else {
+            } else if (response.status === 401) {
+                // Só remove se o servidor explicitamente disser que o token não vale mais
                 localStorage.removeItem('token');
                 setUser(null);
             }
         } catch (err) {
-            console.error("Erro na conexão:", err);
-            setUser(null);
+            console.error("Erro na conexão (Backend offline?):", err);
+
         } finally {
+            setIsInitializing(false);
             setLoading(false);
         }
     }, []);
@@ -41,6 +42,7 @@ export const AuthProvider = ({ children }) => {
         if (token) {
             verificarSessao(token);
         } else {
+            setIsInitializing(false);
             setLoading(false);
         }
     }, []);
@@ -129,7 +131,7 @@ export const AuthProvider = ({ children }) => {
 
 
     return (
-        <AuthContext.Provider value={{ user, loading, error, login, logout, register, resetPassword, sendRecoveryEmail, isAdmin}}>
+        <AuthContext.Provider value={{ user, loading, error, login, logout, register, resetPassword, sendRecoveryEmail, isAdmin }}>
             {children}
         </AuthContext.Provider>
     );

@@ -2,16 +2,16 @@ import { Navigate, Outlet } from 'react-router-dom';
 import { useAuth } from "../AuthContext"
 
 export const ProtectedRoute = ({ allowedRoles }) => {
-  const { user, loading } = useAuth();
+  const { user, isInitializing } = useAuth();
 
   // Tela de carregamento
-  // if (loading) {
-  //   return (
-  //     <div style={{ display: 'flex', justifyContent: 'center', marginTop: '50px' }}>
-  //       Carregando sessão...
-  //     </div>
-  //   );
-  // }
+  if (isInitializing) {
+    return (
+      <div style={{ display: 'flex', justifyContent: 'center', marginTop: '50px' }}>
+        Carregando sessão...
+      </div>
+    );
+  }
 
   if (!user) {
     return <Navigate to="/login" replace />;
