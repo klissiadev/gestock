@@ -12,7 +12,7 @@ import {
 
 const TableModel = ({ rows, columns }) => {
   return (
-      <TableContainer sx={{ boxShadow: "0 4px 20px rgba(0,0,0,0.16)",}}>
+      <TableContainer>
         <Table stickyHeader>
           <TableHead>
             <TableRow>

@@ -216,7 +216,7 @@ wheels = [
 
 [[package]]
 name = "auth-module"
-version = "0.1.0"
+version = "1.0.0"
 source = { editable = "../auth_module" }
 dependencies = [
     { name = "fastapi", extra = ["standard"] },
@@ -1178,7 +1178,7 @@ wheels = [
 
 [[package]]
 name = "llm-module"
-version = "0.1.0"
+version = "1.0.0"
 source = { editable = "." }
 dependencies = [
     { name = "auth-module" },
@@ -1215,7 +1215,7 @@ requires-dist = [
 
 [[package]]
 name = "llm-report"
-version = "0.1.0"
+version = "1.0.0"
 source = { editable = "../llm_report" }
 dependencies = [
     { name = "fastapi" },
