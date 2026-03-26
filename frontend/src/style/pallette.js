@@ -13,6 +13,7 @@ export const palette = {
 
     background: {
       default: '#989898',
+      paper: '#FFFFFF',
     },
 
     table: {
@@ -50,6 +51,25 @@ export const palette = {
       good: "#2AFF00",
       degraded: "#ff9800",
       offline: "#f44336"
-    }
+    },
+
+    text: {
+      primary: "#1a1a1a",
+      secondary: "#555555",
+    },
+
+    divider: "#e0e0e0",
+
+    primary: {
+      main: "#634494", // usa seu admin.main
+    },
+
+    success: {
+      main: "#2AFF00",
+    },
+
+    error: {
+      main: "#f44336",
+    },
 };
 

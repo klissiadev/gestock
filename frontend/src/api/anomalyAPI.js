@@ -1,4 +1,4 @@
-const BASE_URL = "http://localhost:8000";
+const BASE_URL = "http://localhost:8001";
 
 /**
  * Busca anomalias a partir de uma data
@@ -7,6 +7,7 @@ const BASE_URL = "http://localhost:8000";
  */
 export async function getAnomalies(dataCorte) {
   try {
+    console.log(dataCorte);
     const response = await fetch(
       `${BASE_URL}/anomalies?data_corte=${dataCorte}`
     );
@@ -18,7 +19,7 @@ export async function getAnomalies(dataCorte) {
     const json = await response.json();
 
     // padrão: { data: [...], count: number }
-    return json.data;
+    return Array.isArray(json.data) ? json.data : [];
 
   } catch (error) {
     console.error("Erro ao buscar anomalias:", error);

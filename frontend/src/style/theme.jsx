@@ -51,6 +51,15 @@ export const theme = createTheme({
                 },
             },
         },
+        MuiCard: {
+            styleOverrides: {
+                root: {
+                backgroundImage: "none",
+                border: "1px solid",
+                borderColor: "divider",
+                },
+            },
+            },
         MuiCssBaseline: {
             styleOverrides: {
             body: {
