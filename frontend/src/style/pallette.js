@@ -3,7 +3,8 @@ export const palette = {
     common: {
       white: '#FFFFFF',
       black: '#000000',
-      gray: '#A1A1A1'
+      gray: '#A1A1A1',
+      red: 'rgb(205, 6, 6)',
     },
 
     button: {
@@ -40,7 +41,7 @@ export const palette = {
     },
 
     card: {
-      background: "#cec7d9",
+      background: "#fff",
     },
 
     admin: {

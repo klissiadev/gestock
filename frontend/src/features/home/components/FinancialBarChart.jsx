@@ -25,7 +25,7 @@ export default function FinancialBarChart({ data }) {
           color: theme.palette.iconButton.active,
         },
       ]}
-      height={180}
+      height={200}
     />
   );
 }

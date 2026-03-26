@@ -4,8 +4,8 @@ import LampSvg from "../../../assets/icon/iconLamp.svg?react";
 const suggestions = [
   "Como gerar um relatório?",
   "Quais dados posso consultar?",
-  "Como integrar com o sistema?",
-  "Tenho um erro no processo",
+  "Liste os produtos movimentados recentemente",
+  "Quais os produtos ativos no estoqueW",
 ];
 
 const FAQSuggestions = ({ onSelectSuggestion }) => {
@@ -38,7 +38,7 @@ const FAQSuggestions = ({ onSelectSuggestion }) => {
             <Chip
               label={text}
               onClick={() => onSelectSuggestion(text)}
-              sx={{ width: "100%", borderRadius: 2, cursor: "pointer" }}
+              sx={{ width: "100%", borderRadius: 2, cursor: "pointer" , backgroundColor: (theme) => theme.palette.iconButton.hover}}
             />
           </Box>
         ))}

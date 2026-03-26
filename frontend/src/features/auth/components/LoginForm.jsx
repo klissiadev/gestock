@@ -51,8 +51,8 @@ const LoginForm = () => {
     >
       <Box
         sx={{
-          width: 50,
-          height: 50,
+          width: 64,
+          height: 64,
           borderRadius: 2,
           alignSelf: "center",
           display: "flex",

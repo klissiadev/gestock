@@ -57,12 +57,13 @@ export default function TopSalesManual({ topSales, period }) {
   return (
     <Box
       sx={{
-        background: (theme) => theme.palette.iconButton.hover,
+        background: (theme) => theme.palette.common.white,
         borderRadius: "24px",
         px: 4,
         py: 2,
-        height: 300,
+        height: 355,
         width: "100%",
+        boxShadow: "0 4px 20px rgba(0,0,0,0.16)",
       }}
     >
       <Typography
@@ -71,7 +72,7 @@ export default function TopSalesManual({ topSales, period }) {
         Top vendas - {period}
       </Typography>
 
-      <Box sx={{ display: "flex", flexDirection: "column", gap: 1 }}>
+      <Box sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
         {topSales.map((item) => (
           <Box key={item.product}>
             <Typography sx={{ fontSize: 12}}>
@@ -81,7 +82,7 @@ export default function TopSalesManual({ topSales, period }) {
             <SaleTooltip product={item.product} total={item.total}>
               <Box
                 sx={{
-                  height: 16,
+                  height: 18,
                   width: "100%",
                   background:  (theme) => theme.palette.iconButton.selected,
                   borderRadius: "20px",
