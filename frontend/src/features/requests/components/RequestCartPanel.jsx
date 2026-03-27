@@ -2,7 +2,7 @@ import { Box } from "@mui/material";
 import ShoppingSvg from "../../../assets/icon/iconShop.svg?react";
 import ProductRequestItem from "./ProductRequestItem";
 import RequestForm from "./RequestForm";
-import ChatSvg from "../../../assets/icon/iconChat.svg?react";
+import ChatSvg from "../../../assets/icon/icon-minerva.svg?react";
 import ExpandableIconButton from "../../../components/ui/ExpandableIconButton.jsx";
 
 const RequestCartPanel = ({ products, setProducts, setRequestSent }) => {

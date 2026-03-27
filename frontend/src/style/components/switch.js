@@ -29,7 +29,7 @@ const MuiSwitch = {
         transform: "translateX(14px)",
 
         "& + .MuiSwitch-track": {
-          backgroundColor: theme.palette.iconButton.active, // cor quando ligado
+          backgroundColor: theme.palette.primary.main, // cor quando ligado
         },
       },
     }),

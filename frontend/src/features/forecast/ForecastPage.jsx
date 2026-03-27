@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback, useMemo } from "react";
-import { Box, Alert, Typography } from "@mui/material";
-import { ThemeProvider, createTheme } from "@mui/material/styles";
+import { Box, Alert, Grid, CircularProgress } from "@mui/material";
+import { createTheme } from "@mui/material/styles";
 import { getAnomalies } from "./services/demandAPI.js";
 
 // Importando nossos novos componentes
@@ -14,9 +14,8 @@ import { ForecastTable } from "./components/ForecastTable";
 const DAYS = ["Dom", "Seg", "Ter", "Qua", "Qui", "Sex", "Sáb"];
 
 const ForecastPage = () => {
-  const today = new Date().toISOString().split("T")[0];
-
-  const [dateFilter, setDateFilter] = useState(today);
+  const yesterday = new Date(Date.now() - 86400000).toISOString().split("T")[0];
+  const [dateFilter, setDateFilter] = useState(yesterday);
   const [data, setData] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
@@ -44,66 +43,102 @@ const ForecastPage = () => {
 
   // ── Lógica de Negócio (Memoizada para performance) ──
   const { categories, filtered, kpis, byDay, byCat } = useMemo(() => {
-    const getStatus = (d) => Number(d.result ?? d.anomaly);
-    const cats = ["ALL", ...new Set(data.map(d => d.category))];
-    const filteredData = activeCategory === "ALL" ? data : data.filter(d => d.category === activeCategory);
+    // 1. Categorias baseadas nos Clientes do JSON
+    const cats = ["ALL", ...new Set(data.map(d => d.cliente))];
 
-    const anomalies = filteredData.filter(d => getStatus(d) === -1);
-    const normals = filteredData.filter(d => getStatus(d) === 1);
-    const rate = filteredData.length ? ((anomalies.length / filteredData.length) * 100).toFixed(1) : "0.0";
+    const filteredData = activeCategory === "ALL"
+      ? data
+      : data.filter(d => d.cliente === activeCategory);
+
+    // 2. Cálculo de KPIs usando o campo 'result' ou 'anomaly'
+    const anomalies = filteredData.filter(d => d.result === -1);
+    const normals = filteredData.filter(d => d.result === 1);
+    const avgScore = anomalies.length
+      ? (anomalies.reduce((acc, curr) => acc + Math.abs(curr.score), 0) / anomalies.length).toFixed(3)
+      : 0;
 
     const kpisData = [
-      { label: "Total Registros", value: filteredData.length, color: "primary.main" },
-      { label: "Anomalias", value: anomalies.length, color: "error.main" },
-      { label: "Normais", value: normals.length, color: "success.main" },
-      { label: "Taxa Anomalia", value: `${rate}%`, color: Number(rate) > 30 ? "error.main" : "primary.main" },
+      { label: "Total", value: filteredData.length, color: "common.white" },
+      { label: "Anomalias", value: anomalies.length, color: "#ff3d6e" },
+      { label: "Score Médio", value: avgScore, color: "#ffd600" }, // Novo KPI de intensidade
+      { label: "Taxa", value: `${filteredData.length ? ((anomalies.length / filteredData.length) * 100).toFixed(1) : 0}%`, color: "common.white" },
     ];
 
-    const byDayData = Array.from({ length: 7 }, (_, i) => ({
-      day: DAYS[i],
-      Anomalias: filteredData.filter(d => d.day_of_week === i && getStatus(d) === -1).length,
-      Normais: filteredData.filter(d => d.day_of_week === i && getStatus(d) === 1).length,
-    }));
+    // 3. Distribuição por Dia da Semana (extraído de created_at)
+    const byDayData = DAYS.map((day, index) => {
+      const recordsOnDay = filteredData.filter(d => new Date(d.created_at).getDay() === index);
+      return {
+        day,
+        Anomalias: recordsOnDay.filter(d => d.result === -1).length,
+        Normais: recordsOnDay.filter(d => d.result === 1).length,
+      };
+    });
 
-    const byCatData = [...new Set(data.map(d => d.category))].map(cat => ({
-      name: cat,
-      value: data.filter(d => d.category === cat && getStatus(d) === -1).length,
+    // 4. Anomalias por Cliente (para o gráfico de pizza)
+    const byCatData = [...new Set(data.map(d => d.cliente))].map(cli => ({
+      name: cli,
+      value: data.filter(d => d.cliente === cli && d.result === -1).length,
     })).filter(c => c.value > 0);
 
     return { categories: cats, filtered: filteredData, kpis: kpisData, byDay: byDayData, byCat: byCatData };
   }, [data, activeCategory]);
 
+
   return (
-    <ThemeProvider theme={theme}>
-      <Box sx={{ bgcolor: "background.default", minHeight: "100vh", p: 3, color: "text.primary" }}>
+    <Box sx={{
+      height: "100vh", p: 3, display: 'grid',
+      placeItems: 'center'
+    }}>
+      <ForecastHeader
+        dateFilter={dateFilter}
+        setDateFilter={setDateFilter}
+        onFetch={fetchData}
+        loading={loading}
+      />
 
-        <ForecastHeader
-          dateFilter={dateFilter}
-          setDateFilter={setDateFilter}
-          onFetch={fetchData}
-          loading={loading}
-        />
+      {!loading ? (
+        <>
+          <Box sx={{ mt: 3 }}>
+            <ForecastFilters
+              categories={categories}
+              activeCategory={activeCategory}
+              setActiveCategory={setActiveCategory}
+            />
+          </Box>
 
-        {error && <Alert severity="error" sx={{ mb: 2 }}>{error}</Alert>}
+          {/* ÁREA DOS CARDS - Centralizados no topo */}
+          <Grid container spacing={2} justifyContent="center" sx={{ mb: 4 }}>
+            <ForecastKPIs kpis={kpis} />
+          </Grid>
 
-        <ForecastFilters
-          categories={categories}
-          activeCategory={activeCategory}
-          setActiveCategory={setActiveCategory}
-        />
+          {/* ÁREA PRINCIPAL - Lado a lado */}
+          <Grid container spacing={3}>
+            {error && (
+              <Grid item xs={12}>
+                <Alert severity="error">{error}</Alert>
+              </Grid>
+            )}
 
-        <ForecastKPIs kpis={kpis} />
+            {/* COLUNA DA ESQUERDA: Gráficos Empilhados (para dar espaço ao Pizza) */}
+            <Grid item xs={12}>
+              <ForecastCharts byDay={byDay} byCat={byCat} />
+            </Grid>
 
-        <ForecastCharts byDay={byDay} byCat={byCat} />
+            {/* COLUNA DA DIREITA: Tabela Detalhada */}
+            <Grid item xs={12} lg={7}>
+              <ForecastTable filteredData={filtered} loading={loading} />
+            </Grid>
+          </Grid>
+        </>
 
-        <ForecastTable filteredData={filtered} loading={loading} />
+      ) : (
+        <Box sx={{height: '100vh', mt: 10 }}>
+          <CircularProgress />
+        </Box>
+      )}
 
-        <Typography variant="caption" sx={{ display: "block", mt: 2, textAlign: "right", color: "#4a5168" }}>
-          Dados via <code>getAnomalies(dataCorte)</code> · anomalyAPI.js
-        </Typography>
 
-      </Box>
-    </ThemeProvider>
+    </Box>
   );
 };
 

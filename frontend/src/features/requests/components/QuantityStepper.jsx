@@ -11,7 +11,7 @@ const QuantityStepper = ({ value = 1, onIncrease, onDecrease }) => {
         borderRadius: "6px",
         overflow: "hidden",
         height: 24,
-        backgroundColor: theme.palette.iconButton.active,
+        backgroundColor: theme.palette.primary.main,
       })}
     >
       <IconButton
