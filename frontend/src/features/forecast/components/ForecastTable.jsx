@@ -1,0 +1,63 @@
+import { Card, CardContent, Typography, TableContainer, Table, TableHead, TableRow, TableCell, TableBody, Paper, Chip } from "@mui/material";
+import { alpha } from "@mui/material/styles";
+
+const DAYS = ["Dom", "Seg", "Ter", "Qua", "Qui", "Sex", "Sáb"];
+
+export const ForecastTable = ({ filteredData, loading }) => (
+    <Card sx={{ bgcolor: "card.background" }}>
+        <CardContent sx={{ pb: "16px !important" }}>
+            <Typography variant="caption" sx={{ color: "text.secondary", textTransform: "uppercase", letterSpacing: 1, display: "block", mb: 2 }}>
+                Registros Detalhados
+            </Typography>
+            <TableContainer component={Paper} sx={{ bgcolor: "transparent" }}>
+                <Table size="small">
+                    <TableHead>
+                        <TableRow>
+                            {["Status", "Item ID", "Nome", "Quantidade", "Preço (R$)", "Tipo", "Loja", "Data de validade"].map(h => (
+                                <TableCell key={h} sx={{ color: "text.secondary", fontWeight: 600, fontSize: 11, letterSpacing: 0.5, textTransform: "uppercase", fontFamily: "inherit" }}>
+                                    {h}
+                                </TableCell>
+                            ))}
+                        </TableRow>
+                    </TableHead>
+                    <TableBody>
+                        {filteredData.length === 0 ? (
+                            <TableRow>
+                                <TableCell colSpan={8} align="center" sx={{ py: 4, color: "text.secondary", fontFamily: "inherit" }}>
+                                    {loading ? "Carregando..." : "Nenhum registro encontrado."}
+                                </TableCell>
+                            </TableRow>
+                        ) : filteredData.map((row, i) => (
+                            <TableRow
+                                key={i}
+                                sx={{
+                                    bgcolor: row.result === -1 ? alpha("#ff3d6e", 0.04) : "transparent",
+                                    "&:hover": { bgcolor: alpha("#00e5ff", 0.04) },
+                                }}
+                            >
+                                <TableCell>
+                                    <Chip
+                                        label={row.result === -1 ? "ANOMALIA" : "NORMAL"}
+                                        size="small"
+                                        sx={{
+                                            bgcolor: row.result === -1 ? alpha("#ff3d6e", 0.15) : alpha("#26a269", 0.15),
+                                            color: row.result === -1 ? "#ff3d6e" : "#26a269",
+                                            fontWeight: 700, fontSize: 10, fontFamily: "inherit", height: 20,
+                                        }}
+                                    />
+                                </TableCell>
+                                <TableCell sx={{ color: "primary.main", fontFamily: "inherit" }}>{row.item_id}</TableCell>
+                                <TableCell sx={{ fontFamily: "inherit" }}>{row.nome}</TableCell>
+                                <TableCell sx={{ fontFamily: "inherit" }}>{row.quantidade}</TableCell>
+                                <TableCell sx={{ fontFamily: "inherit" }}>{Number(row.preco_de_venda)?.toLocaleString("pt-BR")}</TableCell>
+                                <TableCell sx={{ color: "text.secondary", fontFamily: "inherit" }}>{row.tipo}</TableCell>
+                                <TableCell sx={{ fontFamily: "inherit" }}>{row.cliente}</TableCell>
+                                <TableCell sx={{ color: "text.secondary", fontFamily: "inherit" }}>{DAYS[Number(row.data_validade)] ?? "-"}</TableCell>
+                            </TableRow>
+                        ))}
+                    </TableBody>
+                </Table>
+            </TableContainer>
+        </CardContent>
+    </Card>
+);
