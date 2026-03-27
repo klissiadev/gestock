@@ -22,7 +22,7 @@ dependencies = [
     "llm_module",
     "auth_module",
     "request_module",
-    "forecasting-module @ file:///C:/Users/Usuario/Documents/GitHub/gestock/forecasting_module",
+    "forecasting-module @ file:///C:/Users/Callidus/Documents/GitHub/gestock/forecasting_module",
     "llm_report"
 ]
 

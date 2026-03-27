@@ -19,49 +19,49 @@ const BarTooltip = ({ active, payload, label }) => {
 };
 
 export const ForecastCharts = ({ byDay, byCat }) => (
-    <Grid container spacing={2} mb={3}>
-        {/* Bar Chart */}
-        <Grid item xs={12} md={8}>
-            <Card sx={{ p: 2.5, borderRadius:"14px"}}>
-                <Typography variant="caption" sx={{ color: "text.secondary",fontSize:"14px", letterSpacing: 1, display: "block", mb: 2 }}>
+    <Grid container spacing={3}>
+        {/* Gráfico de Barras - 100% da largura da coluna */}
+        <Grid item xs={12} sx={{height: "calc(100vh - 550px)",}}>
+            <Card sx={{ p: 3, borderRadius: "16px" }}>
+                <Typography variant="h6" sx={{ fontSize: "16px", mb: 2, fontWeight: 600 }}>
                     Anomalias por Dia da Semana
                 </Typography>
-                <ResponsiveContainer width="100%" height={230}>
-                    <BarChart data={byDay} barCategoryGap="30%" margin={{ top: 5, right: 10, bottom: 0, left: -10 }}>
-                        <CartesianGrid stroke="#1e2535" strokeDasharray="3 3" />
-                        <XAxis dataKey="day" tick={{ fill: "#7a8299", fontSize: 12, fontFamily: "inherit" }} />
-                        <YAxis tick={{ fill: "#7a8299", fontSize: 11, fontFamily: "inherit" }} />
-                        <Tooltip content={<BarTooltip />} cursor={{ fill: alpha("#00e5ff", 0.05) }} />
-                        <Bar dataKey="Anomalias" fill="#ff3d6e" radius={[4, 4, 0, 0]} />
-                        <Bar dataKey="Normais" fill="#26a269" radius={[4, 4, 0, 0]} />
+                <ResponsiveContainer width="100%" height={250}>
+                    <BarChart data={byDay}>
+                        <CartesianGrid stroke="#f0f0f0" vertical={false} />
+                        <XAxis dataKey="day" axisLine={false} tickLine={false} />
+                        <YAxis axisLine={false} tickLine={false} />
+                        <Tooltip content={<BarTooltip />} />
+                        <Bar dataKey="Anomalias" fill="#ff3d6e" radius={[4, 4, 0, 0]} barSize={30} />
+                        <Bar dataKey="Normais" fill="#26a269" radius={[4, 4, 0, 0]} barSize={30} />
                     </BarChart>
                 </ResponsiveContainer>
             </Card>
         </Grid>
 
-        {/* Pie Chart */}
-        <Grid item xs={12} md={4}>
-            <Card sx={{ p: 2.5, height: "100%", borderRadius:"14px"}}>
-                <Typography variant="caption" sx={{ color: "text.secondary", fontSize:"14px", letterSpacing: 1, display: "block", mb: 2 }}>
-                    Anomalias por Categoria
+        {/* Gráfico de Pizza - Agora com espaço de sobra! */}
+        <Grid item xs={12}>
+            <Card sx={{ p: 3, borderRadius: "16px" }}>
+                <Typography variant="h6" sx={{ fontSize: "16px", mb: 2, fontWeight: 600 }}>
+                    Distribuição por Categoria
                 </Typography>
-                {byCat.length === 0 ? (
-                    <Stack height={230} justifyContent="center" alignItems="center">
-                        <Typography variant="caption" color="text.secondary">Sem anomalias no período</Typography>
-                    </Stack>
-                ) : (
-                    <ResponsiveContainer width="100%" height={230}>
-                        <PieChart>
-                            <Pie data={byCat} cx="50%" cy="45%" innerRadius={52} outerRadius={80} dataKey="value" nameKey="name" paddingAngle={3}>
-                                {byCat.map((_, i) => <Cell key={i} fill={PIE_COLS[i % PIE_COLS.length]} />)}
-                            </Pie>
-                            <Tooltip
-                                contentStyle={{ background: "#111520", border: "1px solid #1e2535", borderRadius: 8, fontFamily: "inherit", fontSize: 12, color: "#e2e8f0" }}
-                            />
-                            <Legend iconType="circle" iconSize={8} wrapperStyle={{ fontSize: 11, color: "#7a8299", fontFamily: "inherit" }} />
-                        </PieChart>
-                    </ResponsiveContainer>
-                )}
+                <ResponsiveContainer width="100%" height={300}>
+                    <PieChart>
+                        <Pie 
+                            data={byCat} 
+                            innerRadius={70} 
+                            outerRadius={100} 
+                            paddingAngle={5} 
+                            dataKey="value"
+                        >
+                            {byCat.map((entry, index) => (
+                                <Cell key={`cell-${index}`} fill={PIE_COLS[index % PIE_COLS.length]} />
+                            ))}
+                        </Pie>
+                        <Tooltip />
+                        <Legend verticalAlign="bottom" height={36}/>
+                    </PieChart>
+                </ResponsiveContainer>
             </Card>
         </Grid>
     </Grid>

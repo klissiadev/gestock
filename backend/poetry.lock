@@ -1344,13 +1344,13 @@ woff = ["brotli (>=1.0.1) ; platform_python_implementation == \"CPython\"", "bro
 
 [[package]]
 name = "forecasting-module"
-version = "0.1.0"
-description = "Add your description here"
+version = "1.0.0"
+description = "Módulo de Machine Learning responsável pela previsão de demanda, análise de tendências e prevenção de rupturas de estoque no ecossistema Gestock."
 optional = false
 python-versions = ">=3.11"
 groups = ["main"]
 files = []
-develop = false
+develop = true
 
 [package.dependencies]
 darts = ">=0.42.1"
@@ -6278,4 +6278,4 @@ cffi = ["cffi (>=1.17,<2.0) ; platform_python_implementation != \"PyPy\" and pyt
 [metadata]
 lock-version = "2.1"
 python-versions = ">=3.11,<4.0"
-content-hash = "f516ff55ab6b93eb938f708ed5fc5bcf68ea5d598a643e9485c2f08ac0e2c766"
+content-hash = "295e16a85eca6b14e3bb8ac223dacb2a2b5ce4d10689b7a699608a5d1eb722f5"
