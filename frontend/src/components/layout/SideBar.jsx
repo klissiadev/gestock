@@ -14,6 +14,7 @@ import {
 import AppIcon from "../ui/AppIcon";
 
 import HomeSvg from "../../assets/icon/iconHome.svg?react";
+import HomeActiveSvg from "../../assets/icon/icon-home-purple.svg?react";
 import ChatSvg from "../../assets/icon/iconChat.svg?react";
 import ChatActiveSvg from "../../assets/icon/icon-minerva-purple.svg?react";
 import InvetorySvg from "../../assets/icon/iconInventory.svg?react";
@@ -21,6 +22,7 @@ import InvetoryActiveSvg from "../../assets/icon/icon-box-purple.svg?react";
 import ShoppingSvg from "../../assets/icon/iconShop.svg?react";
 import ShoppingActiveSvg from "../../assets/icon/icon-car-purple.svg?react";
 import ChartSvg from "../../assets/icon/iconBars.svg?react";
+import ChartActiveSvg from "../../assets/icon/icon-charts-purple.svg?react";
 import LogOutSvg from "../../assets/icon/iconOut.svg?react";
 import MovSvg from "../../assets/icon/iconMove.svg?react";
 import MovActiveSvg from "../../assets/icon/icon-movement-purple.svg?react";
@@ -38,13 +40,13 @@ import { useAuth } from "../../AuthContext";
 
 
 const commonItems = [
-  { id: "home", icon: HomeSvg, title: "Home", iconActive: HomeSvg },
+  { id: "home", icon: HomeSvg, title: "Home", iconActive: HomeActiveSvg },
   { id: "ai", icon: ChatSvg, title: "Chat", iconActive: ChatActiveSvg},
   { id: "upload", icon: UploadSvg, title: "Upload", iconActive: UploadSvg },
   { id: "sheets", icon: InvetorySvg, title: "Inventory", iconActive: InvetoryActiveSvg },
   { id: "movements", icon: MovSvg, title: "Movements", iconActive: MovActiveSvg },
   { id: "requests", icon: ShoppingSvg, title: "Request", iconActive: ShoppingActiveSvg },
-  { id: "forecast", icon: ChartSvg, title: "Forecast", iconActive: HomeSvg}
+  { id: "forecast", icon: ChartSvg, title: "Forecast", iconActive: ChartActiveSvg}
 ];
 
 const adminItems = [

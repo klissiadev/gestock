@@ -48,7 +48,7 @@ export const ForecastTable = ({ filteredData, loading }) => (
                                 }}>
                                 <TableCell>
                                     <Chip
-                                        label={row.result === -1 ? "CRÍTICO" : "NORMAL"}
+                                        label={row.result === -1 ? "ANOMALIA" : "NORMAL"}
                                         size="small"
                                         sx={{
                                             bgcolor: row.result === -1 ? alpha("#ff3d6e", 0.15) : alpha("#26a269", 0.15),

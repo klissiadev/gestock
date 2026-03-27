@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback, useMemo } from "react";
-import { Box, Alert, Grid } from "@mui/material";
+import { Box, Alert, Grid, CircularProgress } from "@mui/material";
 import { createTheme } from "@mui/material/styles";
 import { getAnomalies } from "./services/demandAPI.js";
 
@@ -86,7 +86,7 @@ const ForecastPage = () => {
 
   return (
     <Box sx={{
-      maxHeight: "100vh", p: 3, display: 'grid',
+      height: "100vh", p: 3, display: 'grid',
       placeItems: 'center'
     }}>
       <ForecastHeader
@@ -96,37 +96,48 @@ const ForecastPage = () => {
         loading={loading}
       />
 
-      <Box sx={{ mt: 3 }}>
-        <ForecastFilters
-          categories={categories}
-          activeCategory={activeCategory}
-          setActiveCategory={setActiveCategory}
-        />
-      </Box>
+      {!loading ? (
+        <>
+          <Box sx={{ mt: 3 }}>
+            <ForecastFilters
+              categories={categories}
+              activeCategory={activeCategory}
+              setActiveCategory={setActiveCategory}
+            />
+          </Box>
 
-      {/* ÁREA DOS CARDS - Centralizados no topo */}
-      <Grid container spacing={2} justifyContent="center" sx={{ mb: 4 }}>
-        <ForecastKPIs kpis={kpis} />
-      </Grid>
-
-      {/* ÁREA PRINCIPAL - Lado a lado */}
-      <Grid container spacing={3}>
-        {error && (
-          <Grid item xs={12}>
-            <Alert severity="error">{error}</Alert>
+          {/* ÁREA DOS CARDS - Centralizados no topo */}
+          <Grid container spacing={2} justifyContent="center" sx={{ mb: 4 }}>
+            <ForecastKPIs kpis={kpis} />
           </Grid>
-        )}
 
-        {/* COLUNA DA ESQUERDA: Gráficos Empilhados (para dar espaço ao Pizza) */}
-        <Grid item xs={12}>
-          <ForecastCharts byDay={byDay} byCat={byCat} />
-        </Grid>
+          {/* ÁREA PRINCIPAL - Lado a lado */}
+          <Grid container spacing={3}>
+            {error && (
+              <Grid item xs={12}>
+                <Alert severity="error">{error}</Alert>
+              </Grid>
+            )}
 
-        {/* COLUNA DA DIREITA: Tabela Detalhada */}
-        <Grid item xs={12} lg={7}>
-          <ForecastTable filteredData={filtered} loading={loading} />
-        </Grid>
-      </Grid>
+            {/* COLUNA DA ESQUERDA: Gráficos Empilhados (para dar espaço ao Pizza) */}
+            <Grid item xs={12}>
+              <ForecastCharts byDay={byDay} byCat={byCat} />
+            </Grid>
+
+            {/* COLUNA DA DIREITA: Tabela Detalhada */}
+            <Grid item xs={12} lg={7}>
+              <ForecastTable filteredData={filtered} loading={loading} />
+            </Grid>
+          </Grid>
+        </>
+
+      ) : (
+        <Box sx={{height: '100vh', mt: 10 }}>
+          <CircularProgress />
+        </Box>
+      )}
+
+
     </Box>
   );
 };

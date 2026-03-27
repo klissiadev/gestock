@@ -8,7 +8,7 @@ import {
   Button,
   CircularProgress,
 } from "@mui/material";
-import ForecastSvg from "../../../assets/icon/iconBars.svg?react"; // usa um ícone parecido com o sistema
+import ForecastSvg from "../../../assets/icon/icon-charts-purple.svg?react";
 
 export const ForecastHeader = ({
   dateFilter,

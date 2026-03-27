@@ -56,7 +56,7 @@ const PurchaseSuggestions = ({ onSelectSuggestion, suggestions, loading }) => {
                 position: "absolute",
                 top: 6,
                 right: 6,
-                bgcolor: (theme) => theme.palette.iconButton.active,
+                backgroundColor: (theme) => theme.palette.primary.main,
                 color: "white",
                 fontSize: 11,
                 px: 1,
