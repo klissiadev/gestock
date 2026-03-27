@@ -53,10 +53,10 @@ const ForecastPage = () => {
     const rate = filteredData.length ? ((anomalies.length / filteredData.length) * 100).toFixed(1) : "0.0";
 
     const kpisData = [
-      { label: "Total Registros", value: filteredData.length, color: "primary.main" },
+      { label: "Total Registros", value: filteredData.length, color: "common.white" },
       { label: "Anomalias", value: anomalies.length, color: "error.main" },
       { label: "Normais", value: normals.length, color: "success.main" },
-      { label: "Taxa Anomalia", value: `${rate}%`, color: Number(rate) > 30 ? "error.main" : "primary.main" },
+      { label: "Taxa Anomalia", value: `${rate}%`, color: Number(rate) > 30 ? "error.main" : "common.white" },
     ];
 
     const byDayData = Array.from({ length: 7 }, (_, i) => ({
@@ -74,8 +74,7 @@ const ForecastPage = () => {
   }, [data, activeCategory]);
 
   return (
-    <ThemeProvider theme={theme}>
-      <Box sx={{ bgcolor: "background.default", minHeight: "100vh", p: 3, color: "text.primary" }}>
+    <Box sx={{ minHeight: "100vh", p: 2, color: "text.primary" }}>
 
         <ForecastHeader
           dateFilter={dateFilter}
@@ -83,27 +82,31 @@ const ForecastPage = () => {
           onFetch={fetchData}
           loading={loading}
         />
-
-        {error && <Alert severity="error" sx={{ mb: 2 }}>{error}</Alert>}
-
         <ForecastFilters
           categories={categories}
           activeCategory={activeCategory}
           setActiveCategory={setActiveCategory}
         />
+        <Box sx={{ display:"flex"}}>
+          {error && <Alert severity="error" sx={{ mb: 2 }}>{error}</Alert>}
 
-        <ForecastKPIs kpis={kpis} />
+          <Box sx={{display:"flex", flexDirection:"column", width:"55%"}}>
+            
+            <ForecastKPIs kpis={kpis} />
 
-        <ForecastCharts byDay={byDay} byCat={byCat} />
+            <ForecastCharts byDay={byDay} byCat={byCat} />
+          </Box>
+          <Box sx={{display:"flex", flexDirection:"column", width:"45%"}}>
+            <ForecastTable filteredData={filtered} loading={loading} />
 
-        <ForecastTable filteredData={filtered} loading={loading} />
+          </Box>
+      </Box>
 
-        <Typography variant="caption" sx={{ display: "block", mt: 2, textAlign: "right", color: "#4a5168" }}>
-          Dados via <code>getAnomalies(dataCorte)</code> · anomalyAPI.js
-        </Typography>
+      <Typography variant="caption" sx={{ display: "block", mt: 2, textAlign: "right", color: "#4a5168" }}>
+        Dados via <code>getAnomalies(dataCorte)</code> · anomalyAPI.js
+      </Typography>
 
       </Box>
-    </ThemeProvider>
   );
 };
 

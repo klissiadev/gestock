@@ -1,36 +1,101 @@
-import { Box, Typography, Stack, TextField, Button, CircularProgress } from "@mui/material";
+import React from "react";
+import {
+  Box,
+  Typography,
+  Stack,
+  Divider,
+  TextField,
+  Button,
+  CircularProgress,
+} from "@mui/material";
+import ForecastSvg from "../../../assets/icon/iconBars.svg?react"; // usa um ícone parecido com o sistema
 
-export const ForecastHeader = ({ dateFilter, setDateFilter, onFetch, loading }) => (
-    <Stack direction="row" justifyContent="space-between" alignItems="center" mb={3.5}>
-        <Box>
-            <Typography variant="caption" sx={{ color: "primary.main", letterSpacing: 3, textTransform: "uppercase" }}>
-                Sistema de Detecção
-            </Typography>
-            <Typography variant="h5" fontWeight={800} letterSpacing={-0.5} mt={0.5}>
-                Anomaly Dashboard
-            </Typography>
+export const ForecastHeader = ({
+  dateFilter,
+  setDateFilter,
+  onFetch,
+  loading,
+}) => {
+  return (
+    <Stack>
+      {/* HEADER SUPERIOR */}
+      <Stack direction="row" alignItems="center" pb={1}>
+
+        {/* Título central */}
+        <Box
+          sx={{
+            flex: 1,
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center",
+            gap: 2,
+            mb:1
+          }}
+        >
+          <ForecastSvg width={26} height={26} />
+          <Typography
+            fontSize={20}
+            fontWeight={500}
+            sx={{ color: (theme) => theme.palette.primary.main}}
+          >
+            Anomaly Dashboard
+          </Typography>
+        </Box>
+      </Stack>
+
+      <Divider variant="middle" />
+
+      {/* TOOLBAR / FILTROS */}
+      <Stack direction="row" alignItems="center" mt={1}>
+        {/* Esquerda (pode crescer depois se quiser mais filtros) */}
+        <Box sx={{ flex: 1 }} />
+
+        {/* Centro */}
+        <Box
+          sx={{
+            flex: 1,
+            display: "flex",
+            justifyContent: "center",
+            gap: 1,
+          }}
+        >
+          <TextField
+            type="date"
+            size="small"
+            value={dateFilter}
+            onChange={(e) => setDateFilter(e.target.value)}
+            sx={{
+              "& .MuiOutlinedInput-root": {
+                fontFamily: "inherit",
+                fontSize: 13,
+              },
+            }}
+          />
+
+          <Button
+            variant="contained"
+            onClick={onFetch}
+            disabled={loading}
+            sx={{
+              fontFamily: "inherit",
+              fontWeight: 500,
+              borderRadius: 2,
+              textTransform: "none",
+              backgroundColor: (theme) => theme.palette.primary.main,
+              color: (theme) => theme.palette.common.white
+            }}
+          >
+            {loading ? (
+              <CircularProgress size={18} thickness={5} sx={{ color: "white" }} />
+            ) : (
+              "Buscar"
+            )}
+          </Button>
         </Box>
 
-        <Stack direction="row" spacing={1.5} alignItems="center">
-            <TextField
-                type="date"
-                size="small"
-                value={dateFilter}
-                onChange={e => setDateFilter(e.target.value)}
-                sx={{ "& .MuiOutlinedInput-root": { fontFamily: "inherit", fontSize: 13 } }}
-            />
-            <Button
-                variant="contained"
-                onClick={onFetch}
-                disabled={loading}
-                sx={{
-                    fontFamily: "inherit", fontWeight: 700, minWidth: 90,
-                    bgcolor: "primary.main", color: "background.default",
-                    "&:hover": { bgcolor: "#26d4ec" },
-                }}
-            >
-                {loading ? <CircularProgress size={18} thickness={5} sx={{ color: "background.default" }} /> : "Buscar"}
-            </Button>
-        </Stack>
+        {/* Direita */}
+        <Box sx={{ flex: 1 }} />
+      </Stack>
     </Stack>
-);
+  );
+};

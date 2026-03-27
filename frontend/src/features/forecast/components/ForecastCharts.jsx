@@ -22,8 +22,8 @@ export const ForecastCharts = ({ byDay, byCat }) => (
     <Grid container spacing={2} mb={3}>
         {/* Bar Chart */}
         <Grid item xs={12} md={8}>
-            <Card sx={{ p: 2.5 }}>
-                <Typography variant="caption" sx={{ color: "text.secondary", textTransform: "uppercase", letterSpacing: 1, display: "block", mb: 2 }}>
+            <Card sx={{ p: 2.5, borderRadius:"14px"}}>
+                <Typography variant="caption" sx={{ color: "text.secondary",fontSize:"14px", letterSpacing: 1, display: "block", mb: 2 }}>
                     Anomalias por Dia da Semana
                 </Typography>
                 <ResponsiveContainer width="100%" height={230}>
@@ -41,8 +41,8 @@ export const ForecastCharts = ({ byDay, byCat }) => (
 
         {/* Pie Chart */}
         <Grid item xs={12} md={4}>
-            <Card sx={{ p: 2.5, height: "100%" }}>
-                <Typography variant="caption" sx={{ color: "text.secondary", textTransform: "uppercase", letterSpacing: 1, display: "block", mb: 2 }}>
+            <Card sx={{ p: 2.5, height: "100%", borderRadius:"14px"}}>
+                <Typography variant="caption" sx={{ color: "text.secondary", fontSize:"14px", letterSpacing: 1, display: "block", mb: 2 }}>
                     Anomalias por Categoria
                 </Typography>
                 {byCat.length === 0 ? (
