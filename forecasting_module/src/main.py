@@ -1,22 +1,26 @@
-from forecasting_module.core.data_loader import load_database
-from forecasting_module.services.batch_detector import BatchDetector
+from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
 from forecasting_module.services.model_loader import ModelRegistry
+from forecasting_module.services.anomaly_service import AnomalyService
+from forecasting_module.services.batch_detector import BatchDetector
+from forecasting_module.services.anomaly_app_service import AnomalyAppService
+from forecasting_module.api.anomaly_router import create_anomaly_router
 
+app = FastAPI()
 
-# Ficaria na pasta ml_artifacs
-MODEL_PATH = "src\\forecasting_module\\ml_artifacts\\modelos_vendas_completo.pkl"
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["http://localhost:5173"],  # front
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
+MODEL_PATH = "forecasting_module/ml_artifacts/modelos_vendas_completo.pkl"
 
-def main():
-    registry = ModelRegistry(MODEL_PATH)
-    detector = BatchDetector(registry)
+registry = ModelRegistry(MODEL_PATH)
+service = AnomalyService(registry)
+detector = BatchDetector(service)
+app_service = AnomalyAppService(detector)
 
-    # Todas as movimentações de saida do produto id 32 nos ultimmos 30 dias formatados em dataframe
-    df = load_database(produto_id=32, tft_days=30)
-
-    resultado = detector.detect_dataframe(df)
-
-    print(resultado.head())
-
-if __name__ == "__main__":
-    main()
+app.include_router(create_anomaly_router(app_service))

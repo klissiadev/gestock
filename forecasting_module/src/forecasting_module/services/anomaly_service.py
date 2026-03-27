@@ -1,19 +1,28 @@
+import pandas as pd
+
 class AnomalyService:
 
     def __init__(self, model_registry):
         self.registry = model_registry
 
-    def detect(self, item_id, value, sell_price):
+    def detect(self, category, store, value, sell_price, date):
 
-        model, scaler = self.registry.get_model(item_id)
+        model, scaler = self.registry.get_model((category, store))
 
         if model is None:
             return {
-                "item_id": item_id,
+                "category": category,
+                "store": store,
                 "status": "model_not_found"
             }
 
-        X = [[value, sell_price]]
+        day_of_week = pd.to_datetime(date).dayofweek
+
+        X = pd.DataFrame([{
+                            "value": value,
+                            "sell_price": sell_price,
+                            "day_of_week": day_of_week
+                        }])
 
         X_scaled = scaler.transform(X)
 
@@ -21,7 +30,8 @@ class AnomalyService:
         score = model.decision_function(X_scaled)[0]
 
         return {
-            "item_id": item_id,
+            "category": category,
+            "store": store,
             "anomaly": int(prediction),
             "score": float(score)
         }

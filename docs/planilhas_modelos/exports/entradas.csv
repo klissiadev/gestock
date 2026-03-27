@@ -1,0 +1,16 @@
+produto_id,quantidade,data_de_compra,preco_de_compra,fornecedor
+1,100000,2026-03-01,1200,Fornecedor Alpha
+2,100000,2026-03-01,950,Fornecedor Beta
+3,100000,2026-03-01,3200,Fornecedor Gamma
+4,100000,2026-03-01,4100,Fornecedor Gamma
+5,100000,2026-03-01,2800,Fornecedor Alpha
+6,100000,2026-03-01,3900,Fornecedor Beta
+7,100000,2026-03-01,2100,Fornecedor Alpha
+8,100000,2026-03-01,1300,Fornecedor Gamma
+9,100000,2026-03-01,1800,Fornecedor Gamma
+10,100000,2026-03-01,4700,Fornecedor Beta
+11,100000,2026-03-01,2500,Fornecedor Gamma
+12,100000,2026-03-01,4600,Fornecedor Beta
+13,100000,2026-03-01,1100,Fornecedor Alpha
+14,100000,2026-03-01,4400,Fornecedor Alpha
+15,100000,2026-03-01,3000,Fornecedor Beta
