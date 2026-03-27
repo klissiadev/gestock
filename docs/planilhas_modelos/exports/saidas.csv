@@ -1,0 +1,75 @@
+produto_id,quantidade,data_de_venda,preco_de_venda,cliente
+31,149,2030-01-31,291.55,Loja Digital Prime
+32,140,2030-01-31,153.9,Empresa Corporativa Y
+34,176,2030-01-31,739.01,Tech Solutions
+36,175,2030-01-31,637.22,Empresa Corporativa Y
+31,178,2030-02-28,812.23,Marketplace Z
+32,216,2030-02-28,575.26,Central Eletrônicos
+34,292,2030-02-28,277.83,Loja Digital Prime
+35,1,2030-02-28,224.33,Distribuidora Gamer
+36,186,2030-02-28,423.88,Loja Digital Prime
+31,209,2030-03-31,153.98,Central Eletrônicos
+32,295,2030-03-31,255.75,Marketplace Z
+34,108,2030-03-31,177.94,Marketplace Z
+36,350,2030-03-31,822.72,Distribuidora Gamer
+38,98,2030-03-31,867.08,Distribuidora Gamer
+31,244,2030-04-30,323.17,Tech Solutions
+32,289,2030-04-30,893.23,Tech Solutions
+34,108,2030-04-30,328.93,Comercial Alpha
+35,28,2030-04-30,425.22,Mega Informática
+36,340,2030-04-30,690.21,Tech Solutions
+38,39,2030-04-30,251.14,Distribuidora Gamer
+31,246,2030-05-31,382.51,Empresa Corporativa Y
+32,278,2030-05-31,267.78,Marketplace Z
+34,144,2030-05-31,642.49,Empresa Corporativa Y
+35,7,2030-05-31,793.14,Distribuidora Gamer
+36,332,2030-05-31,325.94,Loja Digital Prime
+38,9,2030-05-31,851.95,Tech Solutions
+31,239,2030-06-30,409.03,Loja Tech Brasil
+32,270,2030-06-30,755.15,Loja Tech Brasil
+34,176,2030-06-30,272.5,Distribuidora Gamer
+35,69,2030-06-30,677.78,Distribuidora Gamer
+36,384,2030-06-30,458.0,Distribuidora Gamer
+38,3,2030-06-30,601.08,Marketplace Z
+31,177,2030-07-31,495.26,Comercial Alpha
+32,205,2030-07-31,613.27,Comercial Alpha
+34,72,2030-07-31,352.96,Distribuidora Gamer
+35,27,2030-07-31,444.54,Distribuidora Gamer
+36,249,2030-07-31,277.66,E-commerce X
+38,113,2030-07-31,643.55,Loja Digital Prime
+40,36,2030-07-31,280.89,Empresa Corporativa Y
+31,211,2030-08-31,838.41,Empresa Corporativa Y
+32,222,2030-08-31,230.44,Loja Digital Prime
+34,131,2030-08-31,352.92,Marketplace Z
+35,18,2030-08-31,302.69,Marketplace Z
+36,271,2030-08-31,791.74,Loja Tech Brasil
+38,24,2030-08-31,380.35,Central Eletrônicos
+40,9,2030-08-31,619.06,Loja Digital Prime
+31,227,2030-09-30,407.71,Marketplace Z
+32,266,2030-09-30,669.4,Mega Informática
+34,65,2030-09-30,684.96,Mega Informática
+35,3,2030-09-30,742.14,Tech Solutions
+36,284,2030-09-30,568.28,Empresa Corporativa Y
+38,16,2030-09-30,543.91,Central Eletrônicos
+40,86,2030-09-30,265.88,Loja Digital Prime
+31,181,2030-10-31,527.84,Loja Digital Prime
+32,220,2030-10-31,189.09,Mega Informática
+34,70,2030-10-31,375.17,Central Eletrônicos
+35,2,2030-10-31,857.77,Comercial Alpha
+36,260,2030-10-31,657.21,Empresa Corporativa Y
+38,3,2030-10-31,177.25,Distribuidora Gamer
+40,55,2030-10-31,819.49,Loja Tech Brasil
+31,325,2030-11-30,333.53,Tech Solutions
+32,348,2030-11-30,457.79,Empresa Corporativa Y
+34,10,2030-11-30,817.74,Central Eletrônicos
+35,1,2030-11-30,376.07,Marketplace Z
+36,423,2030-11-30,719.91,Mega Informática
+38,2,2030-11-30,535.03,Central Eletrônicos
+40,19,2030-11-30,701.1,Distribuidora Gamer
+31,313,2030-12-31,265.64,Comercial Alpha
+32,329,2030-12-31,760.71,Comercial Alpha
+34,82,2030-12-31,255.76,Marketplace Z
+35,1,2030-12-31,226.72,Empresa Corporativa Y
+36,409,2030-12-31,574.08,Distribuidora Gamer
+38,1,2030-12-31,604.91,Mega Informática
+40,7,2030-12-31,794.13,Central Eletrônicos
