@@ -184,6 +184,13 @@ def print_routes():
 # =========================
 from auth_module.utils.security import get_current_user, require_role
 
+
+# =========================
+# SETUP DO SISTEMA DE ANOMALIA
+# =========================
+from forecasting_module.setup import get_forecasting_router
+forecasting_router = get_forecasting_router()
+
 # =========================
 # REGISTRO DOS ROUTERS
 # =========================
@@ -206,3 +213,6 @@ app.include_router(auth_router)
 app.include_router(recovery_router)
 
 app.include_router(request_router)
+
+
+app.include_router(forecasting_router, prefix="/forecasting", tags=["Forecasting Analytics"])

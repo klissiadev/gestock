@@ -11,7 +11,7 @@ dependencies = [
     "python-dotenv (>=1.2.1,<2.0.0)",
     "fastapi[standard] (>=0.123.5,<0.124.0)",
     "psycopg2 (>=2.9.11,<3.0.0)",
-    "scikit-learn (>=1.7.2,<2.0.0)",
+    "scikit-learn (==1.6.1)",
     "langchain (>=1.1.0,<2.0.0)",
     "sqlalchemy (>=2.0.44,<3.0.0)",
     "pandas (>=2.3.3,<3.0.0)",
@@ -23,6 +23,7 @@ dependencies = [
     "llm_module",
     "auth_module",
     "request_module",
+    "forecasting-module @ file:///C:/Users/Usuario/Documents/GitHub/gestock/forecasting_module",
 ]
 
 [tool.poetry.dependencies]
