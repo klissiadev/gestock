@@ -4,8 +4,9 @@ export const MuiTableContainer = {
       backgroundColor: theme.palette.table.main,
       borderRadius: 8,
       overflow: "auto",
-      maxHeight: "100vh", 
-      boxShadow: "0px 2px 4px rgba(0,0,0,0.05)",
+      maxHeight: "100vh",
+      boxShadow: theme.shadows[3],
+      flex: 1
     }),
   },
 };

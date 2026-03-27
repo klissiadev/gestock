@@ -2,7 +2,7 @@ import {
   Box,
   Typography,
 } from "@mui/material";
-import SentimentSatisfiedIcon from '@mui/icons-material/SentimentSatisfied';
+import ChatActiveSvg from "../../../assets/icon/icon-minerva-purple.svg?react";
 
 const InitialChatLayout = () => {
   return (
@@ -21,18 +21,17 @@ const InitialChatLayout = () => {
       {/* Ícone */}
       <Box
         sx={{
-          width: 40,
-          height: 40,
+          width: 50,
+          height: 50,
           display: "flex",
           alignItems: "center",
           justifyContent: "center",
           mb: 1,
           borderRadius: '12px',
-          border: '1.5px solid',
-          borderColor: 'divider',
+          boxShadow: "6px 6px 8px rgba(80, 9, 126, 0.5)",
         }}
       >
-        <SentimentSatisfiedIcon color="black" />
+        <ChatActiveSvg/>
       </Box>
 
       <Typography variant="body2" color="text.secondary">

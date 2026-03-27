@@ -5,12 +5,12 @@ export default function SalesLineChart({ salesByMonth }) {
   return (
     <Box
       sx={{
-        p:1
+        p:1,
       }}
     >
 
       <LineChart
-        height={190}
+        height={215}
         series={[
             {
             data: salesByMonth.map((d) => d.value),

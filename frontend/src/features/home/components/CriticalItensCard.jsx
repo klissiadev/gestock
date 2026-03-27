@@ -6,13 +6,15 @@ function StatusPill({ label }) {
   return (
     <Box
       sx={{
-        bgcolor: (theme) => theme.palette.iconButton.active, 
+        bgcolor: (theme) => theme.palette.common.red, 
         borderRadius: "20px",
         fontSize: 12,
         textAlign: "center",
         minWidth: 60,
         ml:1,
-        p:1
+        p:1,
+        color: (theme) => theme.palette.common.white,
+        boxShadow: "0 4px 20px rgba(0,0,0,0.16)",
       }}
     >
       {label}
@@ -24,13 +26,14 @@ export default function CriticalItemsCard({ criticalItems }) {
   return (
     <Box
       sx={{
-        background: (theme) => theme.palette.iconButton.hover,
+        background: (theme) => theme.palette.card.background,
         borderRadius: "24px",
         py: 2,
         px:1,
         height: 440,
         width:"100%",
         overflowY: 'auto',
+        boxShadow: "0 4px 20px rgba(0,0,0,0.16)",
       }}
     >
       {/* Header */}
@@ -47,7 +50,7 @@ export default function CriticalItemsCard({ criticalItems }) {
           Itens críticos
         </Typography>
 
-        <IconButton
+        {/*<IconButton
           sx={{
             position: "absolute",
             right: 10,
@@ -59,7 +62,7 @@ export default function CriticalItemsCard({ criticalItems }) {
           }}
         >
           <NorthEastIcon />
-        </IconButton>
+        </IconButton>*/}
       </Box>
 
       {/* Cabeçalho */}

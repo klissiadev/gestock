@@ -1,20 +1,15 @@
-#carrega o modelo e os scalers para cada item_id a partir do arquivo .pkl
 import joblib
 
 class ModelRegistry:
 
     def __init__(self, model_path):
+        self.models = joblib.load(model_path)
 
-        data = joblib.load(model_path)
-        
-        print(f"DEBUG: Keys found in pickle: {data.keys() if isinstance(data, dict) else 'Not a dict'}")
+    def get_model(self, key):
 
-        self.models = data["models"]
-        self.scalers = data["scalers"]
+        data = self.models.get(key)
 
-    def get_model(self, item_id):
+        if data is None:
+            return None, None
 
-        model = self.models.get(item_id)
-        scaler = self.scalers.get(item_id)
-
-        return model, scaler
+        return data["model"], data["scaler"]

@@ -1,5 +1,5 @@
 import { Box, Typography, IconButton } from "@mui/material";  
-import BarSvg from "../../../assets/icon/iconBar.svg?react";
+import BarSvg from "../../../assets/icon/icon-historybar.svg?react";
 
 const ChatHeader = ({
   onToggleHistory,
@@ -28,7 +28,7 @@ const ChatHeader = ({
         sx={(theme) => ({
           position: "absolute",
           right: 0,
-          backgroundColor: theme.palette.iconButton.active,
+          backgroundColor: theme.palette.primary.main,
           borderRadius: "10px",
           "&:hover": {
             backgroundColor: theme.palette.action.hover,

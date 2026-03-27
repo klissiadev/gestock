@@ -10,9 +10,11 @@ const CardStock = ({ title, value, percentage, period }) => {
             py: 1,
             width: "100%",
             textAlign: "center",
-            backgroundColor: theme.palette.card.background,
+            backgroundColor: theme.palette.primary.main,
             borderRadius: 3,
-            pt:2
+            pt:2,
+            boxShadow: "0 4px 20px rgba(0,0,0,0.16)",
+            color: theme.palette.common.white
         })}
     >  
         <Typography fontSize={18} >

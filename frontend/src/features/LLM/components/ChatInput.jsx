@@ -4,7 +4,7 @@ import {
   IconButton,
   CircularProgress,
 } from "@mui/material";
-import SendIcon from "../../../assets/icon/iconUp.svg?react";
+import SendIcon from "../../../assets/icon/icon-send-purple.svg?react";
 
 const ChatInput = ({
   value,
@@ -18,14 +18,15 @@ const ChatInput = ({
         px: 1,
         borderRadius: "12px",
         border: "1px solid",
-        borderColor: "common.gray",
-        backgroundColor: "background.paper",
+        borderColor: "#000",
+        backgroundColor: (theme) => theme.palette.iconButton.hover,
         width: "100%",
         transition: "border-color 0.2s",
         "&:focus-within": {
           borderColor: "black",
         },
         mt: 2,
+        boxShadow: "0 4px 10px rgba(0, 0, 0, 0.17)",
       }}
     >
       <Box

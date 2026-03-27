@@ -40,9 +40,9 @@ class LogFetcher:
         if conditions:
             for i, (col, value) in enumerate(conditions.items()):
                 param_name = f"cond_{i}"
-                where_clauses.append(sql.SQL("{col} = %({param})s").format(
+                where_clauses.append(sql.SQL("{col} = {param}").format(
                     col=sql.Identifier(col),
-                    param=sql.Literal(param_name)
+                    param=sql.Placeholder(param_name) 
                 ))
                 params[param_name] = value
 
@@ -50,9 +50,9 @@ class LogFetcher:
             search_parts = []
             for i, col in enumerate(search_cols):
                 param_name = f"search_{i}"
-                search_parts.append(sql.SQL("{col} ILIKE %({param})s").format(
+                search_parts.append(sql.SQL("{col} ILIKE {param}").format(
                     col=sql.Identifier(col),
-                    param=sql.Literal(param_name)
+                    param=sql.Placeholder(param_name)
                 ))
                 params[param_name] = f"%{search_term}%"
 
@@ -195,10 +195,13 @@ class LogFetcher:
         
         COLUNAS = ["id", "nome", "papel", "email"]
         SEARCH_COLS = ["nome", "email"]
+
+        conditions = {"ativo": True}
         
         return self._fetch_all(
             table="app_core.usuarios",
             columns=COLUNAS,
+            conditions=conditions,
             search_term=search_term,
             search_cols=SEARCH_COLS,
             order_by=order_by,

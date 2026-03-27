@@ -176,7 +176,7 @@ export default function HomePage() {
       }}
     >
       <Box sx={{ display: "flex", gap: 2 }}>
-        <Box width={"45%"}>
+        <Box width={"50%"}>
           <Box
             sx={{
               display: "grid",
@@ -192,20 +192,21 @@ export default function HomePage() {
             <CriticalItemsCard criticalItems={EXPIRING_ITEMS} />
         </Box>
 
-        <Box sx={{ width: "55%" }}>
+        <Box sx={{ width: "50%" }}>
           <Box
             sx={{
               width: "100%",
-              backgroundColor:  (theme) => theme.palette.iconButton.hover,
+              backgroundColor: (theme) => theme.palette.common.white,
               borderRadius: 3,
               mb: 2,
               p: 2,
+              boxShadow: "0 4px 20px rgba(0,0,0,0.16)",
             }}
           >
             <Typography
               fontSize={18}
               textAlign="center"
-              sx={{ mb: 2, fontWeight: 500 }}
+              sx={{ my: 2, fontWeight: 500 }}
             >
               Meses com mais vendas
             </Typography>
@@ -218,7 +219,7 @@ export default function HomePage() {
               <FinancialBarChart data={FINANCIAL_DATA} />
             )}
 
-            <Box sx={{ display: "flex", gap: 2, mb: 2, width:"30%", height:"20px", ml:4}}>
+            <Box sx={{ display: "flex", gap: 2, mb: 2, width:"40%", height:"20px", ml:4}}>
               <Button
                 sx={viewType === "quantidade" ? accept_button : cancel_button}
                 onClick={() => setViewType("quantidade")}

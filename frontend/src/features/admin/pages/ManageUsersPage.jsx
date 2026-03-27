@@ -1,20 +1,70 @@
-import React, { useCallback } from 'react'
-import { Box, Stack, Avatar } from "@mui/material";
+import { Stack, Box, Chip } from "@mui/material";
 import TopBar from "../components/TopBar";
 import CustomTable from '../components/CustomTable';
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { useHeader } from "../../../HeaderContext";
-import UserSvg from "../../../assets/icon/iconTeam.svg?react";
 
-import PersonOutlineIcon from "@mui/icons-material/PersonOutline";
-import EditSvg from "../../../assets/icon/iconEdit.svg?react";
+import UserSvg from "../../../assets/icon/iconTeam.svg?react";
 import DeleteSvg from "../../../assets/icon/iconDelete.svg?react";
+import useDebounce from '../../../hooks/useDebounce';
 
 import { fetchUser, deleteUser } from '../services/fetchImportLogs';
+import UserCell from '../components/UserCell';
+
+// --- CONFIGURAÇÕES ESTÁTICAS ---
+const ORDER_OPTIONS = [
+  { value: "nome_asc", label: "Nome (A-Z)" },
+  { value: "nome_desc", label: "Nome (Z-A)" },
+];
+
+const COLUMNS = [
+  {
+    field: "nome",
+    header: "Funcionário",
+    render: (row) => (<UserCell nome={row.nome} />),
+  },
+  {
+    field: "email",
+    header: "Email",
+    render: (row) => (
+      <Box sx={{ color: 'text.secondary', fontSize: '0.875rem' }}>
+        {row.email}
+      </Box>
+    )
+  },
+  {
+    field: "papel",
+    header: "Função",
+    render: (row) => (
+      <Chip
+        label={row.papel}
+        size="small"
+        variant="outlined"
+        sx={{ padding: 1 }}
+      />
+    )
+  },
+];
 
 const UsersPage = () => {
   const { setHeaderConfig } = useHeader();
 
+  // Estados
+  const [users, setUsers] = useState([]);
+  const [total, setTotal] = useState(0);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
+  const [filters, setFilters] = useState({
+    search_term: "",
+    order_by: "",
+    direction: "DESC"
+  });
+
+  console.log(filters);
+
+  const debouncedSearch = useDebounce(filters.search_term, 500);
+
+  // Sincronização do header
   useEffect(() => {
     setHeaderConfig((prev) => ({
       ...prev,
@@ -29,105 +79,56 @@ const UsersPage = () => {
     };
   }, [setHeaderConfig]);
 
-
-  const [filters, setFilters] = useState({
-    search_term: "",
-    order_by: "",
-    direction: "DESC"
-  });
-
-  const handleFilterChange = (name, value) => {
-    setFilters((prev) => ({
-      ...prev,
-      [name]: value,
-    }));
-
-    console.log("Filtro alterado:", name, value);
-  };
-
-  const rows = [
-    {
-      id: 1,
-      nome: "Nome Sobrenome",
-      email: "nome_sobrenome@gmail.com",
-      funcao: "Administrador",
-    },
-    {
-      id: 2,
-      nome: "Nome Sobrenome",
-      email: "nome_sobrenome@gmail.com",
-      funcao: "Técnico de Manutenção",
-    },
-  ];
-
-  const orderOptions = [
-    { value: "name_asc", label: "Nome (A-Z)" },
-    { value: "name_desc", label: "Nome (Z-A)" },
-  ];
-
-  const columns = [
-    {
-      field: "nome",
-      header: "Funcionário",
-      render: (row) => (
-        <Box display="flex" alignItems="center" gap={2} justifyContent="center">
-          <Avatar
-            sx={{
-              width: 36,
-              height: 36,
-              backgroundColor: "#EAEAEA",
-              color: "#555",
-            }}
-          >
-            <PersonOutlineIcon fontSize="small" />
-          </Avatar>
-          {row.nome}
-        </Box>
-      ),
-    },
-    { field: "email", header: "Email" },
-    { field: "funcao", header: "Função" },
-  ];
-
-  const [users, setUsers] = useState([]);
-  const [total, setTotal] = useState(0);
-  const [loading, setLoading] = useState(false);
-
+  // Sincronização dos usuarios
   const loadUsers = useCallback(async () => {
     setLoading(true);
+    setError(null);
     try {
-      const data = await fetchUser(filters);
-      // Mapeia o campo "logs" do JSON para o nosso estado
+      const [col, dir] = filters.order_by.split("_");
+
+      const data = await fetchUser({
+        search_term: debouncedSearch,
+        order_by: col || "created_at",
+        direction: dir?.toUpperCase() || "DESC"
+      });
+
       setUsers(data.logs || []);
       setTotal(data.total || 0);
     } catch (err) {
-      console.error("Erro ao carregar usuários:", err);
+      setError("Não foi possível carregar os usuários.");
+      console.error(err);
     } finally {
       setLoading(false);
     }
-  }, [filters]);
+  }, [debouncedSearch, filters.order_by, filters.direction]);
 
   useEffect(() => {
     loadUsers();
   }, [loadUsers]);
 
 
-  const actions = [
-    /* 
-    
-    {
-      icon: <EditSvg width={18} height={18} />,
-      onClick: (row) => {
-        console.log("Editar usuário:", row);
-      },
-    },
+  // Handlers
+  const handleFilterChange = (name, value) => {
+    setFilters(prev => ({ ...prev, [name]: value }));
+  };
 
-    */
+  const handleDelete = async (user) => {
+    if (window.confirm(`Deseja realmente remover ${user.nome}?`)) {
+      try {
+        await deleteUser(user.id);
+        loadUsers(); // Recarrega a lista após deletar
+      } catch (err) {
+        console.error("Erro ao deletar:", err);
+      }
+    }
+  };
+
+  const actions = [
     {
       icon: <DeleteSvg width={18} height={18} />,
       onClick: (row) => {
         console.log("Excluir usuário:", row);
-        deleteUser(row.id);
+        handleDelete(row);
       },
     },
   ];
@@ -149,14 +150,15 @@ const UsersPage = () => {
         icon={UserSvg}
         filters={filters}
         onFilterChange={handleFilterChange}
-        orderOptions={orderOptions}
+        orderOptions={ORDER_OPTIONS}
         searchPlaceholder="Buscar usuário..."
       />
 
       <CustomTable
-        columns={columns}
+        columns={COLUMNS}
         rows={users}
         actions={actions}
+        loading={loading}
       />
     </Stack>
   )

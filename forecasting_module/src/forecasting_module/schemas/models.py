@@ -22,3 +22,4 @@ class PontoGrafico(BaseModel):
 class ProdutoDropdown(BaseModel):
     id: int
     nome: str
+    
